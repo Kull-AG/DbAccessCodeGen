@@ -28,13 +28,18 @@ namespace DbAccessCodeGen
             description: "The config file")
         {
             Argument = new Argument<FileInfo>().ExistingOnly()
+        },
+        new Option<string> (
+            new string[] {"--connectionString", "cs"},
+            description: "The connection string"
+            )
         }
-    }
             ;
-            rootCommand.Handler = CommandHandler.Create<FileInfo>(async (config) =>
+            rootCommand.Handler = CommandHandler.Create<FileInfo, string>(async (config, connectionString) =>
             {
                 var content = await System.IO.File.ReadAllTextAsync(config.FullName);
                 var settings = JsonSerializer.Deserialize<Configuration.Settings>(content);
+                settings.ConnectionString = connectionString ?? settings.ConnectionString;
                 await ExecuteCodeGen(settings);
             });
 

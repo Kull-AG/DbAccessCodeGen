@@ -19,7 +19,7 @@ protected {{ResultType}} {{MethodName}}_FromRecord(IDataRecord row, in {{MethodN
 }
 {{end}}
 
-
+{{if GenerateAsyncCode}}
 {{if ParameterTypeName}}
 public Task<IReadOnlyCollection<{{ResultType}}>> {{MethodName}}Async ({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.CSPropertyName}}{{if !for.last}}, {{ end }}{{end}})
 {
@@ -59,7 +59,8 @@ public async Task<IReadOnlyCollection<{{ResultType}}>> {{MethodName}}Async ({{if
 	OnCommandEnd(cmd, start);
 	return results;
 }
-
+{{end}}
+{{if GenerateSyncCode}}
 {{if ParameterTypeName}}
 public IReadOnlyCollection<{{ResultType}}> {{MethodName}} ({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.CSPropertyName}}{{if !for.last}}, {{ end }}{{end}})
 {
@@ -99,3 +100,4 @@ public IReadOnlyCollection<{{ResultType}}> {{MethodName}} ({{if ParameterTypeNam
 	OnCommandEnd(cmd, start);
 	return results;
 }
+{{end}}

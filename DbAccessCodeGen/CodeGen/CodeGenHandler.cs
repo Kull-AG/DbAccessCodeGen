@@ -147,7 +147,9 @@ namespace DbAccessCodeGen.CodeGen
                 Parameters = parameterModel?.Properties ?? Array.Empty<ModelProperty>(),
                 MethodName = codeGenPrm.MethodName,
                 SqlName = codeGenPrm.SqlName,
-                ParameterTypeName = codeGenPrm.ParameterTypeName
+                ParameterTypeName = codeGenPrm.ParameterTypeName,
+                settings.GenerateAsyncCode,
+                settings.GenerateSyncCode
             }, memberRenamer: member => member.Name);
             serviceMethod = serviceMethod.Replace("\t", "    ");
             serviceMethod = string.Join("\r\n", serviceMethod.Split("\r\n").Select(s => "    " + s));
