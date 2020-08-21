@@ -1,0 +1,17 @@
+[
+  {
+    "Name": "PlanningSubTypeId",
+    "TypeName": "bigint",
+    "IsNullable": false
+  },
+  {
+    "Name": "PlanningSubTypeName",
+    "TypeName": "nvarchar",
+    "IsNullable": true
+  },
+  {
+    "Name": "PlanningTypeId",
+    "TypeName": "bigint",
+    "IsNullable": true
+  }
+]

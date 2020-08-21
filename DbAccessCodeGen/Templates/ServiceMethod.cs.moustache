@@ -1,0 +1,101 @@
+﻿{{if ResultFields}}
+protected readonly struct {{MethodName}}Ordinals
+{
+	{{ for res in ResultFields }}public readonly int {{ res.CSPropertyName }};
+	{{ end }}	
+
+	public {{MethodName}}Ordinals({{ for prop in ResultFields }}int {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{ end }})
+	{
+		{{ for prop in ResultFields }}{{prop.CSPropertyName}} = {{prop.ParameterName}};
+		{{ end }}		
+	}
+}
+
+protected {{ResultType}} {{MethodName}}_FromRecord(IDataRecord row, in {{MethodName}}Ordinals ordinals) 
+{
+	return new {{ResultType}}(
+		{{ for prop in ResultFields }}{{prop.ParameterName}}: {{prop.GetCode}}{{if !for.last}}, {{ end }}{{ end }}
+		);
+}
+{{end}}
+
+
+{{if ParameterTypeName}}
+public Task<IReadOnlyCollection<{{ResultType}}>> {{MethodName}}Async ({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.CSPropertyName}}{{if !for.last}}, {{ end }}{{end}})
+{
+	return {{MethodName}}Async(new {{ParameterTypeName}}({{ for prop in Parameters }}{{prop.ParameterName}}: {{prop.CSPropertyName}}{{if !for.last}}, {{ end }}
+		{{end}}));
+}
+{{end}}
+
+public async Task<IReadOnlyCollection<{{ResultType}}>> {{MethodName}}Async ({{if ParameterTypeName}} {{ParameterTypeName}} parameters{{end}})
+{
+    var cmd = connection.CreateCommand();
+	if(connection.State != ConnectionState.Open) 
+	{
+		await connection.OpenAsync();
+	}
+	cmd.CommandType = CommandType.StoredProcedure;
+	cmd.CommandText = "{{SqlName}}";
+	{{ for prop in Parameters }}this.AddCommandParameter(cmd, "{{prop.SqlName}}", parameters.{{ prop.CSPropertyName }}, ParameterDirection.{{ prop.ParameterDirection }});
+	{{ end }}
+	DateTime start = DateTime.Now;
+	OnCommandStart(cmd, start);
+	using var rdr = await cmd.ExecuteReaderAsync();
+	{{if ResultFields}}
+	var ordinals = new {{MethodName}}Ordinals(
+		{{ for prop in ResultFields }}{{prop.ParameterName}}: rdr.GetOrdinal("{{prop.SqlName}}") {{if !for.last}}, {{ end }}{{ end }}
+	);
+	{{else}}
+	int fieldCount = rdr.FieldCount;
+	{{end}}
+	List<{{ResultType}}> results = new List<{{ResultType}}>();
+	while(await rdr.ReadAsync())
+	{
+		{{if ResultFields}}results.Add({{MethodName}}_FromRecord(rdr, ordinals));
+		{{else}}results.Add(ReadDictionary(rdr, fieldCount));
+		{{end}}
+	}
+	OnCommandEnd(cmd, start);
+	return results;
+}
+
+{{if ParameterTypeName}}
+public IReadOnlyCollection<{{ResultType}}> {{MethodName}} ({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.CSPropertyName}}{{if !for.last}}, {{ end }}{{end}})
+{
+	return {{MethodName}}(new {{ParameterTypeName}}({{ for prop in Parameters }}{{prop.ParameterName}}: {{prop.CSPropertyName}}{{if !for.last}}, {{ end }}
+	{{end}}));
+}
+{{end}}
+
+public IReadOnlyCollection<{{ResultType}}> {{MethodName}} ({{if ParameterTypeName}}{{ParameterTypeName}} parameters{{end}})
+{
+    var cmd = connection.CreateCommand();
+	if(connection.State != ConnectionState.Open) 
+	{
+		connection.Open();
+	}
+	cmd.CommandType = CommandType.StoredProcedure;
+	cmd.CommandText = "{{SqlName}}";
+	{{ for prop in Parameters }}this.AddCommandParameter(cmd, "{{prop.SqlName}}", parameters.{{ prop.CSPropertyName }}, ParameterDirection.{{ prop.ParameterDirection }});
+	{{ end }}
+	DateTime start = DateTime.Now;
+	OnCommandStart(cmd, start);
+	using var rdr = cmd.ExecuteReader();
+	{{if ResultFields}}
+	var ordinals = new {{MethodName}}Ordinals(
+		{{ for prop in ResultFields }}{{prop.ParameterName}}: rdr.GetOrdinal("{{prop.SqlName}}") {{if !for.last}}, {{ end }}{{ end }}
+	);
+	{{else}}
+	int fieldCount = rdr.FieldCount;
+	{{end}}
+	List<{{ResultType}}> results = new List<{{ResultType}}>();
+	while(rdr.Read())
+	{
+		{{if ResultFields}}results.Add({{MethodName}}_FromRecord(rdr, in ordinals));
+		{{else}}results.Add(ReadDictionary(rdr, fieldCount));
+		{{end}}
+	}
+	OnCommandEnd(cmd, start);
+	return results;
+}

@@ -1,0 +1,14 @@
+﻿{
+  
+  "OutputDir": "../DbCode.Test/DbAccess",
+  "Namespace": "DbCode.Test",
+  "Procedures": [
+    "bfm.spGetFinancialPeriods",
+    "bfm.spGetSaldo",
+    "bfm.spGetForeCastData",
+    "bfm.spGetPlanningSubTypes",
+    "bfm.spGetBudgetData",
+    "bfm.spGetBudgetDataV2",
+    "bfm.spGetForeCastDataV2"
+  ]
+}

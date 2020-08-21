@@ -1,0 +1,22 @@
+[
+  {
+    "Name": "FinPeriod",
+    "TypeName": "varchar",
+    "IsNullable": false
+  },
+  {
+    "Name": "IsDefault",
+    "TypeName": "bit",
+    "IsNullable": true
+  },
+  {
+    "Name": "FirstInPeriod",
+    "TypeName": "date",
+    "IsNullable": false
+  },
+  {
+    "Name": "LastInPeriod",
+    "TypeName": "date",
+    "IsNullable": false
+  }
+]
