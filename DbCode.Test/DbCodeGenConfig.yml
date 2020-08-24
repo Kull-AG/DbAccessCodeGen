@@ -1,0 +1,17 @@
+﻿---
+OutputDir: "DbAccess"
+Namespace: DbCode.Test
+Procedures:
+ - dbo.spGetPets
+ - dbo.spGetPet
+ - dbo.spAddPet
+ - dbo.spDeletePet
+ - dbo.spUpdatePet
+ - dbo.spUpdateDog
+ - dbo.spSearchPets
+ - dbo.spTestBackend
+ - dbo.spTestNoColumnName
+ - dbo.spTestDate
+ - dbo.spBuggyProc
+ - dbo.spUserNotPermitted
+ - dbo.spFile

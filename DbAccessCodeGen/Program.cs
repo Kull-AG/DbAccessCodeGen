@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using System.Data.Common;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
+using DbAccessCodeGen.Configuration;
 
 namespace DbAccessCodeGen
 {
@@ -40,9 +41,12 @@ namespace DbAccessCodeGen
             rootCommand.Handler = CommandHandler.Create<FileInfo, string>(async (config, connectionString) =>
             {
                 var content = await System.IO.File.ReadAllTextAsync(config.FullName);
-                var settings = JsonSerializer.Deserialize<Configuration.Settings>(content);
+                var deserializer = new YamlDotNet.Serialization.DeserializerBuilder()
+                    .WithNamingConvention(YamlDotNet.Serialization.NamingConventions.NullNamingConvention.Instance)
+                    .Build();
+                var settings = deserializer.Deserialize<Settings>(content);
                 settings.ConnectionString = connectionString ?? settings.ConnectionString;
-                if(settings.ConnectionString==null)
+                if (settings.ConnectionString == null)
                 {
                     Console.Error.WriteLine("Must provide connection string");
                     Environment.Exit(-1);
@@ -60,14 +64,14 @@ namespace DbAccessCodeGen
             //setup our DI
             var services = new ServiceCollection();
 
-            services.AddLogging(l=>
+            services.AddLogging(l =>
             {
                 l.AddConsole();
                 l.SetMinimumLevel(LogLevel.Debug);
             });
             services.AddKullDatabaseMetadata();
             services.AddSingleton(settings);
-            services.AddSingleton<Configuration.NamingHandler>();
+            services.AddSingleton<Configuration.NamingHandler, Configuration.NamingHandlerConfiguratable>();
             services.AddTransient<CodeGen.Executor>();
             services.AddTransient<CodeGen.CodeGenHandler>();
             services.AddTransient<CodeGen.SqlTypeMapper>();
@@ -83,7 +87,7 @@ namespace DbAccessCodeGen
 
         public static Task ExecuteCodeGen(Configuration.Settings settings)
         {
-            var sp =RegisterServices(settings);
+            var sp = RegisterServices(settings);
             var executor = sp.GetRequiredService<CodeGen.Executor>();
             return executor.Execute();
         }

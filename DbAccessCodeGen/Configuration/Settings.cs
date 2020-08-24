@@ -16,5 +16,10 @@ namespace DbAccessCodeGen.Configuration
         public bool GenerateSyncCode { get; set; } = false;
 
         public string? TemplateDir { get; set; }
+
+        /// <summary>
+        /// Path to a javascript file containing naming convention.
+        /// </summary>
+        public string? NamingJS { get; set; }
     }
 }

@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "DbCode.Test": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "APP_IDENTITY": "a.ehrsam@hotmail.com",
+        "CONSTR": "data source=muchmoreinsight.database.windows.net;initial catalog=muchmoreinsight;user id=BFMWebuser;password=bhtwr!%£$d23S;MultipleActiveResultSets=True;App=RMADisplayer"
+      }
+    }
+  }
+}

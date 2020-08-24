@@ -1,2 +1,3 @@
 DbAccess
-launchSettings.json
+*.mdf
+*.ldf

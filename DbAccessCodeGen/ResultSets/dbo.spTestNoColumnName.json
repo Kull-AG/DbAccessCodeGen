@@ -1,0 +1,12 @@
+[
+  {
+    "Name": null,
+    "TypeName": "datetime",
+    "IsNullable": false
+  },
+  {
+    "Name": null,
+    "TypeName": "varchar",
+    "IsNullable": false
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DbAccessCodeGen": {
+      "commandName": "Project",
+      "commandLineArgs": "--config DbCodeGenConfig.yml"
+    }
+  }
+}

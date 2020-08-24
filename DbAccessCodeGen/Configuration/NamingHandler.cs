@@ -20,16 +20,22 @@ namespace DbAccessCodeGen.Configuration
 
         public virtual Identifier GetIdentifierForUserDefinedType(DBObjectName type)
         {
-            return new Identifier(settings.Namespace + ".TVP", GetCSName(type.Name));
+            return new Identifier(settings.Namespace + ".UDT", GetCSName(type.Name));
         }
 
+        public bool isCSharpKeyword(string name) => csharpKeywords.Contains(name);
 
-        public string GetParameterName(string csName)
+        public virtual string GetParameterName(string csName)
         {
             string lowerCase = csName[0].ToString().ToLower() + csName.Substring(1);
-            if (csharpKeywords.Contains(lowerCase))
+            if (isCSharpKeyword(lowerCase))
                 return "@" + lowerCase;
             return lowerCase;
+        }
+
+        public virtual string MakeIdentifierValid(string identifier)
+        {
+            return identifier.Replace(" ", "").Replace("-", "");
         }
 
         protected virtual string GetCSName(string sqlName)
@@ -39,7 +45,7 @@ namespace DbAccessCodeGen.Configuration
                 return upperCase;
             else
             {
-                upperCase = upperCase.Replace(" ", "").Replace("-", "");
+                upperCase = MakeIdentifierValid(upperCase); 
                 if (!Microsoft.CodeAnalysis.CSharp.SyntaxFacts.IsValidIdentifier(upperCase))
                     throw new ArgumentException("Cannot handle " + upperCase);
                 return upperCase;

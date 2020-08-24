@@ -18,6 +18,8 @@ namespace DbAccessCodeGen.CodeGen
 {
     public class CodeGenHandler
     {
+        public const string Disclaimer = "// This is generated code. Never ever edit this!\r\n\r\n";
+
         protected readonly Dictionary<string, string> IntegratedTypeMap = new Dictionary<string, string>()
         {
             { "System.Boolean", "bool" },
@@ -112,9 +114,9 @@ namespace DbAccessCodeGen.CodeGen
                 ).ToArray()) : null;
             if (parameterModel != null)
                 modelsToGenerate.Add(parameterModel);
-            Model? resultModel = codeGenPrm.ResultFields != null && codeGenPrm.ResultFields.Any() ? new Model(
+            Model? resultModel = codeGenPrm.ResultFields != null && codeGenPrm.ResultFields.Any(r => r.Name != null) && codeGenPrm.ResultFields.Any() ? new Model(
                 codeGenPrm.ResultType!,
-                codeGenPrm.ResultFields.Select(s => GetModelProperty(s)
+                codeGenPrm.ResultFields.Where(r => r.Name != null).Select(s => GetModelProperty(s)
                 ).ToArray()) : null;
             if (resultModel != null)
                 modelsToGenerate.Add(resultModel);
@@ -146,7 +148,7 @@ namespace DbAccessCodeGen.CodeGen
                 var str = await modelTemplate.RenderAsync(m, memberRenamer: member => member.Name);
                 str = str.Replace("\t", "    ");
                 var (fullOutDir, fileName) = GetPaths(m.Name, true);
-                await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(fullOutDir, fileName), str);
+                await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(fullOutDir, fileName), Disclaimer + str);
             }
             var serviceMethod = await serviceMethodTemplate.RenderAsync(new
             {
@@ -199,7 +201,7 @@ namespace DbAccessCodeGen.CodeGen
                 Methods = methodsString
             }, memberRenamer: m => m.Name);
             var (fullOutDir, fileName) = GetPaths(serviceClassName, true);
-            await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(fullOutDir, fileName), serviceString);
+            await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(fullOutDir, fileName), Disclaimer + serviceString);
         }
 
         private ModelProperty GetModelProperty(SPParameter s)

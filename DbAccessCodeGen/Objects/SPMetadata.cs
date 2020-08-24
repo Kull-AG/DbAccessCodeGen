@@ -1,6 +1,7 @@
 ﻿using Kull.Data;
 using Kull.DatabaseMetadata;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DbAccessCodeGen.Objects
 {
@@ -9,7 +10,7 @@ namespace DbAccessCodeGen.Objects
         public IReadOnlyCollection<SPParameter> Parameters { get; }
         public IReadOnlyCollection<SqlFieldDescription>? ResultFields { get; }
 
-        
+
         public DBObjectName SqlName { get; }
 
         public string MethodName { get; }
@@ -24,10 +25,10 @@ namespace DbAccessCodeGen.Objects
         {
             this.SqlName = name;
             this.Parameters = parameters;
-            this.ResultFields = fields.Count == 0 ? null : fields;
+            this.ResultFields = fields.Count(f => f.Name != null) == 0 ? null : fields;
             this.MethodName = methodName;
-            this.ResultType = fields.Count == 0 ? new Identifier("", "Dictionary<string, object?>") : resultType;
-            this.ParameterTypeName = parameters.Count == 0 ? null: parameterTypeName;
+            this.ResultType = fields.Count(f => f.Name != null) == 0 ? new Identifier("", "Dictionary<string, object?>") : resultType;
+            this.ParameterTypeName = parameters.Count == 0 ? null : parameterTypeName;
         }
     }
 

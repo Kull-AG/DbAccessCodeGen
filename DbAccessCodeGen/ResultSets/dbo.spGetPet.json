@@ -1,0 +1,22 @@
+[
+  {
+    "Name": "PetId",
+    "TypeName": "int",
+    "IsNullable": false
+  },
+  {
+    "Name": "PetName",
+    "TypeName": "varchar",
+    "IsNullable": true
+  },
+  {
+    "Name": "IsNice",
+    "TypeName": "bit",
+    "IsNullable": true
+  },
+  {
+    "Name": "ts",
+    "TypeName": "timestamp",
+    "IsNullable": false
+  }
+]
