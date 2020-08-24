@@ -6,13 +6,15 @@ namespace DbAccessCodeGen.Configuration
 {
     public class Settings
     {
-        public string ConnectionString { get; set; }
-        public string Namespace { get; set; }
-        public string[] Procedures { get; set; }
+        public string? ConnectionString { get; set; } 
+        public string Namespace { get; set; } = "DbAccess";
+        public string[] Procedures { get; set; } = new string[] { };
 
-        public string OutputDir { get; set; }
+        public string OutputDir { get; set; } = "DbAccess";
 
         public bool GenerateAsyncCode { get; set; } = true;
         public bool GenerateSyncCode { get; set; } = false;
+
+        public string? TemplateDir { get; set; }
     }
 }

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System.Data.Common;
 using Microsoft.Extensions.Hosting;
+using System.Linq;
 
 namespace DbAccessCodeGen
 {
@@ -18,6 +19,7 @@ namespace DbAccessCodeGen
     {
         static void Main(string[] args)
         {
+
             if (!DbProviderFactories.TryGetFactory("System.Data.SqlClient", out var _))
                 DbProviderFactories.RegisterFactory("System.Data.SqlClient", System.Data.SqlClient.SqlClientFactory.Instance);
 
@@ -40,6 +42,11 @@ namespace DbAccessCodeGen
                 var content = await System.IO.File.ReadAllTextAsync(config.FullName);
                 var settings = JsonSerializer.Deserialize<Configuration.Settings>(content);
                 settings.ConnectionString = connectionString ?? settings.ConnectionString;
+                if(settings.ConnectionString==null)
+                {
+                    Console.Error.WriteLine("Must provide connection string");
+                    Environment.Exit(-1);
+                }
                 await ExecuteCodeGen(settings);
             });
 

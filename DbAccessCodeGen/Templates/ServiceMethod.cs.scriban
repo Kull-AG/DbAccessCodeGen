@@ -21,14 +21,14 @@ protected {{ResultType}} {{MethodName}}_FromRecord(IDataRecord row, in {{MethodN
 
 {{if GenerateAsyncCode}}
 {{if ParameterTypeName}}
-public Task<IReadOnlyCollection<{{ResultType}}>> {{MethodName}}Async ({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.CSPropertyName}}{{if !for.last}}, {{ end }}{{end}})
+public IAsyncEnumerable<{{ResultType}}> {{MethodName}}Async ({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.CSPropertyName}}{{if !for.last}}, {{ end }}{{end}})
 {
 	return {{MethodName}}Async(new {{ParameterTypeName}}({{ for prop in Parameters }}{{prop.ParameterName}}: {{prop.CSPropertyName}}{{if !for.last}}, {{ end }}
 		{{end}}));
 }
 {{end}}
 
-public async Task<IReadOnlyCollection<{{ResultType}}>> {{MethodName}}Async ({{if ParameterTypeName}} {{ParameterTypeName}} parameters{{end}})
+public async IAsyncEnumerable<{{ResultType}}> {{MethodName}}Async ({{if ParameterTypeName}} {{ParameterTypeName}} parameters{{end}})
 {
     var cmd = connection.CreateCommand();
 	if(connection.State != ConnectionState.Open) 
@@ -49,27 +49,25 @@ public async Task<IReadOnlyCollection<{{ResultType}}>> {{MethodName}}Async ({{if
 	{{else}}
 	int fieldCount = rdr.FieldCount;
 	{{end}}
-	List<{{ResultType}}> results = new List<{{ResultType}}>();
 	while(await rdr.ReadAsync())
 	{
-		{{if ResultFields}}results.Add({{MethodName}}_FromRecord(rdr, ordinals));
-		{{else}}results.Add(ReadDictionary(rdr, fieldCount));
+		{{if ResultFields}}yield return {{MethodName}}_FromRecord(rdr, ordinals);
+		{{else}}yield return ReadDictionary(rdr, fieldCount);
 		{{end}}
 	}
 	OnCommandEnd(cmd, start);
-	return results;
 }
 {{end}}
 {{if GenerateSyncCode}}
 {{if ParameterTypeName}}
-public IReadOnlyCollection<{{ResultType}}> {{MethodName}} ({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.CSPropertyName}}{{if !for.last}}, {{ end }}{{end}})
+public IEnumerable<{{ResultType}}> {{MethodName}} ({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.CSPropertyName}}{{if !for.last}}, {{ end }}{{end}})
 {
 	return {{MethodName}}(new {{ParameterTypeName}}({{ for prop in Parameters }}{{prop.ParameterName}}: {{prop.CSPropertyName}}{{if !for.last}}, {{ end }}
 	{{end}}));
 }
 {{end}}
 
-public IReadOnlyCollection<{{ResultType}}> {{MethodName}} ({{if ParameterTypeName}}{{ParameterTypeName}} parameters{{end}})
+public IEnumerable<{{ResultType}}> {{MethodName}} ({{if ParameterTypeName}}{{ParameterTypeName}} parameters{{end}})
 {
     var cmd = connection.CreateCommand();
 	if(connection.State != ConnectionState.Open) 
@@ -90,14 +88,12 @@ public IReadOnlyCollection<{{ResultType}}> {{MethodName}} ({{if ParameterTypeNam
 	{{else}}
 	int fieldCount = rdr.FieldCount;
 	{{end}}
-	List<{{ResultType}}> results = new List<{{ResultType}}>();
 	while(rdr.Read())
 	{
-		{{if ResultFields}}results.Add({{MethodName}}_FromRecord(rdr, in ordinals));
-		{{else}}results.Add(ReadDictionary(rdr, fieldCount));
+		{{if ResultFields}}yield return {{MethodName}}_FromRecord(rdr, in ordinals);
+		{{else}}yield return ReadDictionary(rdr, fieldCount);
 		{{end}}
 	}
 	OnCommandEnd(cmd, start);
-	return results;
 }
 {{end}}

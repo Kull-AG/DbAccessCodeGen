@@ -50,9 +50,9 @@ namespace DbAccessCodeGen.CodeGen
 
         private object templateLock = new object();
         private volatile bool tempalteParsed = false;
-        public string ModelFileTemplate;
-        public string ServiceClassTemplate;
-        public string ServiceMethodTemplate;
+        public string? ModelFileTemplate;
+        public string? ServiceClassTemplate;
+        public string? ServiceMethodTemplate;
 
 
         public CodeGenHandler(IServiceProvider serviceProvider, Configuration.Settings settings, ILogger<CodeGenHandler> logger,
@@ -80,9 +80,9 @@ namespace DbAccessCodeGen.CodeGen
                     logger.LogDebug("Read template files");
                     if (tempalteParsed == false)
                     {
-                        ModelFileTemplate = System.IO.File.ReadAllText("Templates/ModelFile.cs.moustache");
-                        ServiceClassTemplate = System.IO.File.ReadAllText("Templates/ServiceClass.cs.moustache");
-                        ServiceMethodTemplate = System.IO.File.ReadAllText("Templates/ServiceMethod.cs.moustache");
+                        ModelFileTemplate = GetTemplate("ModelFile", Templates.DefaultTemplates.ModelFileTemplate);
+                        ServiceClassTemplate = GetTemplate("ServiceClass", Templates.DefaultTemplates.ServiceClassTemplate);
+                        ServiceMethodTemplate = GetTemplate("ServiceMethod", Templates.DefaultTemplates.ServiceMethodTemplate);
                         tempalteParsed = true;
                     }
                     logger.LogDebug("Finished Read template files");
@@ -90,6 +90,14 @@ namespace DbAccessCodeGen.CodeGen
             }
         }
 
+        private string GetTemplate(string name, string defaultTemplate)
+        {
+            var folderPath = settings.TemplateDir == null ? "Templates" : settings.TemplateDir;
+            string fullName = System.IO.Path.Combine(folderPath, name + ".cs.scriban");
+            if (System.IO.File.Exists(fullName))
+                return System.IO.File.ReadAllText(fullName);
+            return defaultTemplate;
+        }
 
         public async Task ExecuteCodeGen(SPMetadata codeGenPrm, ChannelWriter<(string name, string template)> methods)
         {
@@ -189,7 +197,7 @@ namespace DbAccessCodeGen.CodeGen
             {
                 Name = serviceClassName,
                 Methods = methodsString
-            }, memberRenamer: m=>m.Name);
+            }, memberRenamer: m => m.Name);
             var (fullOutDir, fileName) = GetPaths(serviceClassName, true);
             await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(fullOutDir, fileName), serviceString);
         }
