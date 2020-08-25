@@ -11,27 +11,27 @@ For all platforms, System.Linq.Async might be helpful
 
 ## Requirements / configuration
 
-Create a file called DbCodeGenConfig.json and configure your must important settings:
+Create a file called DbCodeGenConfig.yml and configure your must important settings:
 
-```json
-{
-  "GenerateAsyncCode": true,
-  "GenerateSyncCode": false,
-  "TemplateDir": "./Templates", 
-  "OutputDir": "../DbCode.Test/DbAccess",
-  "Namespace": "DbCode.Test",
-  "Procedures": [
-    "bfm.spGetFinancialPeriods",
-    "bfm.spGetSaldo",
-    "bfm.spGetForeCastData",
-    "bfm.spGetPlanningSubTypes",
-    "bfm.spGetBudgetData",
-    "bfm.spGetBudgetDataV2",
-    "bfm.spGetForeCastDataV2"
-  ]
-}```
+```yaml
+---
+GenerateAsyncCode: true
+GenerateSyncCode: false
+TemplateDir: "./Templates"
+OutputDir: "../DbCode.Test/DbAccess"
+Namespace: DbCode.Test
+Procedures:
+- bfm.spGetFinancialPeriods
+- bfm.spGetSaldo
+- bfm.spGetForeCastData
+- bfm.spGetPlanningSubTypes
+- bfm.spGetBudgetData
+- bfm.spGetBudgetDataV2
+- bfm.spGetForeCastDataV2
 
-The template dir allows you to overwrite the templates used, the default ones are in the (DbAccessCodeGen/Templates)[DbAccessCodeGen/Templates] folder.
+```
+
+The template dir allows you to overwrite the templates used, the default ones are in the [DbAccessCodeGen/Templates](DbAccessCodeGen/Templates) folder.
 
 You must provide the config location via --config parameter
 
@@ -68,7 +68,7 @@ They parameters are always assumed to be nullable, the results are nullable only
 
 The generated service method look something like this :
 
-```
+```C#
 
     protected DbCode.Test.SpGetFinancialPeriodsResult spGetFinancialPeriods_FromRecord(IDataRecord row, in spGetFinancialPeriodsOrdinals ordinals) 
     {
@@ -80,7 +80,7 @@ The generated service method look something like this :
     
     
     
-    public Task<IReadOnlyCollection<DbCode.Test.SpGetFinancialPeriodsResult>> spGetFinancialPeriodsAsync (string? Identity, string? TenantId)
+    public IAsyncEnumerable<DbCode.Test.SpGetFinancialPeriodsResult> spGetFinancialPeriodsAsync (string? Identity, string? TenantId)
     {
         return spGetFinancialPeriodsAsync(new DbCode.Test.SpGetFinancialPeriodsParameters(identity: Identity, 
             tenantId: TenantId
@@ -88,7 +88,7 @@ The generated service method look something like this :
     }
     
     
-    public async Task<IReadOnlyCollection<DbCode.Test.SpGetFinancialPeriodsResult>> spGetFinancialPeriodsAsync ( DbCode.Test.SpGetFinancialPeriodsParameters parameters)
+    public async IAsyncEnumerable<DbCode.Test.SpGetFinancialPeriodsResult> spGetFinancialPeriodsAsync ( DbCode.Test.SpGetFinancialPeriodsParameters parameters)
     {
         var cmd = connection.CreateCommand();
         if(connection.State != ConnectionState.Open) 
@@ -108,10 +108,9 @@ The generated service method look something like this :
             finPeriod: rdr.GetOrdinal("FinPeriod") , isDefault: rdr.GetOrdinal("IsDefault") , firstInPeriod: rdr.GetOrdinal("FirstInPeriod") , lastInPeriod: rdr.GetOrdinal("LastInPeriod") 
         );
         
-        List<DbCode.Test.SpGetFinancialPeriodsResult> results = new List<DbCode.Test.SpGetFinancialPeriodsResult>();
         while(await rdr.ReadAsync())
         {
-            results.Add(spGetFinancialPeriods_FromRecord(rdr, ordinals));
+            yield return spGetFinancialPeriods_FromRecord(rdr, ordinals);
             
         }
         OnCommandEnd(cmd, start);
@@ -123,3 +122,6 @@ The generated service method look something like this :
 You can configure to generate non-async code. As you can see, you get two overloads for the function, one with an Object as Parameter and the otherone with just plain parameters.
 It depends a lot on your use case which one is better suited.
 
+## Customization
+
+You can fully customize the Templates and the naming Convention. This is yet to be documented, however the Tests/project provides examples.
