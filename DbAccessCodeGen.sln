@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbAccessCodeGen.MigrateEF", "DbAccessCodeGen.MigrateEF\DbAccessCodeGen.MigrateEF.csproj", "{455CD282-A5FA-4BBD-BA1B-805F91EE0252}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,10 @@ Global
 		{39790F32-015E-4A61-B4B2-96F5589AADFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{39790F32-015E-4A61-B4B2-96F5589AADFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{39790F32-015E-4A61-B4B2-96F5589AADFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{455CD282-A5FA-4BBD-BA1B-805F91EE0252}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{455CD282-A5FA-4BBD-BA1B-805F91EE0252}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{455CD282-A5FA-4BBD-BA1B-805F91EE0252}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{455CD282-A5FA-4BBD-BA1B-805F91EE0252}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

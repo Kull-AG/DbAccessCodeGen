@@ -8,6 +8,9 @@ using System.Text;
 
 namespace DbAccessCodeGen.Configuration
 {
+    /// <summary>
+    /// Allows for overwriting naming conventions by using JavaScript
+    /// </summary>
     public class NamingHandlerConfiguratable : NamingHandler
     {
         Jint.Engine? engine;
@@ -31,6 +34,44 @@ namespace DbAccessCodeGen.Configuration
         {
             return InvokeExternal<Identifier>(nameof(GetParameterTypeName), name) ?? base.GetParameterTypeName(name);
         }
+
+        public override Identifier GetIdentifierForUserDefinedType(DBObjectName type)
+        {
+            return InvokeExternal<Identifier>(nameof(GetIdentifierForUserDefinedType), type) ?? base.GetIdentifierForUserDefinedType(type);
+        }
+
+        public override string GetParameterName(string csName)
+        {
+            return InvokeExternal<string>(nameof(GetParameterName), csName) ?? base.GetParameterName(csName);
+        }
+
+        public override string GetPropertyName(string sqlName)
+        {
+            return InvokeExternal<string>(nameof(GetPropertyName), sqlName) ?? base.GetParameterName(sqlName);
+        }
+
+        public override Identifier GetResultTypeName(DBObjectName name)
+        {
+            return InvokeExternal<Identifier>(nameof(GetResultTypeName), name) ?? base.GetResultTypeName(name);
+        }
+
+        public override string GetServiceClassMethodName(DBObjectName sp)
+        {
+            return InvokeExternal<string>(nameof(GetServiceClassMethodName), sp) ?? base.GetServiceClassMethodName(sp);
+        }
+
+
+        public override Identifier GetServiceClassName()
+        {
+            return InvokeExternal<Identifier>(nameof(GetServiceClassName)) ?? base.GetServiceClassName();
+        }
+
+
+        public override string MakeIdentifierValid(string identifier)
+        {
+            return InvokeExternal<string>(nameof(MakeIdentifierValid), identifier) ?? base.MakeIdentifierValid(identifier);
+        }
+
 
         private T? InvokeExternal<T>(string functionName, params object[] args)
             where T : class
