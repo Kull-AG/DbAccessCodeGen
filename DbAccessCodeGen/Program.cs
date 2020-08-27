@@ -2,8 +2,6 @@
 using Microsoft.Extensions.Logging.Console;
 using System;
 using System.Collections.Generic;
-using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.IO;
 using System.Text.Json;
 using Kull.DatabaseMetadata;
@@ -13,50 +11,83 @@ using System.Data.Common;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
 using DbAccessCodeGen.Configuration;
+using System.Net.Http.Headers;
+using Mono.Options;
 
 namespace DbAccessCodeGen
 {
     class Program
     {
+        static string? GetSubCommand(string[] args)
+        {
+            string? firstOption = args.FirstOrDefault(a => a.StartsWith("-"));
+            int? firstOptionIndex = firstOption != null ? Array.IndexOf(args, firstOption) : (int?)null;
+            var firstParts = firstOptionIndex == null ? args : args.Take(firstOptionIndex.Value);
+            var lastPart = firstParts.Last();
+            if (lastPart.Contains("."))
+                return null;
+            return lastPart;
+        }
+
         static void Main(string[] args)
         {
 
             if (!DbProviderFactories.TryGetFactory("System.Data.SqlClient", out var _))
                 DbProviderFactories.RegisterFactory("System.Data.SqlClient", System.Data.SqlClient.SqlClientFactory.Instance);
 
-            var rootCommand = new RootCommand
-    {
-        new Option<FileInfo>(
-            new string[]{"--config", "-c" },
-            description: "The config file")
-        {
-            Argument = new Argument<FileInfo>().ExistingOnly()
-        },
-        new Option<string> (
-            new string[] {"--connectionString", "cs"},
-            description: "The connection string"
-            )
-        }
-            ;
-            rootCommand.Handler = CommandHandler.Create<FileInfo, string>(async (config, connectionString) =>
+            var subcommand = GetSubCommand(args);
+            if (subcommand == null)
             {
-                var content = await System.IO.File.ReadAllTextAsync(config.FullName);
-                var deserializer = new YamlDotNet.Serialization.DeserializerBuilder()
-                    .WithNamingConvention(YamlDotNet.Serialization.NamingConventions.NullNamingConvention.Instance)
-                    .Build();
-                var settings = deserializer.Deserialize<Settings>(content);
-                settings.ConnectionString = connectionString ?? settings.ConnectionString;
-                if (settings.ConnectionString == null)
+                FileInfo? configInfo = null;
+                string? connectionString = null;
+                bool show_help;
+                var p = new OptionSet() {
+                    "Usage: dbcodegen [OPTIONS]+",
+                    "Greet a list of individuals with an optional message.",
+                    "If no message is specified, a generic greeting is used.",
+                    "",
+                    "Options:",
+                    { "c|config=", "the DbCodeGenConfig.yml location",
+                      c => configInfo = new FileInfo(c) },
+                    { "cs|connectionstring=",
+                        "the connection string." ,
+                      (cs) => connectionString=cs },
+                    { "h|help",  "show this message and exit",
+                      v => show_help = v != null },
+                };
+                try
                 {
-                    Console.Error.WriteLine("Must provide connection string");
-                    Environment.Exit(-1);
+                    p.Parse(args);
+
                 }
-                await ExecuteCodeGen(settings);
-            });
+                catch (OptionException e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine("Try `--help' for more information.");
+                    return;
+                }
 
-            var r = rootCommand.InvokeAsync(args).Result;
-            Environment.ExitCode = r;
+                Task.WaitAll(ExecuteCodeGen(configInfo ?? throw new ArgumentNullException(),
+                    connectionString ?? throw new ArgumentNullException()));
+            }
 
+
+        }
+
+        public static async Task ExecuteCodeGen(FileInfo config, string connectionString)
+        {
+            var content = await System.IO.File.ReadAllTextAsync(config.FullName);
+            var deserializer = new YamlDotNet.Serialization.DeserializerBuilder()
+                .WithNamingConvention(YamlDotNet.Serialization.NamingConventions.NullNamingConvention.Instance)
+                .Build();
+            var settings = deserializer.Deserialize<Settings>(content);
+            settings.ConnectionString = connectionString ?? settings.ConnectionString;
+            if (settings.ConnectionString == null)
+            {
+                Console.Error.WriteLine("Must provide connection string");
+                Environment.Exit(-1);
+            }
+            await ExecuteCodeGen(settings);
         }
 
         public static ServiceProvider RegisterServices(Configuration.Settings settings)

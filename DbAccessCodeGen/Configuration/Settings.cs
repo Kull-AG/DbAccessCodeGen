@@ -15,6 +15,8 @@ namespace DbAccessCodeGen.Configuration
         public bool GenerateAsyncCode { get; set; } = true;
         public bool GenerateSyncCode { get; set; } = false;
 
+        public string? ServiceClassName { get; set; }
+
         public string? TemplateDir { get; set; }
 
         /// <summary>

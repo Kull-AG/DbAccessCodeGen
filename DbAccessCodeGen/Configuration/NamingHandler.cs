@@ -45,7 +45,7 @@ namespace DbAccessCodeGen.Configuration
                 return upperCase;
             else
             {
-                upperCase = MakeIdentifierValid(upperCase); 
+                upperCase = MakeIdentifierValid(upperCase);
                 if (!Microsoft.CodeAnalysis.CSharp.SyntaxFacts.IsValidIdentifier(upperCase))
                     throw new ArgumentException("Cannot handle " + upperCase);
                 return upperCase;
@@ -74,7 +74,7 @@ namespace DbAccessCodeGen.Configuration
 
         public virtual Identifier GetServiceClassName()
         {
-            return new Identifier(settings.Namespace, "DataAccessor");
+            return new Identifier(settings.Namespace, settings.ServiceClassName ?? "DataAccessor");
         }
     }
 }
