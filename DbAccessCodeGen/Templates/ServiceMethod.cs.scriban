@@ -6,7 +6,7 @@ protected readonly struct {{MethodName}}Ordinals
 
 	public {{MethodName}}Ordinals({{ for prop in ResultFields }}int {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{ end }})
 	{
-		{{ for prop in ResultFields }}{{prop.CSPropertyName}} = {{prop.ParameterName}};
+		{{ for prop in ResultFields }}this.{{prop.CSPropertyName}} = {{prop.ParameterName}};
 		{{ end }}		
 	}
 }
@@ -21,9 +21,9 @@ protected {{ResultType}} {{MethodName}}_FromRecord(IDataRecord row, in {{MethodN
 
 {{if GenerateAsyncCode}}
 {{if ParameterTypeName}}
-public IAsyncEnumerable<{{ResultType}}> {{MethodName}}Async ({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.CSPropertyName}}{{if !for.last}}, {{ end }}{{end}})
+public IAsyncEnumerable<{{ResultType}}> {{MethodName}}Async ({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{end}})
 {
-	return {{MethodName}}Async(new {{ParameterTypeName}}({{ for prop in Parameters }}{{prop.ParameterName}}: {{prop.CSPropertyName}}{{if !for.last}}, {{ end }}
+	return {{MethodName}}Async(new {{ParameterTypeName}}({{ for prop in Parameters }}{{prop.ParameterName}}: {{prop.ParameterName}}{{if !for.last}}, {{ end }}
 		{{end}}));
 }
 {{end}}
@@ -60,9 +60,9 @@ public async IAsyncEnumerable<{{ResultType}}> {{MethodName}}Async ({{if Paramete
 {{end}}
 {{if GenerateSyncCode}}
 {{if ParameterTypeName}}
-public IEnumerable<{{ResultType}}> {{MethodName}} ({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.CSPropertyName}}{{if !for.last}}, {{ end }}{{end}})
+public IEnumerable<{{ResultType}}> {{MethodName}} ({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{end}})
 {
-	return {{MethodName}}(new {{ParameterTypeName}}({{ for prop in Parameters }}{{prop.ParameterName}}: {{prop.CSPropertyName}}{{if !for.last}}, {{ end }}
+	return {{MethodName}}(new {{ParameterTypeName}}({{ for prop in Parameters }}{{prop.ParameterName}}: {{prop.ParameterName}}{{if !for.last}}, {{ end }}
 	{{end}}));
 }
 {{end}}

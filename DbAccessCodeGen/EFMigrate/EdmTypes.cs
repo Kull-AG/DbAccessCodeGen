@@ -1,0 +1,44 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace DbAccessCodeGen.EFMigrate
+{
+    public class EdmTypes
+    {
+        Dictionary<string, string> edmToSqlMap = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase)
+        {
+            {"String", "nvarchar" },
+            {"Bool", "bit" },
+            {"Boolean", "bit" },
+            {"Int16", "smallint" },
+            {"Int32", "int" },
+            {"Int64", "long" },
+            {"Double", "float" },
+            {"Float", "float" },
+            {"Single", "real" },
+            {"Decimal", "float" },
+            {"Guid", "uniqueidentifier" },
+            {"System.Byte[]", "varbinary" },
+            {"Binary", "varbinary" },
+            {"DateTime", "datetime" },
+            {"Date", "date" },
+            {"Time", "time" },
+            {"TimeOfDay", "time" },
+            {"DateTimeOffset", "datetimeoffset" },
+        };
+
+
+        public virtual string GetSqlType(string clrType)
+        {
+            if (edmToSqlMap.TryGetValue(clrType, out var vl))
+                return vl;
+            else
+            {
+                Console.Error.WriteLine($"Cannot map {clrType}");
+                return clrType;
+            }
+        }
+
+    }
+}

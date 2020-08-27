@@ -11,6 +11,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Text;
+using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
@@ -49,18 +50,22 @@ namespace DbAccessCodeGen.CodeGen
             Channel<(string name, string template)> methods = Channel.CreateUnbounded<(string, string)>();
             Task metadataTask = StartGetMetadata(toGetMetadata);
 
+            CancellationTokenSource cts = new CancellationTokenSource();
+            cts.CancelAfter(120 * 1000);
+            
+
             Task allMetaDataTasks = Task.WhenAll(Enumerable.Range(1, 3).Select(s => ExecuteGetMetadataForSP(toGetMetadata.Reader, CodeGenChannel.Writer)))
                 .ContinueWith(t=>
                 {
                     CodeGenChannel.Writer.Complete();
-                });
+                }, cts.Token);
             
 
             Task codeGenTasks = Task.WhenAll( Enumerable.Range(1, 2).Select(s => ExecuteCodeGen(CodeGenChannel.Reader, methods.Writer)))
                 .ContinueWith(t=>
                 {
                     methods.Writer.Complete();
-                });
+                }, cts.Token);
             Task serviceGentask = codeGenHandler.WriteServiceClass(methods.Reader);
             return Task.WhenAll(metadataTask, allMetaDataTasks, codeGenTasks, serviceGentask);
         }

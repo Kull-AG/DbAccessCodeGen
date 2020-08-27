@@ -41,11 +41,9 @@ namespace DbAccessCodeGen
             {
                 FileInfo? configInfo = null;
                 string? connectionString = null;
-                bool show_help;
+                bool show_help=false;
                 var p = new OptionSet() {
                     "Usage: dbcodegen [OPTIONS]+",
-                    "Greet a list of individuals with an optional message.",
-                    "If no message is specified, a generic greeting is used.",
                     "",
                     "Options:",
                     { "c|config=", "the DbCodeGenConfig.yml location",
@@ -56,6 +54,11 @@ namespace DbAccessCodeGen
                     { "h|help",  "show this message and exit",
                       v => show_help = v != null },
                 };
+                if (show_help)
+                {
+                    p.WriteOptionDescriptions(Console.Out);
+                    return;
+                }
                 try
                 {
                     p.Parse(args);
@@ -68,11 +71,68 @@ namespace DbAccessCodeGen
                     return;
                 }
 
+
                 await ExecuteCodeGen(configInfo ?? throw new ArgumentNullException(),
                     connectionString);
             }
+            else if (subcommand == "migrateef")
+            {
+                var argsReal = args.Skip(Array.IndexOf(args, "migrateef")).ToArray();
+                string? edmxFile = null;
+                string? outDir = null;
+                bool show_help = false;
+                var p = new OptionSet() {
+                    "Usage: migrateef [OPTIONS]+",
+                    "",
+                    "Options:",
+                    { "e|edmxfile=", "the *.edmx file location",
+                      c => edmxFile = c},
+                    { "o|outputdirectory=",
+                        "the output directory" ,
+                      (o) => outDir=o },
+                    { "h|help",  "show this message and exit",
+                      v => show_help = v != null },
+                };
+                if (show_help)
+                {
+                    p.WriteOptionDescriptions(Console.Out);
+                    return;
+                }
+                try
+                {
+                    p.Parse(args);
 
+                }
+                catch (OptionException e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine("Try `--help' for more information.");
+                    return;
+                }
+                if(edmxFile == null)
+                {
+                    Console.Error.WriteLine("Must provide edmx File");
+                    Environment.Exit(-1);
+                }
+                if (outDir == null)
+                {
+                    Console.Error.WriteLine("Must provide out dir");
+                    Environment.Exit(-1);
+                }
+                await ExecuteMigrateEF(edmxFile, outDir);
+            }
+            else
+            {
+                Console.Error.Write(subcommand + " is not a valid subcommand. Valid are: generate migrateef");
+                Environment.Exit(-1);
+            }
+        }
 
+        public static Task ExecuteMigrateEF(string edmxFile, string outDir)
+        {
+            var sp = RegisterServices4Migrate();
+            var executor = sp.GetRequiredService<EFMigrate.Migrator>();
+            return executor.Execute(edmxFile, outDir);
         }
 
         public static async Task ExecuteCodeGen(FileInfo config, string? connectionString)
@@ -89,6 +149,21 @@ namespace DbAccessCodeGen
                 Environment.Exit(-1);
             }
             await ExecuteCodeGen(settings);
+        }
+
+        public static ServiceProvider RegisterServices4Migrate()
+        {
+            var services = new ServiceCollection();
+
+            services.AddLogging(l =>
+            {
+                l.AddConsole();
+                l.SetMinimumLevel(LogLevel.Debug);
+            });
+            services.AddSingleton<EFMigrate.EdmTypes>();
+            services.AddTransient<EFMigrate.Migrator>();
+
+            return services.BuildServiceProvider();
         }
 
         public static ServiceProvider RegisterServices(Configuration.Settings settings)
@@ -110,7 +185,7 @@ namespace DbAccessCodeGen
             services.AddSingleton<IHostingEnvironment, Configuration.DummyHosingEnvironment>();
             services.AddScoped<DbConnection>(_ =>
             {
-                return Kull.Data.DatabaseUtils.GetConnectionFromEFString(settings.ConnectionString, true);
+                return Kull.Data.DatabaseUtils.GetConnectionFromEFString(settings.ConnectionString!, true);
             });
 
             return services.BuildServiceProvider();
