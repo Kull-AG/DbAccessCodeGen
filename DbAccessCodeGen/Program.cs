@@ -22,6 +22,7 @@ namespace DbAccessCodeGen
         {
             string? firstOption = args.FirstOrDefault(a => a.StartsWith("-"));
             int? firstOptionIndex = firstOption != null ? Array.IndexOf(args, firstOption) : (int?)null;
+            if (firstOptionIndex == 0) return null;
             var firstParts = firstOptionIndex == null ? args : args.Take(firstOptionIndex.Value);
             var lastPart = firstParts.Last();
             if (lastPart.Contains("."))
@@ -29,14 +30,14 @@ namespace DbAccessCodeGen
             return lastPart;
         }
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
 
             if (!DbProviderFactories.TryGetFactory("System.Data.SqlClient", out var _))
                 DbProviderFactories.RegisterFactory("System.Data.SqlClient", System.Data.SqlClient.SqlClientFactory.Instance);
 
             var subcommand = GetSubCommand(args);
-            if (subcommand == null)
+            if (subcommand == null || subcommand == "generate")
             {
                 FileInfo? configInfo = null;
                 string? connectionString = null;
@@ -67,14 +68,14 @@ namespace DbAccessCodeGen
                     return;
                 }
 
-                Task.WaitAll(ExecuteCodeGen(configInfo ?? throw new ArgumentNullException(),
-                    connectionString ?? throw new ArgumentNullException()));
+                await ExecuteCodeGen(configInfo ?? throw new ArgumentNullException(),
+                    connectionString);
             }
 
 
         }
 
-        public static async Task ExecuteCodeGen(FileInfo config, string connectionString)
+        public static async Task ExecuteCodeGen(FileInfo config, string? connectionString)
         {
             var content = await System.IO.File.ReadAllTextAsync(config.FullName);
             var deserializer = new YamlDotNet.Serialization.DeserializerBuilder()
