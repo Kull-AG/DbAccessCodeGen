@@ -87,8 +87,8 @@ namespace DbAccessCodeGen.CodeGen
                 using (var scope = serviceProvider.CreateScope())
                 {
                     var con = scope.ServiceProvider.GetRequiredService<DbConnection>();
-                    var spprm = this.sPParametersProvider.GetSPParameters(sp, con);
-                    var result = this.sqlHelper.GetSPResultSet(sp, true);
+                    var spprm = await this.sPParametersProvider.GetSPParameters(sp, con);
+                    var result = await this.sqlHelper.GetSPResultSet(con, sp, true);
                     writeTasks.Add(toWriteTo.WriteAsync(new SPMetadata(name: sp, parameters: spprm, 
                            fields: result, 
                            resultType: namingHandler.GetResultTypeName(sp),

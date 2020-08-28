@@ -13,6 +13,7 @@ using System.Runtime.CompilerServices;
 using System.IO;
 using System.Threading.Channels;
 using System.Data;
+using System.Data.Common;
 
 namespace DbAccessCodeGen.CodeGen
 {
@@ -48,6 +49,7 @@ namespace DbAccessCodeGen.CodeGen
         private readonly SqlHelper sqlHelper;
         private readonly NamingHandler namingHandler;
         private readonly SqlTypeMapper sqlTypeMapper;
+        private readonly DbConnection connection;
         ConcurrentDictionary<DBObjectName, SqlFieldDescription[]> userDefinedTypes = new ConcurrentDictionary<DBObjectName, SqlFieldDescription[]>();
 
         private object templateLock = new object();
@@ -61,7 +63,8 @@ namespace DbAccessCodeGen.CodeGen
             SPParametersProvider sPParametersProvider,
             SqlHelper sqlHelper,
             NamingHandler namingHandler,
-            SqlTypeMapper sqlTypeMapper)
+            SqlTypeMapper sqlTypeMapper,
+            DbConnection connection)
         {
             this.serviceProvider = serviceProvider;
             this.settings = settings;
@@ -70,6 +73,7 @@ namespace DbAccessCodeGen.CodeGen
             this.sqlHelper = sqlHelper;
             this.namingHandler = namingHandler;
             this.sqlTypeMapper = sqlTypeMapper;
+            this.connection = connection;
         }
 
         public void ReadTemplates()
@@ -128,7 +132,7 @@ namespace DbAccessCodeGen.CodeGen
                 var noFields = Array.Empty<SqlFieldDescription>();
                 if (userDefinedTypes.TryAdd(item, noFields))
                 {
-                    var realFields = sqlHelper.GetTableTypeFields(item);
+                    var realFields = await sqlHelper.GetTableTypeFields(connection, item);
                     if (!userDefinedTypes.TryUpdate(item, realFields, noFields))
                     {
                         throw new NotSupportedException("TryUpdate expected to be true");
