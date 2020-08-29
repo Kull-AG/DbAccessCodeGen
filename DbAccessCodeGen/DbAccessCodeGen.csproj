@@ -8,6 +8,7 @@
     <PackageOutputPath>./nupkg</PackageOutputPath>
     <RunWorkingDirectory>$(MSBuildProjectDirectory)</RunWorkingDirectory>
     <Nullable>Enable</Nullable>
+    <Version>0.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,9 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="DbCodeGenConfig.yml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Templates\ModelFile.cs.scriban">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

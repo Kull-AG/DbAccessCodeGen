@@ -1,0 +1,91 @@
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
+using CliWrap;
+using System.Collections.Generic;
+using System;
+using System.Threading.Tasks;
+using System.Threading;
+
+namespace DbAccessCodeGen.Test
+{
+    [TestClass]
+    public class IntegrationTest
+    {
+        [TestMethod]
+        public void A_Delete()
+        {
+            //Returns the bin/Debug/ folder
+            string solutionDir = GetSolutionDir();
+            var pkgFolder = Path.Combine(solutionDir, "DbAccessCodeGen/nupkg");
+            System.IO.Directory.Delete(pkgFolder, true);
+
+        }
+
+        [TestMethod]
+        public async Task B_Pack()
+        {
+            await ExecuteAndAssertSuccess(Path.Combine(GetSolutionDir(), "DbAccessCodeGen"), 30, "dotnet", "pack");
+        }
+
+
+        [TestMethod]
+        public async Task C_Restore()
+        {
+            var solutionDir = GetSolutionDir();
+            // Restore Tools Reference
+            await ExecuteAndAssertSuccess(Path.Combine(solutionDir, "DbCode.Test"), 30, "dotnet", "restore", "--configfile", "NuGet.config");
+        }
+
+
+        [TestMethod]
+        public async Task D_CodeGen()
+        {
+            var solutionDir = GetSolutionDir();
+
+            await ExecuteAndAssertSuccess(Path.Combine(solutionDir, "DbCode.Test"), 60, "dotnet", "tool", "run", "dbcodegen",
+                "-c", "DbCodeGenConfig.yml");
+        }
+
+        [TestMethod]
+        public async Task E_Build()
+        {
+            var solutionDir = GetSolutionDir();
+
+            await ExecuteAndAssertSuccess(Path.Combine(solutionDir, "DbCode.Test"), 30, "dotnet", "build");
+        }
+
+        [TestMethod]
+        public async Task F_Run()
+        {
+            var solutionDir = GetSolutionDir();
+
+            await ExecuteAndAssertSuccess(Path.Combine(solutionDir, "DbCode.Test"), 15, "dotnet", "run");
+        }
+
+
+        
+        private static string GetSolutionDir()
+        {
+            var currentDir = System.IO.Directory.GetCurrentDirectory().Replace("\\", "/");
+            var projectDir = currentDir.Substring(0, currentDir.IndexOf("/bin/Debug"));
+
+            var solutionDir = System.IO.Path.GetDirectoryName(projectDir);
+            return solutionDir;
+        }
+
+        private static async Task ExecuteAndAssertSuccess(string workingDir, int maxRunTimeInS, string exe, params string[] args)
+        {
+            List<string> lines = new List<string>();
+            var packExe = Cli.Wrap(exe).WithArguments(args)
+                .WithWorkingDirectory(workingDir)
+                .WithStandardErrorPipe(PipeTarget.ToDelegate(h => lines.Add(h)));
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(maxRunTimeInS * 1000);
+            var generateresult = await packExe
+                .ExecuteAsync(cts.Token);
+            Assert.AreEqual(string.Join(Environment.NewLine, lines), "");
+            Assert.AreEqual(generateresult.ExitCode, 0);
+        }
+
+    }
+}
