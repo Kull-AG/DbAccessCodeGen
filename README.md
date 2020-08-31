@@ -19,6 +19,7 @@ GenerateAsyncCode: true
 GenerateSyncCode: false
 TemplateDir: "./Templates"
 OutputDir: "../DbCode.Test/DbAccess"
+ServiceClassName: "DataEntities"
 Namespace: DbCode.Test
 Procedures:
 - bfm.spGetFinancialPeriods
