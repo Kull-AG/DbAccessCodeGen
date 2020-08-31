@@ -25,12 +25,20 @@ namespace DbAccessCodeGen.EFMigrate
             string? currentComplexType = null;
             Dictionary<string, string> mapFunctionToReturnType = new Dictionary<string, string>();
             Dictionary<string, List<ComplexTypeInfo>> complexTypeFields = new Dictionary<string, List<ComplexTypeInfo>>();
+            HashSet<DBObjectName> sps = new HashSet<DBObjectName>();
             XmlReader xmlReader = XmlReader.Create(edmxFile);
             while (xmlReader.Read())
             {
+
+                if ((xmlReader.NodeType == XmlNodeType.Element) && (xmlReader.LocalName == "FunctionImport"))
+                {
+                    string spName = xmlReader.GetAttribute("Name");
+                    sps.Add(spName);
+                }
                 if ((xmlReader.NodeType == XmlNodeType.Element) && (xmlReader.LocalName == "FunctionImportMapping"))
                 {
                     currentFunctionImportName = xmlReader.GetAttribute("FunctionImportName");
+                    sps.Add(currentFunctionImportName);
                 }
                 else if (xmlReader.NodeType == XmlNodeType.EndElement && (xmlReader.LocalName == "FunctionImportMapping"))
                 {
@@ -74,7 +82,7 @@ namespace DbAccessCodeGen.EFMigrate
                 {
                     var spName = (mapFunctionToReturnType.Select(kv => (KeyValuePair<string, string>?)kv).FirstOrDefault(r => r!.Value.Value == typeName)
                         ?? mapFunctionToReturnType.FirstOrDefault(r => r.Value.EndsWith("." + typeName, StringComparison.CurrentCultureIgnoreCase))).Key;
-                    if(string.IsNullOrEmpty(spName))
+                    if (string.IsNullOrEmpty(spName))
                     {
                         Console.Error.WriteLine($"Type not mapped: {typeName}");
                     }
@@ -97,7 +105,7 @@ namespace DbAccessCodeGen.EFMigrate
                     Console.Error.WriteLine($"Error for {typeName}: \r\n{e}");
                 }
             }
-            var procs = mapFunctionToReturnType.Select(s => s.Key).ToArray();
+            var procs = sps.OrderBy(s=>s).Select(s=>s.ToString(false)).ToArray();
             var procString = string.Join("\r\n", procs.Select(s => " - " + s).OrderBy(k => k));
             var yaml =
 @"---
