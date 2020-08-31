@@ -47,7 +47,7 @@ namespace DbAccessCodeGen.Configuration
 
         public override string GetPropertyName(string sqlName)
         {
-            return InvokeExternal<string>(nameof(GetPropertyName), sqlName) ?? base.GetParameterName(sqlName);
+            return InvokeExternal<string>(nameof(GetPropertyName), sqlName) ?? base.GetPropertyName(sqlName);
         }
 
         public override Identifier GetResultTypeName(DBObjectName name)
