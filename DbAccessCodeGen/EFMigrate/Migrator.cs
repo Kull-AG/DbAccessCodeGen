@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Linq;
 using System.Text.Json;
+using Kull.Data;
 
 namespace DbAccessCodeGen.EFMigrate
 {
@@ -88,7 +89,7 @@ namespace DbAccessCodeGen.EFMigrate
                     {
                         System.IO.Directory.CreateDirectory(resultDir);
                     }
-                    var filePath = System.IO.Path.Combine(resultDir, spName + ".json");
+                    var filePath = System.IO.Path.Combine(resultDir, (DBObjectName)spName + ".json");
                     await System.IO.File.WriteAllTextAsync(filePath, json);
                 }
                 catch (Exception e)
