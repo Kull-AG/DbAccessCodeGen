@@ -166,7 +166,7 @@ namespace DbAccessCodeGen.CodeGen
                 settings.GenerateSyncCode
             }, memberRenamer: member => member.Name);
             serviceMethod = serviceMethod.Replace("\t", "    ");
-            serviceMethod = string.Join("\r\n", serviceMethod.Split("\r\n").Select(s => "    " + s));
+            serviceMethod = string.Join("\r\n", serviceMethod.Split("\r\n").Select(s => "        " + s));
             await methods.WriteAsync((codeGenPrm.MethodName, serviceMethod));
             logger.LogDebug($"Finished Generate code for {codeGenPrm.SqlName}");
         }
