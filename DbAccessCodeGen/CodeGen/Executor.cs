@@ -45,24 +45,24 @@ namespace DbAccessCodeGen.CodeGen
 
         public Task Execute()
         {
-            Channel<DBObjectName> toGetMetadata= Channel.CreateBounded<DBObjectName>(3);
+            Channel<DBObjectName> toGetMetadata = Channel.CreateBounded<DBObjectName>(3);
             Channel<SPMetadata> CodeGenChannel = Channel.CreateBounded<SPMetadata>(20);
             Channel<(string name, string template)> methods = Channel.CreateUnbounded<(string, string)>();
             Task metadataTask = StartGetMetadata(toGetMetadata);
 
             CancellationTokenSource cts = new CancellationTokenSource();
             cts.CancelAfter(120 * 1000);
-            
+
 
             Task allMetaDataTasks = Task.WhenAll(Enumerable.Range(1, 3).Select(s => ExecuteGetMetadataForSP(toGetMetadata.Reader, CodeGenChannel.Writer)))
-                .ContinueWith(t=>
+                .ContinueWith(t =>
                 {
                     CodeGenChannel.Writer.Complete();
                 }, cts.Token);
-            
 
-            Task codeGenTasks = Task.WhenAll( Enumerable.Range(1, 2).Select(s => ExecuteCodeGen(CodeGenChannel.Reader, methods.Writer)))
-                .ContinueWith(t=>
+
+            Task codeGenTasks = Task.WhenAll(Enumerable.Range(1, 2).Select(s => ExecuteCodeGen(CodeGenChannel.Reader, methods.Writer)))
+                .ContinueWith(t =>
                 {
                     methods.Writer.Complete();
                 }, cts.Token);
@@ -72,11 +72,36 @@ namespace DbAccessCodeGen.CodeGen
 
         protected async Task StartGetMetadata(ChannelWriter<DBObjectName> channelWriter)
         {
-            foreach (var sp in settings.Procedures)
+            List<DBObjectName> allSps = new List<DBObjectName>();
+            var con = serviceProvider.GetRequiredService<DbConnection>();
+            await con.OpenAsync();
+            try
             {
-                await channelWriter.WriteAsync(sp);
+                using (var rdr = await con.CreateCommand("SELECT SCHEMA_NAME(p.schema_id), p.name FROM sys.procedures p", System.Data.CommandType.Text)
+                    .ExecuteReaderAsync())
+                {
+                    while (rdr.Read())
+                    {
+                        allSps.Add(new DBObjectName(rdr.GetString(0), rdr.GetString(1)));
+                    }
+                }
+                foreach (var sp in settings.Procedures)
+                {
+                    if (allSps.Contains(sp))
+                    {
+                        await channelWriter.WriteAsync(sp);
+                    }
+                    else
+                    {
+                        logger.LogError("Cannot find SP {0}. Ignore it", sp);
+                    }
+                }
             }
-            channelWriter.Complete();
+            finally
+            {
+                con.Close();
+                channelWriter.Complete();
+            }
         }
 
         protected async Task ExecuteGetMetadataForSP(ChannelReader<DBObjectName> metadataReader, ChannelWriter<SPMetadata> toWriteTo)
@@ -111,7 +136,7 @@ namespace DbAccessCodeGen.CodeGen
                                   )));
                         }
                     }
-                    catch(Exception err)
+                    catch (Exception err)
                     {
                         logger.LogError("Could not get parameters. \r\n{0}", err);
                     }

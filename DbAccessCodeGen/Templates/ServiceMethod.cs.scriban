@@ -1,7 +1,7 @@
 ﻿{{if ResultFields}}
 protected readonly struct {{MethodName}}Ordinals
 {
-	{{ for res in ResultFields }}public readonly int {{ res.CSPropertyName }};
+	{{ for res in ResultFields }}public int {{ res.CSPropertyName }};
 	{{ end }}	
 
 	public {{MethodName}}Ordinals({{ for prop in ResultFields }}int {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{ end }})

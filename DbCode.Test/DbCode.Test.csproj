@@ -2,10 +2,14 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net48;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net48;netstandard2.1;netcoreapp3.1</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
     <Nullable>Enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include=".config\dotnet-tools.json" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.1" />

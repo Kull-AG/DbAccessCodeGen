@@ -46,8 +46,10 @@ namespace {{Name.Namespace}}
 			this.connection = connection;
             this.isMSSqlServer = connection.GetType().FullName.StartsWith(""System.Data.SqlClient"")
                 || connection.GetType().FullName.StartsWith(""Microsoft.Data.SqlClient"");
+			this.Init();
 		}
 
+		partial void Init();
 		partial void OnCommandStart(DbCommand cmd, DateTime startedAt);
 		partial void OnCommandEnd(DbCommand cmd, DateTime startedAt);
 
@@ -68,7 +70,7 @@ namespace {{Name.Namespace}}
         private Dictionary<string, object?> ReadDictionary(IDataRecord record, int fieldCount) 
         {
             Dictionary<string, object?> rowData = new Dictionary<string, object?>(fieldCount);
-            for(int i = 0; i<fieldCount; i++) 
+            for(int i = 0; i < fieldCount; i++) 
             {
                 rowData[record.GetName(i)] = record.IsDBNull(i) ? (object?)null : record.GetValue(i);
             }

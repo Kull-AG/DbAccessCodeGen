@@ -16,7 +16,7 @@ namespace DbCode.Test
             
 
             DataAccessor dba = new DataAccessor(new Microsoft.Data.SqlClient.SqlConnection(conStr));
-            var res = dba.spSearchPetsAsync(false, "", "::1").ToListAsync().Result;
+            var res = dba.spGetPetsAsync(false, "", "::1").ToListAsync().Result;
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(res);
             Console.WriteLine(json);
         }

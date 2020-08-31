@@ -56,7 +56,16 @@ namespace DbAccessCodeGen.Test
         {
             var solutionDir = GetSolutionDir();
             // Restore Tools Reference
-            await ExecuteAndAssertSuccess(Path.Combine(solutionDir, "DbCode.Test"), 30, "dotnet", "restore", "--configfile", "NuGet.config");
+            await ExecuteAndAssertSuccess(Path.Combine(solutionDir, "DbCode.Test"), 30, "dotnet", "restore", "--no-cache", "--configfile", "NuGet.config");
+        }
+
+
+        [TestMethod]
+        public async Task D_RestoreTool()
+        {
+            var solutionDir = GetSolutionDir();
+            // Restore Tools Reference
+            await ExecuteAndAssertSuccess(Path.Combine(solutionDir, "DbCode.Test"), 30, "dotnet", "tool", "restore", "--no-cache", "--configfile", "NuGet.config");
         }
 
 
@@ -84,7 +93,7 @@ namespace DbAccessCodeGen.Test
         {
             var solutionDir = GetSolutionDir();
 
-            await ExecuteAndAssertSuccess(Path.Combine(solutionDir, "DbCode.Test"), 15, "dotnet", "run");
+            await ExecuteAndAssertSuccess(Path.Combine(solutionDir, "DbCode.Test"), 60, "dotnet", "run", "--framework", "netcoreapp3.1");
         }
 
 

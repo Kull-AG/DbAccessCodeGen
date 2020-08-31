@@ -79,11 +79,11 @@ namespace DbAccessCodeGen.Configuration
             where T : class
         {
             if (engine == null) return default(T);
-            var parameterTypeName = engine.GetValue(engine.Global, functionName);
-            if (parameterTypeName.Type == Jint.Runtime.Types.Undefined)
-                return default(T);
             lock (executionLock)
             {
+                var parameterTypeName = engine.GetValue(engine.Global, functionName);
+                if (parameterTypeName.Type == Jint.Runtime.Types.Undefined)
+                    return default(T);
                 var res = parameterTypeName.Invoke(
                     args.Select(a => Jint.Native.JsValue.FromObject(engine, a)).ToArray());
                 var ident = (T)res.ToObject();
