@@ -210,18 +210,19 @@ namespace DbAccessCodeGen.CodeGen
 
         private ModelProperty GetModelProperty(SPParameter s)
         {
-            return GetModelProperty(s.DbType, s.UserDefinedType, s.SqlName, s.IsNullable, s.ParameterDirection);
+            return GetModelProperty(GeneratedCodeType.ParameterClass, s.DbType, s.UserDefinedType, s.SqlName, s.IsNullable, s.ParameterDirection);
         }
 
         private ModelProperty GetModelProperty(SqlFieldDescription s)
         {
-            return GetModelProperty(s.DbType, null, s.Name, s.IsNullable, null);
+            return GetModelProperty(GeneratedCodeType.ResultClass, s.DbType, null, s.Name, s.IsNullable, null);
         }
 
-        private ModelProperty GetModelProperty(SqlType dbType, DBObjectName? userDefinedType, string sqlName, bool isNullable, ParameterDirection? parameterDirection)
+        private ModelProperty GetModelProperty(GeneratedCodeType generatedCodeType,
+            SqlType dbType, DBObjectName? userDefinedType, string sqlName, bool isNullable, ParameterDirection? parameterDirection)
         {
             var type = GetNetType(dbType, userDefinedType);
-            var csName = namingHandler.GetPropertyName(sqlName);
+            var csName = namingHandler.GetPropertyName(sqlName, generatedCodeType);
             return new ModelProperty(
                                 sqlName: sqlName,
                                 csName: csName,

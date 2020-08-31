@@ -63,9 +63,9 @@ namespace DbAccessCodeGen.Configuration
             return new Identifier(settings.Namespace, GetCSName(name.Name) + "Result");
         }
 
-        public virtual string GetPropertyName(string sqlName)
+        public virtual string GetPropertyName(string sqlName, GeneratedCodeType generatedCodeType)
         {
-            return GetCSName(sqlName);
+            return MakeIdentifierValid(sqlName); // Default: do not transform
         }
 
         public virtual string GetServiceClassMethodName(DBObjectName sp)

@@ -24,6 +24,7 @@ namespace DbAccessCodeGen.Configuration
                 engine.SetValue("DBObjectName", Jint.Runtime.Interop.TypeReference.CreateTypeReference(engine, typeof(DBObjectName)));
                 engine.SetValue("NamingHandler", Jint.Runtime.Interop.TypeReference.CreateTypeReference(engine, typeof(NamingHandler)));
                 engine.SetValue("Settings", Jint.Runtime.Interop.TypeReference.CreateTypeReference(engine, typeof(Settings)));
+                engine.SetValue("GeneratedCodeType", Jint.Runtime.Interop.TypeReference.CreateTypeReference(engine, typeof(GeneratedCodeType)));
                 engine.SetValue("def", new NamingHandler(settings));
                 engine.SetValue("settings", settings);
                 engine = engine.Execute(namingJSFile);
@@ -45,9 +46,9 @@ namespace DbAccessCodeGen.Configuration
             return InvokeExternal<string>(nameof(GetParameterName), csName) ?? base.GetParameterName(csName);
         }
 
-        public override string GetPropertyName(string sqlName)
+        public override string GetPropertyName(string sqlName, GeneratedCodeType generatedCodeType)
         {
-            return InvokeExternal<string>(nameof(GetPropertyName), sqlName) ?? base.GetPropertyName(sqlName);
+            return InvokeExternal<string>(nameof(GetPropertyName), sqlName, generatedCodeType) ?? base.GetPropertyName(sqlName, generatedCodeType);
         }
 
         public override Identifier GetResultTypeName(DBObjectName name)
