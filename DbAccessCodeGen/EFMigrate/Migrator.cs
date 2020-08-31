@@ -56,9 +56,10 @@ namespace DbAccessCodeGen.EFMigrate
                 {
                     var curList = complexTypeFields[currentComplexType];
                     var maxLength = xmlReader.GetAttribute("MaxLength");
+                    string? nullable = xmlReader.GetAttribute("Nullable");
                     var info = new ComplexTypeInfo(xmlReader.GetAttribute("Type"),
                         xmlReader.GetAttribute("Name"),
-                        bool.Parse(xmlReader.GetAttribute("Nullable")),
+                         string.IsNullOrEmpty(nullable) ? true : bool.Parse(nullable),
                         string.IsNullOrEmpty(maxLength) ? 0 : int.Parse(maxLength));
                     curList.Add(info);
                 }
@@ -71,7 +72,11 @@ namespace DbAccessCodeGen.EFMigrate
                 try
                 {
                     var spName = (mapFunctionToReturnType.Select(kv => (KeyValuePair<string, string>?)kv).FirstOrDefault(r => r!.Value.Value == typeName)
-                        ?? mapFunctionToReturnType.First(r => r.Value.EndsWith("." + typeName, StringComparison.CurrentCultureIgnoreCase))).Key;
+                        ?? mapFunctionToReturnType.FirstOrDefault(r => r.Value.EndsWith("." + typeName, StringComparison.CurrentCultureIgnoreCase))).Key;
+                    if(string.IsNullOrEmpty(spName))
+                    {
+                        Console.Error.WriteLine($"Type not mapped: {typeName}");
+                    }
                     var jsonToPrint = fields.Select(f => new { Name = f.Name, TypeName = edmTypes.GetSqlType(f.Type), IsNullable = f.Nullable, f.MaxLength }).ToArray();
                     var options = new JsonSerializerOptions
                     {

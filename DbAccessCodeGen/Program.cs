@@ -111,12 +111,14 @@ namespace DbAccessCodeGen
                 }
                 if(edmxFile == null)
                 {
-                    Console.Error.WriteLine("Must provide edmx File");
+                    Console.Error.WriteLine("Must provide edmx File (-e)");
+                    p.WriteOptionDescriptions(Console.Out);
                     Environment.Exit(-1);
                 }
                 if (outDir == null)
                 {
                     Console.Error.WriteLine("Must provide out dir");
+                    p.WriteOptionDescriptions(Console.Out);
                     Environment.Exit(-1);
                 }
                 await ExecuteMigrateEF(edmxFile, outDir);

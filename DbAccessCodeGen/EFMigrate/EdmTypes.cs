@@ -20,6 +20,8 @@ namespace DbAccessCodeGen.EFMigrate
             {"Decimal", "float" },
             {"Guid", "uniqueidentifier" },
             {"System.Byte[]", "varbinary" },
+            {"Byte[]", "varbinary" },
+            {"Byte", "byte" },
             {"Binary", "varbinary" },
             {"DateTime", "datetime" },
             {"Date", "date" },
