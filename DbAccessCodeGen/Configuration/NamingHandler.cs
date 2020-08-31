@@ -30,7 +30,8 @@ namespace DbAccessCodeGen.Configuration
             string lowerCase = csName[0].ToString().ToLower() + csName.Substring(1);
             if (isCSharpKeyword(lowerCase))
                 return "@" + lowerCase;
-            return lowerCase;
+            
+            return MakeIdentifierValid(lowerCase);
         }
 
         public virtual string MakeIdentifierValid(string identifier)
