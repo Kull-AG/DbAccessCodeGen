@@ -88,7 +88,7 @@ protected readonly struct {{MethodName}}Ordinals
 
 	public {{MethodName}}Ordinals({{ for prop in ResultFields }}int {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{ end }})
 	{
-		{{ for prop in ResultFields }}{{prop.CSPropertyName}} = {{prop.ParameterName}};
+		{{ for prop in ResultFields }}this.{{prop.CSPropertyName}} = {{prop.ParameterName}};
 		{{ end }}		
 	}
 }

@@ -2,7 +2,8 @@
   "profiles": {
     "DbAccessCodeGen": {
       "commandName": "Project",
-      "commandLineArgs": "-c DbCodeGenConfig.yml"
+      "commandLineArgs": "-c DbCodeGenConfig.yml",
+      "workingDirectory": "../DbCode.Test"
     }
   }
 }

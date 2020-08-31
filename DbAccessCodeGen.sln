@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbAccessCodeGen.Test", "DbAccessCodeGen.Test\DbAccessCodeGen.Test.csproj", "{DC7184A6-A64D-4BC7-8A55-BC95A287B8CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbAccessCodeGen.Test", "DbAccessCodeGen.Test\DbAccessCodeGen.Test.csproj", "{DC7184A6-A64D-4BC7-8A55-BC95A287B8CF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,7 +25,6 @@ Global
 		{8862CFEE-ADFC-43D6-9A7E-02234317C31C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8862CFEE-ADFC-43D6-9A7E-02234317C31C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{39790F32-015E-4A61-B4B2-96F5589AADFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{39790F32-015E-4A61-B4B2-96F5589AADFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{39790F32-015E-4A61-B4B2-96F5589AADFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{39790F32-015E-4A61-B4B2-96F5589AADFE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DC7184A6-A64D-4BC7-8A55-BC95A287B8CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU

@@ -2,7 +2,7 @@
 GO
 CREATE TABLE dbo.TestDbVersion(VersionNr int)
 GO
-INSERT INTO dbo.TestDbVersion(VersionNr) VALUES('{{DbVersion}}')
+INSERT INTO dbo.TestDbVersion(VersionNr) VALUES('$(DbVersion)')
 GO
 INSERT INTO dbo.Pets(PetId, PetName, IsNice)
 SELECT 1, 'Dog', 0
