@@ -73,6 +73,8 @@ namespace DbAccessCodeGen.Configuration
         }
 
 
+        static object executionLock = new object();
+
         private T? InvokeExternal<T>(string functionName, params object[] args)
             where T : class
         {
@@ -80,10 +82,13 @@ namespace DbAccessCodeGen.Configuration
             var parameterTypeName = engine.GetValue(engine.Global, functionName);
             if (parameterTypeName.Type == Jint.Runtime.Types.Undefined)
                 return default(T);
-            var res = parameterTypeName.Invoke(
-                args.Select(a => Jint.Native.JsValue.FromObject(engine, a)).ToArray());
-            var ident = (T)res.ToObject();
-            return ident;
+            lock (executionLock)
+            {
+                var res = parameterTypeName.Invoke(
+                    args.Select(a => Jint.Native.JsValue.FromObject(engine, a)).ToArray());
+                var ident = (T)res.ToObject();
+                return ident;
+            }
         }
     }
 }

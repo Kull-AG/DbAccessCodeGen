@@ -87,14 +87,34 @@ namespace DbAccessCodeGen.CodeGen
                 using (var scope = serviceProvider.CreateScope())
                 {
                     var con = scope.ServiceProvider.GetRequiredService<DbConnection>();
-                    var spprm = await this.sPParametersProvider.GetSPParameters(sp, con);
-                    var result = await this.sqlHelper.GetSPResultSet(con, sp, true);
-                    writeTasks.Add(toWriteTo.WriteAsync(new SPMetadata(name: sp, parameters: spprm, 
-                           fields: result, 
-                           resultType: namingHandler.GetResultTypeName(sp),
-                           parameterTypeName: namingHandler.GetParameterTypeName(sp),
-                           methodName: namingHandler.GetServiceClassMethodName(sp)
-                           )));
+                    try
+                    {
+                        var spprm = await this.sPParametersProvider.GetSPParameters(sp, con);
+                        try
+                        {
+                            var result = await this.sqlHelper.GetSPResultSet(con, sp, true);
+                            writeTasks.Add(toWriteTo.WriteAsync(new SPMetadata(name: sp, parameters: spprm,
+                                   fields: result,
+                                   resultType: namingHandler.GetResultTypeName(sp),
+                                   parameterTypeName: namingHandler.GetParameterTypeName(sp),
+                                   methodName: namingHandler.GetServiceClassMethodName(sp)
+                                   )));
+                        }
+                        catch (Exception err)
+                        {
+                            logger.LogError("Could not get fields. \r\n{0}", err);
+                            writeTasks.Add(toWriteTo.WriteAsync(new SPMetadata(name: sp, parameters: spprm,
+                                  fields: new SqlFieldDescription[] { },
+                                  resultType: namingHandler.GetResultTypeName(sp),
+                                  parameterTypeName: namingHandler.GetParameterTypeName(sp),
+                                  methodName: namingHandler.GetServiceClassMethodName(sp)
+                                  )));
+                        }
+                    }
+                    catch(Exception err)
+                    {
+                        logger.LogError("Could not get parameters. \r\n{0}", err);
+                    }
                 }
             }
             await Task.WhenAll(writeTasks.Select(v => v.AsTask()));
