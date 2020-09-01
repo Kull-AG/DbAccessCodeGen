@@ -13,7 +13,7 @@ namespace DbAccessCodeGen.EFMigrate
             {"Boolean", "bit" },
             {"Int16", "smallint" },
             {"Int32", "int" },
-            {"Int64", "long" },
+            {"Int64", "bigint" },
             {"Double", "float" },
             {"Float", "float" },
             {"Single", "real" },
