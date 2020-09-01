@@ -39,7 +39,7 @@ You must provide the config location via --config parameter
 In Addition you have to provide a connection string somehow. One way is to just add "ConnectionString" to the Settings file above, the other way is to 
 use the --connectionString Parameter . Always be sure not to include credentials in a config if you should not
 
-## What the code looks like 
+## What the (default) generated code looks like 
 
 There are two files per Procedure (one for the parameters, one for the result) and a Service Class for all procedures. 
 
@@ -109,7 +109,7 @@ The generated service method look something like this :
             finPeriod: rdr.GetOrdinal("FinPeriod") , isDefault: rdr.GetOrdinal("IsDefault") , firstInPeriod: rdr.GetOrdinal("FirstInPeriod") , lastInPeriod: rdr.GetOrdinal("LastInPeriod") 
         );
         
-        while(await rdr.ReadAsync())
+        while(await rdr.ReadAsync()),
         {
             yield return spGetFinancialPeriods_FromRecord(rdr, ordinals);
             
@@ -123,6 +123,29 @@ The generated service method look something like this :
 You can configure to generate non-async code. As you can see, you get two overloads for the function, one with an Object as Parameter and the otherone with just plain parameters.
 It depends a lot on your use case which one is better suited.
 
+As the default code uses IAsyncEnumerable, you might want to install System.Linq.Async Package from Nuget.
+
 ## Customization
 
-You can fully customize the Templates and the naming Convention. This is yet to be documented, however the Tests/project provides examples.
+You can fully customize the Templates and the naming Convention. 
+To customize the templates, provide a TemplateDir in the Settings yaml and download [the Templates in the project](DbAccessCodeGen/Templates). There are three templates currently:
+
+- ModelFile: Code for a parameters/result class
+- ServiceMethod: Code for a single method in the Service class
+- ServiceClass: The service class itself.
+
+The generated code does by default alread expose two partial Methods you can use to customize things like Logging / Command Timeout etc:
+
+```C#
+        partial void OnCommandStart(DbCommand cmd, DateTime startedAt)
+        {
+            cmd.CommandTimeout = this.CommandTimeout;
+        }
+
+        partial void OnCommandEnd(DbCommand cmd, DateTime startedAt)
+        {
+            
+        }
+```    
+
+The most advanced use case currently is customizing naming convetion. You can set the NamingJS Value in the Yaml file that points to a JavaScript file which allows overwriting all methods of the [NamingHandler](DbAccessCodeGen/Configuration/NamingHandler.cs). An example can be found in the [Test project](DbCode.Test/naming.js)
