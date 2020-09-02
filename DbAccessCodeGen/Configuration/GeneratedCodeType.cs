@@ -3,6 +3,7 @@
     public enum GeneratedCodeType
     {
         ResultClass,
-        ParameterClass
+        ParameterClass,
+        TableValuedParameter
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Kull.DatabaseMetadata;
 using System;
 using System.Data;
+using System.Linq;
 
 namespace DbAccessCodeGen.Objects
 {
@@ -17,14 +18,21 @@ namespace DbAccessCodeGen.Objects
         public ParameterDirection? ParameterDirection { get; }
         public string ParameterName { get; }
 
-        public string CompleteNetType => NetType + (IsNullable ? "?" : "");
+        public string CompleteNetType => IsTableValued ? "IEnumerable<" + NetType  + ">" + (IsNullable ? "?" : "") :
+                 NetType + (IsNullable ? "?" : "");
+
+        public bool IsTableValued { get; }
+
+        public string TableValuedMeta { get; }
+        public string TableValuedFn { get; }
         public ModelProperty(string sqlName, 
             string csName, 
             string parameterName, 
             string netType, 
             bool nullable,
             string getCode,
-            ParameterDirection? parameterDirection)
+            ParameterDirection? parameterDirection,
+            Model? userDefinedTableType)
         {
             this.SqlName = sqlName;
             this.CSPropertyName = csName;
@@ -35,6 +43,13 @@ namespace DbAccessCodeGen.Objects
             GetCode = getCode;
             ParameterDirection = parameterDirection;
             this.ParameterName = parameterName;
+            this.IsTableValued = userDefinedTableType != null;
+            if(userDefinedTableType != null)
+            {
+                this.TableValuedMeta =
+                    "new (string, Type)[] {" + string.Join(", ", userDefinedTableType.Properties.Select(s => "(" + "\"" + s.SqlName + "\", typeof(" + s.NetType + "))")) + "}";
+                this.TableValuedFn = "row => new object[] {" + string.Join(", ", userDefinedTableType.Properties.Select(s => "row." + s.CSPropertyName)) + "}";
+            } 
         }
     }
 

@@ -1,4 +1,6 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
+
 namespace {{Name.Namespace}}
 {
     public partial class {{Name.Name}} 

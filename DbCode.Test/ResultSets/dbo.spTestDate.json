@@ -1,0 +1,7 @@
+[
+  {
+    "Name": "Date",
+    "TypeName": "datetime2",
+    "IsNullable": true
+  }
+]

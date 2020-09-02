@@ -110,23 +110,10 @@ namespace DbAccessCodeGen.CodeGen
             ReadTemplates();
             logger.LogDebug($"Generate code for {codeGenPrm.SqlName}");
             List<Model> modelsToGenerate = new List<Model>();
-            Model? parameterModel = codeGenPrm.Parameters.Any() ? new Model(
-                codeGenPrm.ParameterTypeName!,
-                codeGenPrm.Parameters
-                    .Where(d => d.ParameterDirection == System.Data.ParameterDirection.Input || d.ParameterDirection == System.Data.ParameterDirection.InputOutput)
-                    .Select(s => GetModelProperty(s)
-                ).ToArray()) : null;
-            if (parameterModel != null)
-                modelsToGenerate.Add(parameterModel);
-            Model? resultModel = codeGenPrm.ResultFields != null && codeGenPrm.ResultFields.Any(r => r.Name != null) && codeGenPrm.ResultFields.Any() ? new Model(
-                codeGenPrm.ResultType!,
-                codeGenPrm.ResultFields.Where(r => r.Name != null).Select(s => GetModelProperty(s)
-                ).ToArray()) : null;
-            if (resultModel != null)
-                modelsToGenerate.Add(resultModel);
             var udtPrms = codeGenPrm.Parameters.Where(u => u.UserDefinedType != null)
                 .Select(u => u.UserDefinedType!)
                 .Distinct();
+            Dictionary<DBObjectName, Model> userGeneratedTypes = new Dictionary<DBObjectName, Model>();
             foreach (var item in udtPrms)
             {
                 var noFields = Array.Empty<SqlFieldDescription>();
@@ -139,11 +126,30 @@ namespace DbAccessCodeGen.CodeGen
                     }
                     var udtmodel = new Model(
                 namingHandler.GetIdentifierForUserDefinedType(item.Name),
-                realFields.Select(s => GetModelProperty(s)).ToArray());
-
+                realFields.Select(s => GetModelProperty(s)).ToArray(),
+                codeType: GeneratedCodeType.TableValuedParameter);
+                    userGeneratedTypes.Add(item, udtmodel);
                     modelsToGenerate.Add(udtmodel);
                 }
             }
+
+            Model? parameterModel = codeGenPrm.Parameters.Any() ? new Model(
+                codeGenPrm.ParameterTypeName!,
+                codeGenPrm.Parameters
+                    .Where(d => d.ParameterDirection == System.Data.ParameterDirection.Input || d.ParameterDirection == System.Data.ParameterDirection.InputOutput)
+                    .Select(s => GetModelProperty(s, s.UserDefinedType==null?null: userGeneratedTypes[s.UserDefinedType])
+                ).ToArray(),
+                codeType: GeneratedCodeType.ParameterClass) : null;
+            if (parameterModel != null)
+                modelsToGenerate.Add(parameterModel);
+            Model? resultModel = codeGenPrm.ResultFields != null && codeGenPrm.ResultFields.Any(r => r.Name != null) && codeGenPrm.ResultFields.Any() ? new Model(
+                codeGenPrm.ResultType!,
+                codeGenPrm.ResultFields.Where(r => r.Name != null).Select(s => GetModelProperty(s)
+                ).ToArray(),
+                codeType: GeneratedCodeType.ResultClass) : null;
+            if (resultModel != null)
+                modelsToGenerate.Add(resultModel);
+            
 
             var modelTemplate = Scriban.Template.Parse(ModelFileTemplate);
             var serviceMethodTemplate = Scriban.Template.Parse(ServiceMethodTemplate);
@@ -208,18 +214,18 @@ namespace DbAccessCodeGen.CodeGen
             await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(fullOutDir, fileName), Disclaimer + serviceString);
         }
 
-        private ModelProperty GetModelProperty(SPParameter s)
+        private ModelProperty GetModelProperty(SPParameter s, Model? userDefinedType)
         {
-            return GetModelProperty(GeneratedCodeType.ParameterClass, s.DbType, s.UserDefinedType, s.SqlName, s.IsNullable, s.ParameterDirection);
+            return GetModelProperty(GeneratedCodeType.ParameterClass, s.DbType, s.UserDefinedType,  userDefinedType, s.SqlName, s.IsNullable, s.ParameterDirection);
         }
 
         private ModelProperty GetModelProperty(SqlFieldDescription s)
         {
-            return GetModelProperty(GeneratedCodeType.ResultClass, s.DbType, null, s.Name, s.IsNullable, null);
+            return GetModelProperty(GeneratedCodeType.ResultClass, s.DbType, null, null, s.Name, s.IsNullable, null);
         }
 
         private ModelProperty GetModelProperty(GeneratedCodeType generatedCodeType,
-            SqlType dbType, DBObjectName? userDefinedType, string sqlName, bool isNullable, ParameterDirection? parameterDirection)
+            SqlType dbType, DBObjectName? userDefinedType, Model? userDefinedTypeGen, string sqlName, bool isNullable, ParameterDirection? parameterDirection)
         {
             var type = GetNetType(dbType, userDefinedType);
             var csName = namingHandler.GetPropertyName(sqlName, generatedCodeType);
@@ -231,7 +237,8 @@ namespace DbAccessCodeGen.CodeGen
                                 nullable: isNullable,
                                 getCode: sqlTypeMapper.GetMappingCode(type,
                                     isNullable, csName),
-                                parameterDirection: parameterDirection
+                                parameterDirection: parameterDirection,
+                                userDefinedTableType: userDefinedTypeGen
                                 );
         }
 

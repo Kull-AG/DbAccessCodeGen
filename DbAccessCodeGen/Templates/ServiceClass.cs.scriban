@@ -44,6 +44,48 @@ namespace {{Name.Namespace}}
             }
             return rowData;
         }
+        
+        private void AddTableValuedCommandParameter<T>(DbCommand cmd, string sqlName, IEnumerable<T> parameterValue, (string fieldName, Type netType)[] fields, Func<T, object[]> getRowData)
+        {
+            var p = cmd.CreateParameter();
+            p.ParameterName = sqlName;
+            if (parameterValue == null)
+            {
+                p.Value = DBNull.Value;
+                cmd.Parameters.Add(p);
+                return;
+            }
+
+            System.Data.DataTable dt;
+            dt = new System.Data.DataTable();
+            foreach (var col in fields)
+            {
+                dt.Columns.Add(col.fieldName, col.netType);
+            }
+            foreach(var row in parameterValue)
+            {
+                var rowData = getRowData(row);
+                dt.Rows.Add(rowData);
+            }
+            p.Value = dt;
+            if (p.GetType().FullName == "System.Data.SqlClient.SqlParameter" ||
+                            p.GetType().FullName == "Microsoft.Data.SqlClient.SqlParameter")
+            {
+
+                // Reflection set SqlDbType in order to avoid 
+                // referecnting the deprecated SqlClient Nuget Package or the too new Microsoft SqlClient package
+
+                // see https://devblogs.microsoft.com/dotnet/introducing-the-new-microsoftdatasqlclient/
+
+                // cmdPrm.SqlDbType = System.Data.SqlDbType.Structured;
+                p.GetType().GetProperty("SqlDbType", System.Reflection.BindingFlags.Public |
+                    System.Reflection.BindingFlags.Instance |
+                    System.Reflection.BindingFlags.SetProperty)!
+                    .SetValue(p, System.Data.SqlDbType.Structured);
+            }
+            cmd.Parameters.Add(p);
+            
+        }
 {{Methods}}
 	}
 

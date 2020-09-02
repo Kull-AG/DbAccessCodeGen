@@ -10,7 +10,9 @@ namespace DbAccessCodeGen.Templates
         // EmbeddedResource does not seem to work, so this is required
 
         internal const string ModelFileTemplate =
-@"
+@"using System;
+using System.Collections.Generic;
+
 namespace {{Name.Namespace}}
 {
     public partial class {{Name.Name}} 
@@ -46,10 +48,8 @@ namespace {{Name.Namespace}}
 			this.connection = connection;
             this.isMSSqlServer = connection.GetType().FullName.StartsWith(""System.Data.SqlClient"")
                 || connection.GetType().FullName.StartsWith(""Microsoft.Data.SqlClient"");
-			this.Init();
 		}
 
-		partial void Init();
 		partial void OnCommandStart(DbCommand cmd, DateTime startedAt);
 		partial void OnCommandEnd(DbCommand cmd, DateTime startedAt);
 
@@ -70,11 +70,53 @@ namespace {{Name.Namespace}}
         private Dictionary<string, object?> ReadDictionary(IDataRecord record, int fieldCount) 
         {
             Dictionary<string, object?> rowData = new Dictionary<string, object?>(fieldCount);
-            for(int i = 0; i < fieldCount; i++) 
+            for(int i = 0; i<fieldCount; i++) 
             {
                 rowData[record.GetName(i)] = record.IsDBNull(i) ? (object?)null : record.GetValue(i);
             }
             return rowData;
+        }
+        
+        private void AddTableValuedCommandParameter<T>(DbCommand cmd, string sqlName, IEnumerable<T> parameterValue, (string fieldName, Type netType)[] fields, Func<T, object[]> getRowData)
+        {
+            var p = cmd.CreateParameter();
+            p.ParameterName = sqlName;
+            if (parameterValue == null)
+            {
+                p.Value = DBNull.Value;
+                cmd.Parameters.Add(p);
+                return;
+            }
+
+            System.Data.DataTable dt;
+            dt = new System.Data.DataTable();
+            foreach (var col in fields)
+            {
+                dt.Columns.Add(col.fieldName, col.netType);
+            }
+            foreach(var row in parameterValue)
+            {
+                var rowData = getRowData(row);
+                dt.Rows.Add(rowData);
+            }
+            p.Value = dt;
+            if (p.GetType().FullName == ""System.Data.SqlClient.SqlParameter"" ||
+                            p.GetType().FullName == ""Microsoft.Data.SqlClient.SqlParameter"")
+            {
+
+                // Reflection set SqlDbType in order to avoid 
+                // referecnting the deprecated SqlClient Nuget Package or the too new Microsoft SqlClient package
+
+                // see https://devblogs.microsoft.com/dotnet/introducing-the-new-microsoftdatasqlclient/
+
+                // cmdPrm.SqlDbType = System.Data.SqlDbType.Structured;
+                p.GetType().GetProperty(""SqlDbType"", System.Reflection.BindingFlags.Public |
+                    System.Reflection.BindingFlags.Instance |
+                    System.Reflection.BindingFlags.SetProperty)!
+                    .SetValue(p, System.Data.SqlDbType.Structured);
+            }
+            cmd.Parameters.Add(p);
+            
         }
 {{Methods}}
 	}
@@ -105,9 +147,9 @@ protected {{ResultType}} {{MethodName}}_FromRecord(IDataRecord row, in {{MethodN
 
 {{if GenerateAsyncCode}}
 {{if ParameterTypeName}}
-public IAsyncEnumerable<{{ResultType}}> {{MethodName}}Async ({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.CSPropertyName}}{{if !for.last}}, {{ end }}{{end}})
+public IAsyncEnumerable<{{ResultType}}> {{MethodName}}Async ({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{end}})
 {
-	return {{MethodName}}Async(new {{ParameterTypeName}}({{ for prop in Parameters }}{{prop.ParameterName}}: {{prop.CSPropertyName}}{{if !for.last}}, {{ end }}
+	return {{MethodName}}Async(new {{ParameterTypeName}}({{ for prop in Parameters }}{{prop.ParameterName}}: {{prop.ParameterName}}{{if !for.last}}, {{ end }}
 		{{end}}));
 }
 {{end}}
@@ -121,8 +163,9 @@ public async IAsyncEnumerable<{{ResultType}}> {{MethodName}}Async ({{if Paramete
 	}
 	cmd.CommandType = CommandType.StoredProcedure;
 	cmd.CommandText = ""{{SqlName}}"";
-	{{ for prop in Parameters }}this.AddCommandParameter(cmd, ""{{prop.SqlName}}"", parameters.{{ prop.CSPropertyName }}, ParameterDirection.{{ prop.ParameterDirection }});
-	{{ end }}
+	{{ for prop in Parameters }}
+	{{if prop.IsTableValued}}this.AddTableValuedCommandParameter(cmd, ""{{prop.SqlName}}"", parameters.{{ prop.CSPropertyName }}, {{prop.TableValuedMeta}}, {{prop.TableValuedFn}});
+	{{else}}this.AddCommandParameter(cmd, ""{{prop.SqlName}}"", parameters.{{ prop.CSPropertyName }}, ParameterDirection.{{ prop.ParameterDirection }});{{end}}{{ end }}
 	DateTime start = DateTime.Now;
 	OnCommandStart(cmd, start);
 	using var rdr = await cmd.ExecuteReaderAsync();
@@ -144,9 +187,9 @@ public async IAsyncEnumerable<{{ResultType}}> {{MethodName}}Async ({{if Paramete
 {{end}}
 {{if GenerateSyncCode}}
 {{if ParameterTypeName}}
-public IEnumerable<{{ResultType}}> {{MethodName}} ({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.CSPropertyName}}{{if !for.last}}, {{ end }}{{end}})
+public IEnumerable<{{ResultType}}> {{MethodName}} ({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{end}})
 {
-	return {{MethodName}}(new {{ParameterTypeName}}({{ for prop in Parameters }}{{prop.ParameterName}}: {{prop.CSPropertyName}}{{if !for.last}}, {{ end }}
+	return {{MethodName}}(new {{ParameterTypeName}}({{ for prop in Parameters }}{{prop.ParameterName}}: {{prop.ParameterName}}{{if !for.last}}, {{ end }}
 	{{end}}));
 }
 {{end}}
@@ -160,8 +203,9 @@ public IEnumerable<{{ResultType}}> {{MethodName}} ({{if ParameterTypeName}}{{Par
 	}
 	cmd.CommandType = CommandType.StoredProcedure;
 	cmd.CommandText = ""{{SqlName}}"";
-	{{ for prop in Parameters }}this.AddCommandParameter(cmd, ""{{prop.SqlName}}"", parameters.{{ prop.CSPropertyName }}, ParameterDirection.{{ prop.ParameterDirection }});
-	{{ end }}
+	{{ for prop in Parameters }}
+	{{if prop.IsTableValued}}this.AddTableValuedCommandParameter(cmd, ""{{prop.SqlName}}"", parameters.{{ prop.CSPropertyName }}, {{prop.TableValuedMeta}}, {{prop.TableValuedFn}});
+	{{else}}this.AddCommandParameter(cmd, ""{{prop.SqlName}}"", parameters.{{ prop.CSPropertyName }}, ParameterDirection.{{ prop.ParameterDirection }});{{end}}{{ end }}
 	DateTime start = DateTime.Now;
 	OnCommandStart(cmd, start);
 	using var rdr = cmd.ExecuteReader();

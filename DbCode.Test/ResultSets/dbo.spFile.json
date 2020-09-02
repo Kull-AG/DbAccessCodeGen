@@ -1,0 +1,17 @@
+[
+  {
+    "Name": "Content",
+    "TypeName": "varbinary",
+    "IsNullable": true
+  },
+  {
+    "Name": "ContentType",
+    "TypeName": "varchar",
+    "IsNullable": true
+  },
+  {
+    "Name": "FileName",
+    "TypeName": "varchar",
+    "IsNullable": true
+  }
+]
