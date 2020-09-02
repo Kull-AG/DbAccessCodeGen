@@ -1,6 +1,6 @@
 ﻿$server = "(LocalDB)\MSSQLLocalDB"
 $db = "CodeGenTestDb"
-$shouldVNr = 1
+$shouldVNr = 2
 $hasDb = ( & "sqlcmd" -E -S $server -d master -Q "SELECT name FROM sys.databases" ) | Where-Object { $_.Trim() -eq $db }
 $createNewDb = $false
 if ($hasDb) {
@@ -16,6 +16,7 @@ if ($hasDb) {
         $currentVNr = [System.Int32]::Parse(($outputVersion)[2].Trim())
         if($currentVNr -ne $shouldVNr) {
             Write-Host "Will drop and recreated db. Old VNr: $currentVNr, new Nr: $shouldVNr"
+            $createNewDb=$true
         }
     }
 }
