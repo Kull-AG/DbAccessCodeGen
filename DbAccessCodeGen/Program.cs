@@ -20,6 +20,8 @@ namespace DbAccessCodeGen
     {
         static string? GetSubCommand(string[] args)
         {
+
+
             string? firstOption = args.FirstOrDefault(a => a.StartsWith("-"));
             int? firstOptionIndex = firstOption != null ? Array.IndexOf(args, firstOption) : (int?)null;
             if (firstOptionIndex == 0) return null;
@@ -32,7 +34,7 @@ namespace DbAccessCodeGen
 
         static async Task Main(string[] args)
         {
-
+            
             if (!DbProviderFactories.TryGetFactory("System.Data.SqlClient", out var _))
                 DbProviderFactories.RegisterFactory("System.Data.SqlClient", System.Data.SqlClient.SqlClientFactory.Instance);
 

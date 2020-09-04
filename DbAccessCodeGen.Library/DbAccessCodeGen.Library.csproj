@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Nullable>Enable</Nullable>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="sdofijwofeij.txt" />
+    <None Remove="Templates\ModelFile.scriban" />
+    <None Remove="Templates\ServiceClass.scriban" />
+    <None Remove="Templates\ServiceMethod.scriban" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\ModelFile.scriban">
+    </EmbeddedResource>
+    <EmbeddedResource Include="Templates\ServiceClass.scriban">
+
+    </EmbeddedResource>
+    <EmbeddedResource Include="Templates\ServiceMethod.scriban">
+
+    </EmbeddedResource>
+  </ItemGroup>
+<ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="3.1.0" />
+  <PackageReference Include="Jint" Version="3.0.0-beta-1828" />
+    <PackageReference Include="Kull.DatabaseMetadata" Version="0.9.4" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.7.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.7" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.7" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.7" />
+    <PackageReference Include="Scriban" Version="2.1.4" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
+    <PackageReference Include="YamlDotNet" Version="8.1.2" />
+</ItemGroup>
+</Project>

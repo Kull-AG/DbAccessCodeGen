@@ -14,6 +14,7 @@ using System.IO;
 using System.Threading.Channels;
 using System.Data;
 using System.Data.Common;
+using DbAccessCodeGen.Library.Templates;
 
 namespace DbAccessCodeGen.CodeGen
 {
@@ -86,9 +87,9 @@ namespace DbAccessCodeGen.CodeGen
                     logger.LogDebug("Read template files");
                     if (tempalteParsed == false)
                     {
-                        ModelFileTemplate = GetTemplate("ModelFile", Templates.DefaultTemplates.ModelFileTemplate);
-                        ServiceClassTemplate = GetTemplate("ServiceClass", Templates.DefaultTemplates.ServiceClassTemplate);
-                        ServiceMethodTemplate = GetTemplate("ServiceMethod", Templates.DefaultTemplates.ServiceMethodTemplate);
+                        ModelFileTemplate = GetTemplate("ModelFile");
+                        ServiceClassTemplate = GetTemplate("ServiceClass");
+                        ServiceMethodTemplate = GetTemplate("ServiceMethod");
                         tempalteParsed = true;
                     }
                     logger.LogDebug("Finished Read template files");
@@ -96,13 +97,13 @@ namespace DbAccessCodeGen.CodeGen
             }
         }
 
-        private string GetTemplate(string name, string defaultTemplate)
+        private string GetTemplate(string name)
         {
             var folderPath = settings.TemplateDir == null ? "Templates" : settings.TemplateDir;
             string fullName = System.IO.Path.Combine(folderPath, name + ".cs.scriban");
             if (System.IO.File.Exists(fullName))
                 return System.IO.File.ReadAllText(fullName);
-            return defaultTemplate;
+            return TemplateRetrieval.GetTemplate(name);
         }
 
         public async Task ExecuteCodeGen(SPMetadata codeGenPrm, ChannelWriter<(string name, string template)> methods)
