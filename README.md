@@ -9,6 +9,13 @@ For all platforms, System.Linq.Async might be helpful
 - Currently only Stored Procedures are supported and only MS SQL Server works realiably.
 - Generated Code requires C# 8.0. This can easily be set in the project settings and allows for certain great features like Nullable Context
 
+## Why you should use it
+
+- Great for AOT (like [Xamarin](https://www.xamarinhelp.com/xamarin-android-aot-works/)) and [App Trimming](https://devblogs.microsoft.com/dotnet/app-trimming-in-net-5/). Generated Code does not need Reflection
+- No need for Entity Framework
+- It's really fast in generating code
+- The generated code is very fast (Tests pending) as it uses Low-Level .Net Code
+
 ## Requirements / configuration
 
 Create a file called DbCodeGenConfig.yml and configure your must important settings:

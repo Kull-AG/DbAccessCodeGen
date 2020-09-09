@@ -14,7 +14,7 @@ using System.IO;
 using System.Threading.Channels;
 using System.Data;
 using System.Data.Common;
-using DbAccessCodeGen.Library.Templates;
+using DbAccessCodeGen.Templates;
 
 namespace DbAccessCodeGen.CodeGen
 {

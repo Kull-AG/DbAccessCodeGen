@@ -4,10 +4,11 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <Nullable>Enable</Nullable>
     <LangVersion>8.0</LangVersion>
+    <RootNamespace>DbAccessCodeGen</RootNamespace>
+    
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="sdofijwofeij.txt" />
     <None Remove="Templates\ModelFile.scriban" />
     <None Remove="Templates\ServiceClass.scriban" />
     <None Remove="Templates\ServiceMethod.scriban" />

@@ -23,8 +23,8 @@ namespace DbAccessCodeGen.Objects
 
         public bool IsTableValued { get; }
 
-        public string TableValuedMeta { get; }
-        public string TableValuedFn { get; }
+        public string? TableValuedMeta { get; }
+        public string? TableValuedFn { get; }
         public ModelProperty(string sqlName, 
             string csName, 
             string parameterName, 
