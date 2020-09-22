@@ -18,6 +18,10 @@ For all platforms, System.Linq.Async might be helpful
 
 ## Requirements / configuration
 
+Install it via as a [tool](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-tool-install) via nuget:
+
+[![NuGet Badge](https://buildstats.info/nuget/DbAccessCodeGen)](https://www.nuget.org/packages/DbAccessCodeGen/)
+
 Create a file called DbCodeGenConfig.yml and configure your must important settings:
 
 ```yaml
@@ -41,7 +45,8 @@ Procedures:
 
 The template dir allows you to overwrite the templates used, the default ones are in the [DbAccessCodeGen/Templates](DbAccessCodeGen/Templates) folder.
 
-You must provide the config location via --config parameter
+You must provide the config location via -c / --config parameter, therefore a possible command looks like this:
+```dotnet tool run dbcodegen -c DbConfig.yml```
 
 In Addition you have to provide a connection string somehow. One way is to just add "ConnectionString" to the Settings file above, the other way is to 
 use the --connectionString Parameter . Always be sure not to include credentials in a config if you should not
