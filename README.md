@@ -141,7 +141,7 @@ To customize the templates, provide a TemplateDir in the Settings yaml and downl
 - ServiceMethod: Code for a single method in the Service class
 - ServiceClass: The service class itself.
 
-The generated code does by default alread expose two partial Methods you can use to customize things like Logging / Command Timeout etc:
+The generated code does by default already expose two partial Methods you can use to customize things like Logging / Command Timeout etc:
 
 ```C#
         partial void OnCommandStart(DbCommand cmd, DateTime startedAt)
