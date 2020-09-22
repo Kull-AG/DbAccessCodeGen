@@ -155,4 +155,4 @@ The generated code does by default already expose two partial Methods you can us
         }
 ```    
 
-The most advanced use case currently is customizing naming convetion. You can set the NamingJS Value in the Yaml file that points to a JavaScript file which allows overwriting all methods of the [NamingHandler](DbAccessCodeGen/Configuration/NamingHandler.cs). An example can be found in the [Test project](DbCode.Test/naming.js)
+The most advanced use case currently is customizing naming convention. You can set the NamingJS Value in the Yaml file that points to a JavaScript file which allows overwriting all methods of the [NamingHandler](DbAccessCodeGen/Configuration/NamingHandler.cs). An example can be found in the [Test project](DbCode.Test/naming.js)
