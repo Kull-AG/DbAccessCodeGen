@@ -36,7 +36,10 @@ namespace DbAccessCodeGen.CodeGen
             {
                 baseTemplate = $"({netType}){recordVarName}.GetValue({ordinalName})";
             }
-            if (!nullable) return baseTemplate;
+            if (!nullable)
+            {
+                return $"{recordVarName}.{nameof(IDataRecord.IsDBNull)}({ordinalName}) ? throw new NullReferenceException(\"{name}\") : {baseTemplate}";
+            }
             else
             {
                 return $"{recordVarName}.{nameof(IDataRecord.IsDBNull)}({ordinalName}) ? ({netType}?)null : {baseTemplate}";
