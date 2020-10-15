@@ -45,7 +45,7 @@ namespace {{Name.Namespace}}
             return rowData;
         }
         
-        private void AddTableValuedCommandParameter<T>(DbCommand cmd, string sqlName, IEnumerable<T> parameterValue, (string fieldName, Type netType)[] fields, Func<T, object[]> getRowData)
+        private void AddTableValuedCommandParameter<T>(DbCommand cmd, string sqlName, IEnumerable<T>? parameterValue, (string fieldName, Type netType)[] fields, Func<T, object[]> getRowData)
         {
             var p = cmd.CreateParameter();
             p.ParameterName = sqlName;

@@ -1,13 +1,13 @@
-﻿CREATE TABLE dbo.Pets (PetId int PRIMARY KEY , PetName varchar(100), IsNice bit, ts timestamp)
+﻿CREATE TABLE dbo.Pets (PetId int PRIMARY KEY , PetName varchar(100), PetHeight decimal, IsNice bit, ts timestamp)
 GO
 CREATE TABLE dbo.TestDbVersion(VersionNr int)
 GO
 INSERT INTO dbo.TestDbVersion(VersionNr) VALUES('$(DbVersion)')
 GO
-INSERT INTO dbo.Pets(PetId, PetName, IsNice)
-SELECT 1, 'Dog', 0
+INSERT INTO dbo.Pets(PetId, PetName, PetHeight, IsNice)
+SELECT 1, 'Dog', 12.2445, 0
 UNION ALL 
-SELECT 2, 'Dog 2', 1
+SELECT 2, 'Dog 2', 0.2345, 1
 GO
 CREATE PROCEDURE spGetPets
 	@OnlyNice bit=0,

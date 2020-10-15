@@ -10,6 +10,11 @@
     "IsNullable": true
   },
   {
+    "Name": "PetHeight",
+    "TypeName": "decimal",
+    "IsNullable": true
+  },
+  {
     "Name": "IsNice",
     "TypeName": "bit",
     "IsNullable": true
