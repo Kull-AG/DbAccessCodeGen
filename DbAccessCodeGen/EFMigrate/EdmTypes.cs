@@ -17,7 +17,7 @@ namespace DbAccessCodeGen.EFMigrate
             {"Double", "float" },
             {"Float", "float" },
             {"Single", "real" },
-            {"Decimal", "float" },
+            {"Decimal", "money" },
             {"Guid", "uniqueidentifier" },
             {"System.Byte[]", "varbinary" },
             {"Byte[]", "varbinary" },
