@@ -36,7 +36,7 @@ namespace DbAccessCodeGen.Configuration
 
         public virtual string MakeIdentifierValid(string identifier)
         {
-            return identifier.Replace(" ", "").Replace("-", "");
+            return identifier.Replace(" ", "").Replace("-", "").Replace("%", "_");
         }
 
         protected virtual string GetCSName(string sqlName)

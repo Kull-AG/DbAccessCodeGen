@@ -15,7 +15,7 @@ CREATE PROCEDURE spGetPets
 	@IpAddress varchar(100)
 AS
 BEGIN
-	SELECT PetId, PetName, IsNice, ts FROM dbo.Pets
+	SELECT PetId, PetName, IsNice, ts, 1.0 AS [IsARealPet%] FROM dbo.Pets
 		WHERE IsNice=1 OR @OnlyNice=0
 		ORDER BY PetId;
 END
