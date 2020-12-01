@@ -13,6 +13,8 @@ namespace DbAccessCodeGen.Test
     [TestClass]
     public class IntegrationTest
     {
+        // Before running, increase version nr
+
         private TestContext testContextInstance;
 
         /// <summary>

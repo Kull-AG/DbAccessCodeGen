@@ -1,27 +1,71 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace DbAccessCodeGen.Configuration
 {
-    public class Settings
+    public record Settings
     {
-        public string? ConnectionString { get; set; } 
-        public string Namespace { get; set; } = "DbAccess";
-        public string[] Procedures { get; set; } = new string[] { };
+        public Settings(string? connectionString, string @namespace, IReadOnlyCollection<ProdecureSetting> procedures, string outputDir, bool generateAsyncCode, bool generateSyncCode, string? serviceClassName, string? templateDir, string? namingJS)
+        {
+            ConnectionString = connectionString;
+            Namespace = @namespace ?? throw new ArgumentNullException(nameof(@namespace));
+            Procedures = procedures ?? throw new ArgumentNullException(nameof(procedures));
+            OutputDir = outputDir ?? throw new ArgumentNullException(nameof(outputDir));
+            GenerateAsyncCode = generateAsyncCode;
+            GenerateSyncCode = generateSyncCode;
+            ServiceClassName = serviceClassName;
+            TemplateDir = templateDir;
+            NamingJS = namingJS;
+        }
 
-        public string OutputDir { get; set; } = "DbAccess";
+        public string? ConnectionString { get; init; } 
+        public string Namespace { get;  } = "DbAccess";
+        public IReadOnlyCollection<ProdecureSetting> Procedures { get; }
 
-        public bool GenerateAsyncCode { get; set; } = true;
-        public bool GenerateSyncCode { get; set; } = false;
+        public string OutputDir { get;  } = "DbAccess";
 
-        public string? ServiceClassName { get; set; }
+        public bool GenerateAsyncCode { get;  } = true;
+        public bool GenerateSyncCode { get;  } = false;
 
-        public string? TemplateDir { get; set; }
+        public string? ServiceClassName { get;  }
+
+        public string? TemplateDir { get;  }
 
         /// <summary>
         /// Path to a javascript file containing naming convention.
         /// </summary>
-        public string? NamingJS { get; set; }
+        public string? NamingJS { get; }
+
+        public static Settings FromObject(object obj)
+        {
+            if(obj is IReadOnlyDictionary<object, object> od)
+            {
+                return FromObject(od.ToDictionary(k => k.Key.ToString()!, k => k.Value));
+            }
+            if (obj is IReadOnlyDictionary<string, object> os)
+            {
+                var procs = os["Procedures"];
+                if (procs == null)
+                {
+                    throw new ArgumentNullException("Procedures");
+                }
+                if(procs is not IEnumerable<object> proclist)
+                {
+                    throw new InvalidOperationException($"Procedures must be list but is {procs.GetType().FullName}");
+                }
+                return new Settings(os.GetOrThrow<string?>("ConnectionString", null),
+                    os.GetOrThrow<string>("Namespace", "DbAccess"),
+                    proclist.Select(s=> ProdecureSetting.FromObject(s)).ToList(),
+                    os.GetOrThrow<string>("OutputDir", "DbAccess"),
+                    os.GetOrThrow(nameof(GenerateAsyncCode), true),
+                    os.GetOrThrow(nameof(GenerateSyncCode), true),
+                    os.GetOrThrow<string?>(nameof(ServiceClassName),null),
+                    os.GetOrThrow<string?>(nameof(TemplateDir), null),
+                    os.GetOrThrow<string?>(nameof(NamingJS), null)
+                    );
+            }
+            throw new NotSupportedException("Must be object at root");
+        }
     }
 }

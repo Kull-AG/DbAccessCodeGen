@@ -25,6 +25,15 @@ namespace DbCode.Test
             var json2 = Newtonsoft.Json.JsonConvert.SerializeObject(res2);
             Console.WriteLine(json2);
 
+            var res3 = await dba.spTestExecuteParamsAsync(3).ToArrayAsync();
+            if(res3.Length!=1 || res3[0].TestId != 3)
+            {
+                Console.Error.WriteLine("FAILED TEST for spTestExecuteParamsAsync");
+                Environment.ExitCode = -1;
+            }else
+            {
+
+            }
         }
     }
 }

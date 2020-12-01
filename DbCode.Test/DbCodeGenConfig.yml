@@ -17,3 +17,6 @@ Procedures:
  - dbo.spBuggyProc
  - dbo.spUserNotPermitted
  - dbo.spFile
+ - SP: spTestExecuteParams # Execute  if not otherwise possible to get metadata
+   ExecuteParameters:
+        testId: 1

@@ -90,6 +90,14 @@ BEGIN
 	SELECT GETDATE(), 'TestResult'
 END
 GO
+CREATE PROCEDURE dbo.spTestExecuteParams
+	@TestId int
+AS
+BEGIN
+	SELECT @TestId as tid  INTO #tempo
+	SELECT @TEstId AS TestId FROM #tempo
+END
+GO
 CREATE PROCEDURE dbo.spTestDate
 	 @DateParam datetime2
 AS

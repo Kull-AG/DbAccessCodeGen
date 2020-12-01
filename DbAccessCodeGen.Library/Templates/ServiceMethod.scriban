@@ -43,6 +43,10 @@ public async IAsyncEnumerable<{{ResultType}}> {{MethodName}}Async ({{if Paramete
 	DateTime start = DateTime.Now;
 	OnCommandStart(cmd, start);
 	using var rdr = await cmd.ExecuteReaderAsync();
+	if(!rdr.HasRows) 
+	{
+		yield break;
+	}
 	{{if ResultFields}}
 	var ordinals = new {{MethodName}}Ordinals(
 		{{ for prop in ResultFields }}{{prop.ParameterName}}: rdr.GetOrdinal("{{prop.SqlName}}") {{if !for.last}}, {{ end }}{{ end }}
@@ -83,6 +87,10 @@ public IEnumerable<{{ResultType}}> {{MethodName}} ({{if ParameterTypeName}}{{Par
 	DateTime start = DateTime.Now;
 	OnCommandStart(cmd, start);
 	using var rdr = cmd.ExecuteReader();
+	if (!rdr.HasRows) 
+	{
+		yield break;
+	}
 	{{if ResultFields}}
 	var ordinals = new {{MethodName}}Ordinals(
 		{{ for prop in ResultFields }}{{prop.ParameterName}}: rdr.GetOrdinal("{{prop.SqlName}}") {{if !for.last}}, {{ end }}{{ end }}

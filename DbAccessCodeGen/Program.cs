@@ -145,8 +145,9 @@ namespace DbAccessCodeGen
             var deserializer = new YamlDotNet.Serialization.DeserializerBuilder()
                 .WithNamingConvention(YamlDotNet.Serialization.NamingConventions.NullNamingConvention.Instance)
                 .Build();
-            var settings = deserializer.Deserialize<Settings>(content);
-            settings.ConnectionString = connectionString ?? settings.ConnectionString;
+            var obj = deserializer.Deserialize<object>(content);
+            var settings = Settings.FromObject(obj);
+            settings = settings with { ConnectionString = connectionString ?? settings.ConnectionString };
             if (settings.ConnectionString == null)
             {
                 Console.Error.WriteLine("Must provide connection string");

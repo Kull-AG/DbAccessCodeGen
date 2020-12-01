@@ -45,7 +45,7 @@ namespace DbAccessCodeGen.CodeGen
 
         public Task Execute()
         {
-            Channel<DBObjectName> toGetMetadata = Channel.CreateBounded<DBObjectName>(3);
+            Channel<ProdecureSetting> toGetMetadata = Channel.CreateBounded<ProdecureSetting>(3);
             Channel<SPMetadata> CodeGenChannel = Channel.CreateBounded<SPMetadata>(20);
             Channel<(string name, string template)> methods = Channel.CreateUnbounded<(string, string)>();
             Task metadataTask = StartGetMetadata(toGetMetadata);
@@ -70,7 +70,7 @@ namespace DbAccessCodeGen.CodeGen
             return Task.WhenAll(metadataTask, allMetaDataTasks, codeGenTasks, serviceGentask);
         }
 
-        protected async Task StartGetMetadata(ChannelWriter<DBObjectName> channelWriter)
+        protected async Task StartGetMetadata(ChannelWriter<ProdecureSetting> channelWriter)
         {
             List<DBObjectName> allSps = new List<DBObjectName>();
             var con = serviceProvider.GetRequiredService<DbConnection>();
@@ -87,13 +87,13 @@ namespace DbAccessCodeGen.CodeGen
                 }
                 foreach (var sp in settings.Procedures)
                 {
-                    if (allSps.Contains(sp))
+                    if (allSps.Contains(sp.StoredProcedure))
                     {
                         await channelWriter.WriteAsync(sp);
                     }
                     else
                     {
-                        logger.LogError("Cannot find SP {0}. Ignore it", sp);
+                        logger.LogError("Cannot find SP {0}. Ignore it", sp.StoredProcedure);
                     }
                 }
             }
@@ -104,7 +104,7 @@ namespace DbAccessCodeGen.CodeGen
             }
         }
 
-        protected async Task ExecuteGetMetadataForSP(ChannelReader<DBObjectName> metadataReader, ChannelWriter<SPMetadata> toWriteTo)
+        protected async Task ExecuteGetMetadataForSP(ChannelReader<ProdecureSetting> metadataReader, ChannelWriter<SPMetadata> toWriteTo)
         {
             List<ValueTask> writeTasks = new List<ValueTask>();
             await foreach (var sp in metadataReader.ReadAllAsync())
@@ -114,25 +114,25 @@ namespace DbAccessCodeGen.CodeGen
                     var con = scope.ServiceProvider.GetRequiredService<DbConnection>();
                     try
                     {
-                        var spprm = await this.sPParametersProvider.GetSPParameters(sp, con);
+                        var spprm = await this.sPParametersProvider.GetSPParameters(sp.StoredProcedure, con);
                         try
                         {
-                            var result = await this.sqlHelper.GetSPResultSet(con, sp, true);
-                            writeTasks.Add(toWriteTo.WriteAsync(new SPMetadata(name: sp, parameters: spprm,
+                            var result = await this.sqlHelper.GetSPResultSet(con, sp.StoredProcedure, true, sp.ExecuteParameters?.ToDictionary(k=>k.Key, v=>v.Value));
+                            writeTasks.Add(toWriteTo.WriteAsync(new SPMetadata(name: sp.StoredProcedure, parameters: spprm,
                                    fields: result,
-                                   resultType: namingHandler.GetResultTypeName(sp),
-                                   parameterTypeName: namingHandler.GetParameterTypeName(sp),
-                                   methodName: namingHandler.GetServiceClassMethodName(sp)
+                                   resultType: namingHandler.GetResultTypeName(sp.StoredProcedure),
+                                   parameterTypeName: namingHandler.GetParameterTypeName(sp.StoredProcedure),
+                                   methodName: namingHandler.GetServiceClassMethodName(sp.StoredProcedure)
                                    )));
                         }
                         catch (Exception err)
                         {
                             logger.LogError("Could not get fields. \r\n{0}", err);
-                            writeTasks.Add(toWriteTo.WriteAsync(new SPMetadata(name: sp, parameters: spprm,
+                            writeTasks.Add(toWriteTo.WriteAsync(new SPMetadata(name: sp.StoredProcedure, parameters: spprm,
                                   fields: new SqlFieldDescription[] { },
-                                  resultType: namingHandler.GetResultTypeName(sp),
-                                  parameterTypeName: namingHandler.GetParameterTypeName(sp),
-                                  methodName: namingHandler.GetServiceClassMethodName(sp)
+                                  resultType: namingHandler.GetResultTypeName(sp.StoredProcedure),
+                                  parameterTypeName: namingHandler.GetParameterTypeName(sp.StoredProcedure),
+                                  methodName: namingHandler.GetServiceClassMethodName(sp.StoredProcedure)
                                   )));
                         }
                     }

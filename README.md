@@ -39,6 +39,9 @@ Procedures:
 - bfm.spGetPlanningSubTypes
 - bfm.spGetBudgetData
 - bfm.spGetBudgetDataV2
+- SP: spTestExecuteParams  # Execute  if not otherwise possible to get metadata
+  ExecuteParameters:
+    testId: 1
 - bfm.spGetForeCastDataV2
 
 ```
