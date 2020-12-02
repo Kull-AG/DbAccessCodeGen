@@ -7,7 +7,7 @@
   {
     "Name": "PetName",
     "TypeName": "varchar",
-    "IsNullable": true
+    "IsNullable": false
   },
   {
     "Name": "IsNice",
@@ -22,6 +22,11 @@
   {
     "Name": "IsARealPet%",
     "TypeName": "numeric",
+    "IsNullable": false
+  },
+  {
+    "Name": "TestCol",
+    "TypeName": "varchar",
     "IsNullable": false
   }
 ]

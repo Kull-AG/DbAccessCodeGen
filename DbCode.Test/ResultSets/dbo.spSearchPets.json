@@ -7,7 +7,7 @@
   {
     "Name": "PetName",
     "TypeName": "varchar",
-    "IsNullable": true
+    "IsNullable": false
   },
   {
     "Name": "PetHeight",

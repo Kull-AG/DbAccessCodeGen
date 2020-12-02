@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DbAccessCodeGen.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
@@ -7,6 +8,7 @@ namespace DbAccessCodeGen.CodeGen
 {
     public class SqlTypeMapper
     {
+        private readonly Settings settings;
         protected Dictionary<string, string> MappingTypeMethod = new Dictionary<string, string>()
         {
             {"bool", nameof(IDataRecord.GetBoolean) },
@@ -23,6 +25,11 @@ namespace DbAccessCodeGen.CodeGen
             {"string", nameof(IDataRecord.GetString) }
         };
 
+        public SqlTypeMapper(Configuration.Settings settings)
+        {
+            this.settings = settings;
+        }
+
         public virtual string GetMappingCode(string netType, bool nullable, string name)
         {
             string ordinalName = "ordinals." + name;
@@ -35,6 +42,11 @@ namespace DbAccessCodeGen.CodeGen
             else
             {
                 baseTemplate = $"({netType}){recordVarName}.GetValue({ordinalName})";
+            }
+            if (settings.AlwaysAllowNullForStrings && (netType == "string" || netType == "System.String") && !nullable)
+            {
+                // Prefer not to make a runtime error here
+                return $"{recordVarName}.{nameof(IDataRecord.IsDBNull)}({ordinalName}) ? null! : {baseTemplate}";
             }
             if (!nullable)
             {

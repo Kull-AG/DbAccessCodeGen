@@ -27,6 +27,7 @@ namespace DbAccessCodeGen.Configuration
 
         public bool GenerateAsyncCode { get;  } = true;
         public bool GenerateSyncCode { get;  } = false;
+        public bool AlwaysAllowNullForStrings { get; init; } = true;
 
         public string? ServiceClassName { get;  }
 
@@ -56,14 +57,17 @@ namespace DbAccessCodeGen.Configuration
                 }
                 return new Settings(os.GetOrThrow<string?>("ConnectionString", null),
                     os.GetOrThrow<string>("Namespace", "DbAccess"),
-                    proclist.Select(s=> ProdecureSetting.FromObject(s)).ToList(),
+                    proclist.Select(s => ProdecureSetting.FromObject(s)).ToList(),
                     os.GetOrThrow<string>("OutputDir", "DbAccess"),
                     os.GetOrThrow(nameof(GenerateAsyncCode), true),
                     os.GetOrThrow(nameof(GenerateSyncCode), true),
-                    os.GetOrThrow<string?>(nameof(ServiceClassName),null),
+                    os.GetOrThrow<string?>(nameof(ServiceClassName), null),
                     os.GetOrThrow<string?>(nameof(TemplateDir), null),
                     os.GetOrThrow<string?>(nameof(NamingJS), null)
-                    );
+                    )
+                {
+                    AlwaysAllowNullForStrings = os.GetOrThrow(nameof(AlwaysAllowNullForStrings), true)
+                };
             }
             throw new NotSupportedException("Must be object at root");
         }

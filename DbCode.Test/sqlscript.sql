@@ -1,4 +1,4 @@
-﻿CREATE TABLE dbo.Pets (PetId int PRIMARY KEY , PetName varchar(100), PetHeight decimal, IsNice bit, ts timestamp)
+﻿CREATE TABLE dbo.Pets (PetId int PRIMARY KEY , PetName varchar(100) not null, PetHeight decimal, IsNice bit, ts timestamp)
 GO
 CREATE TABLE dbo.TestDbVersion(VersionNr int)
 GO
@@ -15,7 +15,7 @@ CREATE PROCEDURE spGetPets
 	@IpAddress varchar(100)
 AS
 BEGIN
-	SELECT PetId, PetName, IsNice, ts, 1.0 AS [IsARealPet%] FROM dbo.Pets
+	SELECT PetId, PetName, IsNice, ts, 1.0 AS [IsARealPet%], '' AS TestCol FROM dbo.Pets
 		WHERE IsNice=1 OR @OnlyNice=0
 		ORDER BY PetId;
 END
