@@ -2,6 +2,8 @@
 OutputDir: "DbAccess"
 Namespace: DbCode.Test
 NamingJS: "naming.js"
+GenerateAsyncCode: true
+GenerateSyncCode: true
 ConnectionString: "Server=(LocalDB)\\MSSQLLocalDB; Integrated Security=true;Initial Catalog=CodeGenTestDb;MultipleActiveResultSets=true"
 Procedures:
  - dbo.spGetPets

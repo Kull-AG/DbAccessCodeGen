@@ -18,7 +18,7 @@ namespace DbAccessCodeGen.Configuration
                 {
                     return default(T);
                 }
-                throw new ArgumentException($"{vl} not convertible for key {key}");
+                return (T)Convert.ChangeType(vl, Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T));
             }
             throw new ArgumentException($"vl missing for key {key}");
         }
@@ -33,7 +33,7 @@ namespace DbAccessCodeGen.Configuration
                 {
                     return default(T);
                 }
-                throw new ArgumentException($"{vl} not convertible for key {key}");
+                return (T)Convert.ChangeType(vl, Nullable.GetUnderlyingType(typeof(T))?? typeof(T));
             }
             return defaultIfMissing;
         }
