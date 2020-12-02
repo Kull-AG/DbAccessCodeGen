@@ -39,9 +39,12 @@ Procedures:
 - bfm.spGetPlanningSubTypes
 - bfm.spGetBudgetData
 - bfm.spGetBudgetDataV2
-- SP: spTestExecuteParams  # Execute  if not otherwise possible to get metadata
-  ExecuteParameters:
+- SP: spTestExecuteParams  
+  ExecuteParameters:# Execute  if not otherwise possible to get metadata
     testId: 1
+  IgnoreParametes: # Do not generate code for the following parameters. Those MUST have Default values in the database
+    - ObsoleteParameterName
+    - VeryOldParameter
 - bfm.spGetForeCastDataV2
 
 ```
