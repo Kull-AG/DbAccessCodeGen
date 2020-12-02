@@ -32,13 +32,13 @@ namespace DbAccessCodeGen.EFMigrate
 
                 if ((xmlReader.NodeType == XmlNodeType.Element) && (xmlReader.LocalName == "FunctionImport"))
                 {
-                    string spName = xmlReader.GetAttribute("Name");
+                    string spName = xmlReader.GetAttribute("Name")!;
                     sps.Add(spName);
                 }
                 if ((xmlReader.NodeType == XmlNodeType.Element) && (xmlReader.LocalName == "FunctionImportMapping"))
                 {
                     currentFunctionImportName = xmlReader.GetAttribute("FunctionImportName");
-                    sps.Add(currentFunctionImportName);
+                    sps.Add(currentFunctionImportName!);
                 }
                 else if (xmlReader.NodeType == XmlNodeType.EndElement && (xmlReader.LocalName == "FunctionImportMapping"))
                 {
@@ -46,7 +46,7 @@ namespace DbAccessCodeGen.EFMigrate
                 }
                 if ((xmlReader.NodeType == XmlNodeType.Element) && (xmlReader.LocalName == "ComplexTypeMapping"))
                 {
-                    string typeName = xmlReader.GetAttribute("TypeName");
+                    string typeName = xmlReader.GetAttribute("TypeName")!;
                     if (!mapFunctionToReturnType.ContainsKey(typeName))
                         mapFunctionToReturnType.Add(currentFunctionImportName ?? throw new NullReferenceException("currentFunctionImportName"), typeName);
                 }
@@ -54,7 +54,7 @@ namespace DbAccessCodeGen.EFMigrate
                 if ((xmlReader.NodeType == XmlNodeType.Element) && (xmlReader.LocalName == "ComplexType"))
                 {
                     currentComplexType = xmlReader.GetAttribute("Name");
-                    complexTypeFields.Add(currentComplexType, new List<ComplexTypeInfo>());
+                    complexTypeFields.Add(currentComplexType!, new List<ComplexTypeInfo>());
                 }
                 if ((xmlReader.NodeType == XmlNodeType.EndElement) && (xmlReader.LocalName == "ComplexType"))
                 {
@@ -66,8 +66,8 @@ namespace DbAccessCodeGen.EFMigrate
                     var curList = complexTypeFields[currentComplexType];
                     var maxLength = xmlReader.GetAttribute("MaxLength");
                     string? nullable = xmlReader.GetAttribute("Nullable");
-                    var info = new ComplexTypeInfo(xmlReader.GetAttribute("Type"),
-                        xmlReader.GetAttribute("Name"),
+                    var info = new ComplexTypeInfo(xmlReader.GetAttribute("Type")!,
+                        xmlReader.GetAttribute("Name")!,
                          string.IsNullOrEmpty(nullable) ? true : bool.Parse(nullable),
                         string.IsNullOrEmpty(maxLength) ? 0 : int.Parse(maxLength));
                     curList.Add(info);
