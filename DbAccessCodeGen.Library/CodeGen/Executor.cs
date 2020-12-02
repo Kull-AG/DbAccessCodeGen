@@ -115,10 +115,11 @@ namespace DbAccessCodeGen.CodeGen
                     try
                     {
                         var spprm = await this.sPParametersProvider.GetSPParameters(sp.StoredProcedure, con);
+                        var toUsePrm = spprm.Where(p => !sp.IgnoreParameters.Contains(p.SqlName.StartsWith("@") ? p.SqlName.Substring(1) : p.SqlName, StringComparer.OrdinalIgnoreCase)).ToArray();
                         try
                         {
                             var result = await this.sqlHelper.GetSPResultSet(con, sp.StoredProcedure, true, sp.ExecuteParameters?.ToDictionary(k=>k.Key, v=>v.Value));
-                            writeTasks.Add(toWriteTo.WriteAsync(new SPMetadata(name: sp.StoredProcedure, parameters: spprm,
+                            writeTasks.Add(toWriteTo.WriteAsync(new SPMetadata(name: sp.StoredProcedure, parameters: toUsePrm,
                                    fields: result,
                                    resultType: namingHandler.GetResultTypeName(sp.StoredProcedure),
                                    parameterTypeName: namingHandler.GetParameterTypeName(sp.StoredProcedure),
@@ -128,7 +129,7 @@ namespace DbAccessCodeGen.CodeGen
                         catch (Exception err)
                         {
                             logger.LogError("Could not get fields. \r\n{0}", err);
-                            writeTasks.Add(toWriteTo.WriteAsync(new SPMetadata(name: sp.StoredProcedure, parameters: spprm,
+                            writeTasks.Add(toWriteTo.WriteAsync(new SPMetadata(name: sp.StoredProcedure, parameters: toUsePrm,
                                   fields: new SqlFieldDescription[] { },
                                   resultType: namingHandler.GetResultTypeName(sp.StoredProcedure),
                                   parameterTypeName: namingHandler.GetParameterTypeName(sp.StoredProcedure),

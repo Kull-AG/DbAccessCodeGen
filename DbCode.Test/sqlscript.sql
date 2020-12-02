@@ -12,7 +12,8 @@ GO
 CREATE PROCEDURE spGetPets
 	@OnlyNice bit=0,
 	@SearchString varchar(100)='',
-	@IpAddress varchar(100)
+	@IpAddress varchar(100),
+	@ParameterNoOneLikes bit = 1
 AS
 BEGIN
 	SELECT PetId, PetName, IsNice, ts, 1.0 AS [IsARealPet%], '' AS TestCol FROM dbo.Pets
