@@ -13,5 +13,5 @@
     "Name": "PlanningTypeId",
     "TypeName": "bigint",
     "IsNullable": true
-  }
+  } 
 ]

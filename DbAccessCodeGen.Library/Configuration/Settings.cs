@@ -32,6 +32,8 @@ namespace DbAccessCodeGen.Configuration
 
         public string OutputDir { get; } = "DbAccess";
 
+        public string PersistResultPath { get; init; } = "ResultSets";
+
         public bool GenerateAsyncStreamCode { get; init; } = false;
         public bool GenerateAsyncCode { get; } = true;
         public bool GenerateSyncCode { get; } = false;
@@ -81,7 +83,8 @@ namespace DbAccessCodeGen.Configuration
                     )
                 {
                     AlwaysAllowNullForStrings = os.GetOrThrow(nameof(AlwaysAllowNullForStrings), true),
-                    GenerateAsyncStreamCode = os.GetOrThrow(nameof(GenerateAsyncStreamCode), false)
+                    GenerateAsyncStreamCode = os.GetOrThrow(nameof(GenerateAsyncStreamCode), false),
+                    PersistResultPath = os.GetOrThrow(nameof(PersistResultPath), "ResultSets")
                 };
             }
             throw new NotSupportedException("Must be object at root");

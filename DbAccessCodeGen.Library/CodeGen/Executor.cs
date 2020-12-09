@@ -119,7 +119,7 @@ namespace DbAccessCodeGen.CodeGen
                         var toUsePrm = spprm.Where(p => !ignoreParameters.Contains(p.SqlName.StartsWith("@") ? p.SqlName.Substring(1) : p.SqlName, StringComparer.OrdinalIgnoreCase)).ToArray();
                         try
                         {
-                            var result = await this.sqlHelper.GetSPResultSet(con, sp.StoredProcedure, true, sp.ExecuteParameters?.ToDictionary(k=>k.Key, v=>v.Value));
+                            var result = await this.sqlHelper.GetSPResultSet(con, sp.StoredProcedure, settings.PersistResultPath, sp.ExecuteParameters);
                             writeTasks.Add(toWriteTo.WriteAsync(new SPMetadata(name: sp.StoredProcedure, parameters: toUsePrm,
                                    fields: result,
                                    resultType: namingHandler.GetResultTypeName(sp.StoredProcedure),
