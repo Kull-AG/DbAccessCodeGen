@@ -8,7 +8,7 @@
     <PackageOutputPath>./nupkg</PackageOutputPath>
     <RunWorkingDirectory>$(MSBuildProjectDirectory)</RunWorkingDirectory>
     <Nullable>Enable</Nullable>
-    <Version>0.2.7</Version>
+    <Version>0.3.0</Version>
     <PackageLicenseUrl>https://raw.githubusercontent.com/aersamkull/DbAccessCodeGen/master/LICENSE.txt</PackageLicenseUrl>
     <RepositoryURL>https://github.com/aersamkull/DbAccessCodeGen</RepositoryURL>
   </PropertyGroup>

@@ -18,28 +18,31 @@ protected {{ResultType}} {{MethodName}}_FromRecord(IDataRecord row, in {{MethodN
 		);
 }
 {{end}}
-
-{{if GenerateAsyncCode}}
-{{if ParameterTypeName}}
-public IAsyncEnumerable<{{ResultType}}> {{MethodName}}Async ({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{end}})
+private void {{MethodName}}_PrepareCommand(DbCommand cmd{{if ParameterTypeName}}, {{ParameterTypeName}} parameters{{end}})
 {
-	return {{MethodName}}Async(new {{ParameterTypeName}}({{ for prop in Parameters }}{{prop.ParameterName}}: {{prop.ParameterName}}{{if !for.last}}, {{ end }}
-		{{end}}));
-}
-{{end}}
-
-public async IAsyncEnumerable<{{ResultType}}> {{MethodName}}Async ({{if ParameterTypeName}} {{ParameterTypeName}} parameters{{end}})
-{
-    var cmd = connection.CreateCommand();
-	if(connection.State != ConnectionState.Open) 
-	{
-		await connection.OpenAsync();
-	}
 	cmd.CommandType = CommandType.StoredProcedure;
 	cmd.CommandText = "{{SqlName}}";
 	{{ for prop in Parameters }}
 	{{if prop.IsTableValued}}this.AddTableValuedCommandParameter(cmd, "{{prop.SqlName}}", parameters.{{ prop.CSPropertyName }}, {{prop.TableValuedMeta}}, {{prop.TableValuedFn}});
 	{{else}}this.AddCommandParameter(cmd, "{{prop.SqlName}}", parameters.{{ prop.CSPropertyName }}, ParameterDirection.{{ prop.ParameterDirection }});{{end}}{{ end }}
+}
+{{if GenerateAsyncStreamCode}}
+{{if ParameterTypeName}}
+public IAsyncEnumerable<{{ResultType}}> {{MethodName}}StreamAsync ({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{end}})
+{
+	return {{MethodName}}StreamAsync(new {{ParameterTypeName}}({{ for prop in Parameters }}{{prop.ParameterName}}: {{prop.ParameterName}}{{if !for.last}}, {{ end }}
+		{{end}}));
+}
+{{end}}
+
+public async IAsyncEnumerable<{{ResultType}}> {{MethodName}}StreamAsync ({{if ParameterTypeName}} {{ParameterTypeName}} parameters{{end}})
+{
+    using var cmd = connection.CreateCommand();
+	if(connection.State != ConnectionState.Open) 
+	{
+		await connection.OpenAsync();
+	}
+	{{MethodName}}_PrepareCommand(cmd{{if ParameterTypeName}}, parameters{{end}});
 	DateTime start = DateTime.Now;
 	OnCommandStart(cmd, start);
 	using var rdr = await cmd.ExecuteReaderAsync();
@@ -57,10 +60,30 @@ public async IAsyncEnumerable<{{ResultType}}> {{MethodName}}Async ({{if Paramete
 	while(await rdr.ReadAsync())
 	{
 		{{if ResultFields}}yield return {{MethodName}}_FromRecord(rdr, ordinals);
-		{{else}}yield return ReadDictionary(rdr, fieldCount);
-		{{end}}
+		{{else}}yield return ReadDictionary(rdr, fieldCount);{{end}}
 	}
 	OnCommandEnd(cmd, start);
+}
+{{end}}
+{{if GenerateSyncCode || GenerateAsyncCode}} 
+private IEnumerable<{{ResultType}}> {{MethodName}}_FromReader(DbDataReader rdr)
+{
+	if (!rdr.HasRows) 
+	{
+		yield break;
+	}
+	{{if ResultFields}}
+	var ordinals = new {{MethodName}}Ordinals(
+		{{ for prop in ResultFields }}{{prop.ParameterName}}: rdr.GetOrdinal("{{prop.SqlName}}") {{if !for.last}}, {{ end }}{{ end }}
+	);
+	{{else}}
+	int fieldCount = rdr.FieldCount;
+	{{end}}
+	while(rdr.Read())
+	{
+		{{if ResultFields}}yield return {{MethodName}}_FromRecord(rdr, in ordinals);
+		{{else}}yield return ReadDictionary(rdr, fieldCount);{{end}}
+	}
 }
 {{end}}
 {{if GenerateSyncCode}}
@@ -79,31 +102,36 @@ public IEnumerable<{{ResultType}}> {{MethodName}} ({{if ParameterTypeName}}{{Par
 	{
 		connection.Open();
 	}
-	cmd.CommandType = CommandType.StoredProcedure;
-	cmd.CommandText = "{{SqlName}}";
-	{{ for prop in Parameters }}
-	{{if prop.IsTableValued}}this.AddTableValuedCommandParameter(cmd, "{{prop.SqlName}}", parameters.{{ prop.CSPropertyName }}, {{prop.TableValuedMeta}}, {{prop.TableValuedFn}});
-	{{else}}this.AddCommandParameter(cmd, "{{prop.SqlName}}", parameters.{{ prop.CSPropertyName }}, ParameterDirection.{{ prop.ParameterDirection }});{{end}}{{ end }}
+	{{MethodName}}_PrepareCommand(cmd{{if ParameterTypeName}}, parameters{{end}});
 	DateTime start = DateTime.Now;
 	OnCommandStart(cmd, start);
-	using var rdr = cmd.ExecuteReader();
-	if (!rdr.HasRows) 
+	var rdr = cmd.ExecuteReader();
+	var dt = {{MethodName}}_FromReader(rdr);
+	return AfterEnumerable(dt, () => OnCommandEnd(cmd, start), cmd, rdr);
+}
+{{end}}
+
+{{if GenerateAsyncCode}}
+{{if ParameterTypeName}}
+public Task<IEnumerable<{{ResultType}}>> {{MethodName}}Async ({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{end}})
+{
+	return {{MethodName}}Async(new {{ParameterTypeName}}({{ for prop in Parameters }}{{prop.ParameterName}}: {{prop.ParameterName}}{{if !for.last}}, {{ end }}
+	{{end}}));
+}
+{{end}}
+
+public async Task<IEnumerable<{{ResultType}}>> {{MethodName}}Async ({{if ParameterTypeName}}{{ParameterTypeName}} parameters{{end}})
+{
+    using var cmd = connection.CreateCommand();
+	if(connection.State != ConnectionState.Open) 
 	{
-		yield break;
+		await connection.OpenAsync();
 	}
-	{{if ResultFields}}
-	var ordinals = new {{MethodName}}Ordinals(
-		{{ for prop in ResultFields }}{{prop.ParameterName}}: rdr.GetOrdinal("{{prop.SqlName}}") {{if !for.last}}, {{ end }}{{ end }}
-	);
-	{{else}}
-	int fieldCount = rdr.FieldCount;
-	{{end}}
-	while(rdr.Read())
-	{
-		{{if ResultFields}}yield return {{MethodName}}_FromRecord(rdr, in ordinals);
-		{{else}}yield return ReadDictionary(rdr, fieldCount);
-		{{end}}
-	}
-	OnCommandEnd(cmd, start);
+	{{MethodName}}_PrepareCommand(cmd{{if ParameterTypeName}}, parameters{{end}});
+	DateTime start = DateTime.Now;
+	OnCommandStart(cmd, start);
+	var rdr = await cmd.ExecuteReaderAsync();
+	var dt = {{MethodName}}_FromReader(rdr);
+	return AfterEnumerable(dt, () => OnCommandEnd(cmd, start), cmd, rdr);
 }
 {{end}}

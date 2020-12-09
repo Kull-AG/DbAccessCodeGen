@@ -26,8 +26,9 @@ Create a file called DbCodeGenConfig.yml and configure your must important setti
 
 ```yaml
 ---
-GenerateAsyncCode: true
-GenerateSyncCode: false
+GenerateAsyncCode: true # Generate Code that returns Task<IEnumerable<T>> 
+GenerateStreamAsyncCode: false # Generate Code that returns IAsyncEnumerable<T>
+GenerateSyncCode: false # Generate Code that returns IEnumerable<T>
 TemplateDir: "./Templates"
 OutputDir: "../DbCode.Test/DbAccess"
 ServiceClassName: "DataEntities"
@@ -37,10 +38,11 @@ Procedures:
 - bfm.spGetSaldo
 - bfm.spGetForeCastData
 - bfm.spGetPlanningSubTypes
-- bfm.spGetBudgetData
+- SP: bfm.spGetBudgetData
+  GenerateStreamAsyncCode: true # Overwrites default of false
 - bfm.spGetBudgetDataV2
 - SP: spTestExecuteParams  
-  ExecuteParameters:# Execute  if not otherwise possible to get metadata
+  ExecuteParameters: # Execute  if not otherwise possible to get metadata
     testId: 1
   IgnoreParametes: # Do not generate code for the following parameters. Those MUST have Default values in the database
     - ObsoleteParameterName
@@ -89,59 +91,67 @@ The generated service method look something like this :
 
 ```C#
 
-    protected DbCode.Test.SpGetFinancialPeriodsResult spGetFinancialPeriods_FromRecord(IDataRecord row, in spGetFinancialPeriodsOrdinals ordinals) 
+    public Task<IEnumerable<DbCode.Test.spAddPetResult>> spAddPetAsync (string? petName, bool? isNice)
     {
-        return new DbCode.Test.SpGetFinancialPeriodsResult(
-            finPeriod: row.GetString(ordinals.FinPeriod), isDefault: row.IsDBNull(ordinals.IsDefault) ? (bool?)null : row.GetBoolean(ordinals.IsDefault), firstInPeriod: (System.DateTime)row.GetValue(ordinals.FirstInPeriod), lastInPeriod: (System.DateTime)row.GetValue(ordinals.LastInPeriod)
-            );
+        return spAddPetAsync(new DbCode.Test.spAddPetParameters(petName: petName, 
+        isNice: isNice
+        ));
     }
-    
-    
-    
-    
-    public IAsyncEnumerable<DbCode.Test.SpGetFinancialPeriodsResult> spGetFinancialPeriodsAsync (string? Identity, string? TenantId)
+
+    public async Task<IEnumerable<DbCode.Test.spAddPetResult>> spAddPetAsync (DbCode.Test.spAddPetParameters parameters)
     {
-        return spGetFinancialPeriodsAsync(new DbCode.Test.SpGetFinancialPeriodsParameters(identity: Identity, 
-            tenantId: TenantId
-            ));
-    }
-    
-    
-    public async IAsyncEnumerable<DbCode.Test.SpGetFinancialPeriodsResult> spGetFinancialPeriodsAsync ( DbCode.Test.SpGetFinancialPeriodsParameters parameters)
-    {
-        var cmd = connection.CreateCommand();
+        using var cmd = connection.CreateCommand();
         if(connection.State != ConnectionState.Open) 
         {
             await connection.OpenAsync();
         }
-        cmd.CommandType = CommandType.StoredProcedure;
-        cmd.CommandText = "bfm.spGetFinancialPeriods";
-        this.AddCommandParameter(cmd, "Identity", parameters.Identity, ParameterDirection.Input);
-        this.AddCommandParameter(cmd, "TenantId", parameters.TenantId, ParameterDirection.Input);
-        
+        spAddPet_PrepareCommand(cmd, parameters);
         DateTime start = DateTime.Now;
         OnCommandStart(cmd, start);
-        using var rdr = await cmd.ExecuteReaderAsync();
-        
-        var ordinals = new spGetFinancialPeriodsOrdinals(
-            finPeriod: rdr.GetOrdinal("FinPeriod") , isDefault: rdr.GetOrdinal("IsDefault") , firstInPeriod: rdr.GetOrdinal("FirstInPeriod") , lastInPeriod: rdr.GetOrdinal("LastInPeriod") 
-        );
-        
-        while(await rdr.ReadAsync()),
-        {
-            yield return spGetFinancialPeriods_FromRecord(rdr, ordinals);
+        var rdr = await cmd.ExecuteReaderAsync();
+        var dt = spAddPet_FromReader(rdr);
+        return AfterEnumerable(dt, () => OnCommandEnd(cmd, start), cmd, rdr);
+    }
+
+    private void spAddPet_PrepareCommand(DbCommand cmd, DbCode.Test.spAddPetParameters parameters)
+    {
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.CommandText = "dbo.spAddPet";
             
+        this.AddCommandParameter(cmd, "PetName", parameters.PetName, ParameterDirection.Input);
+        this.AddCommandParameter(cmd, "IsNice", parameters.IsNice, ParameterDirection.Input);
+    }
+    
+    private IEnumerable<DbCode.Test.spAddPetResult> spAddPet_FromReader(DbDataReader rdr)
+    {
+        if (!rdr.HasRows) 
+        {
+            yield break;
         }
-        OnCommandEnd(cmd, start);
-        return results;
+            
+        var ordinals = new spAddPetOrdinals(
+            success: rdr.GetOrdinal("Success") , newPetId: rdr.GetOrdinal("NewPetId") 
+        );
+            
+        while(rdr.Read())
+        {
+            yield return spAddPet_FromRecord(rdr, in ordinals);                
+        }
+    } 
+
+    protected DbCode.Test.spAddPetResult spAddPet_FromRecord(IDataRecord row, in spAddPetOrdinals ordinals) 
+    {
+        return new DbCode.Test.spAddPetResult(
+            success: row.IsDBNull(ordinals.Success) ? (bool?)null : row.GetBoolean(ordinals.Success), newPetId: row.IsDBNull(ordinals.NewPetId) ? throw new NullReferenceException("NewPetId") : row.GetInt32(ordinals.NewPetId)
+            );
     }
     
 ```
 
-You can configure to generate non-async code. As you can see, you get two overloads for the function, one with an Object as Parameter and the otherone with just plain parameters.
-It depends a lot on your use case which one is better suited.
+You can configure to generate async, sync or stream-async code. All versions use IEnumerable or IAsyncEnumerable and assume that you fully enumerate the list (once and only once).
 
-As the default code uses IAsyncEnumerable, you might want to install System.Linq.Async Package from Nuget.
+As you can see, you get two overloads for the function, one with an Object as Parameter and the otherone with just plain parameters.
+It depends a lot on your use case which one is better suited.
 
 ## Customization
 

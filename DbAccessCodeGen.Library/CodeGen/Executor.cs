@@ -45,7 +45,7 @@ namespace DbAccessCodeGen.CodeGen
 
         public Task Execute()
         {
-            Channel<ProdecureSetting> toGetMetadata = Channel.CreateBounded<ProdecureSetting>(3);
+            Channel<ProcedureSetting> toGetMetadata = Channel.CreateBounded<ProcedureSetting>(3);
             Channel<SPMetadata> CodeGenChannel = Channel.CreateBounded<SPMetadata>(20);
             Channel<(string name, string template)> methods = Channel.CreateUnbounded<(string, string)>();
             Task metadataTask = StartGetMetadata(toGetMetadata);
@@ -70,7 +70,7 @@ namespace DbAccessCodeGen.CodeGen
             return Task.WhenAll(metadataTask, allMetaDataTasks, codeGenTasks, serviceGentask);
         }
 
-        protected async Task StartGetMetadata(ChannelWriter<ProdecureSetting> channelWriter)
+        protected async Task StartGetMetadata(ChannelWriter<ProcedureSetting> channelWriter)
         {
             List<DBObjectName> allSps = new List<DBObjectName>();
             var con = serviceProvider.GetRequiredService<DbConnection>();
@@ -104,7 +104,7 @@ namespace DbAccessCodeGen.CodeGen
             }
         }
 
-        protected async Task ExecuteGetMetadataForSP(ChannelReader<ProdecureSetting> metadataReader, ChannelWriter<SPMetadata> toWriteTo)
+        protected async Task ExecuteGetMetadataForSP(ChannelReader<ProcedureSetting> metadataReader, ChannelWriter<SPMetadata> toWriteTo)
         {
             List<ValueTask> writeTasks = new List<ValueTask>();
             await foreach (var sp in metadataReader.ReadAllAsync())
@@ -115,7 +115,8 @@ namespace DbAccessCodeGen.CodeGen
                     try
                     {
                         var spprm = await this.sPParametersProvider.GetSPParameters(sp.StoredProcedure, con);
-                        var toUsePrm = spprm.Where(p => !sp.IgnoreParameters.Contains(p.SqlName.StartsWith("@") ? p.SqlName.Substring(1) : p.SqlName, StringComparer.OrdinalIgnoreCase)).ToArray();
+                        var ignoreParameters = sp.IgnoreParameters ?? settings.IgnoreParameters;
+                        var toUsePrm = spprm.Where(p => !ignoreParameters.Contains(p.SqlName.StartsWith("@") ? p.SqlName.Substring(1) : p.SqlName, StringComparer.OrdinalIgnoreCase)).ToArray();
                         try
                         {
                             var result = await this.sqlHelper.GetSPResultSet(con, sp.StoredProcedure, true, sp.ExecuteParameters?.ToDictionary(k=>k.Key, v=>v.Value));
@@ -123,7 +124,8 @@ namespace DbAccessCodeGen.CodeGen
                                    fields: result,
                                    resultType: namingHandler.GetResultTypeName(sp.StoredProcedure),
                                    parameterTypeName: namingHandler.GetParameterTypeName(sp.StoredProcedure),
-                                   methodName: namingHandler.GetServiceClassMethodName(sp.StoredProcedure)
+                                   methodName: namingHandler.GetServiceClassMethodName(sp.StoredProcedure),
+                                   setting: sp
                                    )));
                         }
                         catch (Exception err)
@@ -133,7 +135,8 @@ namespace DbAccessCodeGen.CodeGen
                                   fields: new SqlFieldDescription[] { },
                                   resultType: namingHandler.GetResultTypeName(sp.StoredProcedure),
                                   parameterTypeName: namingHandler.GetParameterTypeName(sp.StoredProcedure),
-                                  methodName: namingHandler.GetServiceClassMethodName(sp.StoredProcedure)
+                                  methodName: namingHandler.GetServiceClassMethodName(sp.StoredProcedure),
+                                  setting: sp
                                   )));
                         }
                     }

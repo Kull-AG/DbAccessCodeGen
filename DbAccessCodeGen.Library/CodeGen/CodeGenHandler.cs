@@ -169,8 +169,9 @@ namespace DbAccessCodeGen.CodeGen
                 MethodName = codeGenPrm.MethodName,
                 SqlName = codeGenPrm.SqlName,
                 ParameterTypeName = codeGenPrm.ParameterTypeName,
-                settings.GenerateAsyncCode,
-                settings.GenerateSyncCode
+                GenerateAsyncCode= codeGenPrm.Settings.GenerateAsyncCode?? settings.GenerateAsyncCode,
+                GenerateSyncCode = codeGenPrm.Settings.GenerateSyncCode ?? settings.GenerateSyncCode,
+                GenerateAsyncStreamCode = codeGenPrm.Settings.GenerateAsyncStreamCode ?? settings.GenerateAsyncStreamCode
             }, memberRenamer: member => member.Name);
             serviceMethod = serviceMethod.Replace("\t", "    ");
             serviceMethod = string.Join("\r\n", serviceMethod.Split("\r\n").Select(s => "        " + s));

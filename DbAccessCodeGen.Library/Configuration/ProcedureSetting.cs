@@ -5,26 +5,30 @@ using System.Linq;
 
 namespace DbAccessCodeGen.Configuration
 {
-    public class ProdecureSetting
+    public class ProcedureSetting
     {
-        public ProdecureSetting(string storedProcedure, IReadOnlyDictionary<string, object>? executeParameters, IReadOnlyCollection<string>? ignoreParameters)
+        public ProcedureSetting(string storedProcedure, IReadOnlyDictionary<string, object>? executeParameters, IReadOnlyCollection<string>? ignoreParameters)
         {
             StoredProcedure = storedProcedure ?? throw new ArgumentNullException(nameof(storedProcedure));
             ExecuteParameters = executeParameters;
-            IgnoreParameters = ignoreParameters ?? Array.Empty<string>();
+            IgnoreParameters = ignoreParameters;
         }
 
         public DBObjectName StoredProcedure { get; init; }
         public IReadOnlyDictionary<string, object>? ExecuteParameters { get; init; }
-        public IReadOnlyCollection<string> IgnoreParameters { get; }
+        public IReadOnlyCollection<string>? IgnoreParameters { get; }
 
-        public static ProdecureSetting FromObject(object obj)
+        public bool? GenerateAsyncCode { get; init; } = null;
+        public bool? GenerateAsyncStreamCode { get; init; } = null;
+        public bool? GenerateSyncCode { get; init; } = null;
+
+        public static ProcedureSetting FromObject(object obj)
         {
-            if (obj is IDictionary<object, object> od)
+            if (obj is IReadOnlyDictionary<object, object> od)
             {
                 return FromObject(od.ToDictionary(k => k.Key.ToString()!, k => k.Value));
             }
-            if (obj is IDictionary<string, object> os)
+            if (obj is IReadOnlyDictionary<string, object> os)
             {
                 var executeParameters = os.ContainsKey("ExecuteParameters") ? os["ExecuteParameters"] : null;
                 var ignoreParameters = os.ContainsKey(nameof(IgnoreParameters)) ? os[nameof(IgnoreParameters)] : null;
@@ -36,10 +40,16 @@ namespace DbAccessCodeGen.Configuration
                 {
                     ignoreParameters = o.Select(o => (string)Convert.ChangeType(o, typeof(string))).ToArray();
                 }
-                return new ProdecureSetting((string)os["SP"], (IReadOnlyDictionary<string, object>?)executeParameters, (IReadOnlyCollection<string>?)ignoreParameters);
+                return new ProcedureSetting((string)os["SP"], (IReadOnlyDictionary<string, object>?)executeParameters, (IReadOnlyCollection<string>?)ignoreParameters)
+                {
+                    GenerateSyncCode = os.GetOrThrow<bool?>(nameof(GenerateSyncCode), null),
+                    GenerateAsyncCode = os.GetOrThrow<bool?>(nameof(GenerateAsyncCode), null),
+                    GenerateAsyncStreamCode = os.GetOrThrow<bool?>(nameof(GenerateAsyncStreamCode), null)
+
+                };
             }
             if (obj is string s)
-                return new ProdecureSetting(s, null, null);
+                return new ProcedureSetting(s, null, null);
             throw new NotSupportedException($"{obj} is not a proc");
         }
     }

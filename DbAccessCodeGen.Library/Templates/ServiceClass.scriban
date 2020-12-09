@@ -83,8 +83,34 @@ namespace {{Name.Namespace}}
                     System.Reflection.BindingFlags.SetProperty)!
                     .SetValue(p, System.Data.SqlDbType.Structured);
             }
-            cmd.Parameters.Add(p);
-            
+            cmd.Parameters.Add(p);            
+        }
+
+        private IEnumerable<T> AfterEnumerable<T>(IEnumerable<T> input, Action? after, Action? @finally = null)
+        {
+            try
+            {
+                foreach(var item in input)
+                {
+                    yield return item;
+                }
+                if(after != null) after();
+            }
+            finally
+            {
+                if(@finally != null) @finally();
+            }
+        }
+        private IEnumerable<T> AfterEnumerable<T>(IEnumerable<T> input, Action? after, IDisposable toDispose1, params IDisposable[] toDispose)
+        {
+            return AfterEnumerable(input, after, () => 
+            {
+                toDispose1.Dispose();
+                foreach(var d in toDispose)
+                {
+                    d.Dispose();
+                }
+            });
         }
 {{Methods}}
 	}

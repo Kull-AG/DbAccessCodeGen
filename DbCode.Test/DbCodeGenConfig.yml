@@ -3,6 +3,7 @@ OutputDir: "DbAccess"
 Namespace: DbCode.Test
 NamingJS: "naming.js"
 GenerateAsyncCode: true
+GenerateAsyncStreamCode: false
 GenerateSyncCode: true
 ConnectionString: "Server=(LocalDB)\\MSSQLLocalDB; Integrated Security=true;Initial Catalog=CodeGenTestDb;MultipleActiveResultSets=true"
 Procedures:
@@ -15,7 +16,8 @@ Procedures:
  - dbo.spUpdatePet
  - dbo.spUpdateDog
  - dbo.spSearchPets
- - dbo.spTestBackend
+ - SP: dbo.spTestBackend
+   GenerateAsyncStreamCode: true
  - dbo.spTestNoColumnName
  - dbo.spTestDate
  - dbo.spBuggyProc
