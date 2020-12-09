@@ -19,6 +19,10 @@ For all platforms, System.Linq.Async might be helpful
 ## Requirements / configuration
 
 Install it via as a [tool](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-tool-install) via nuget:
+```powershell
+dotnet new tool-manifest # If you do not have a tool manifest already
+dotnet tool install DbAccessCodeGen
+```
 
 [![NuGet Badge](https://buildstats.info/nuget/DbAccessCodeGen)](https://www.nuget.org/packages/DbAccessCodeGen/)
 
