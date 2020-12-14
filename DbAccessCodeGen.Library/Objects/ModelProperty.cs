@@ -43,6 +43,7 @@ namespace DbAccessCodeGen.Objects
             GetCode = getCode;
             ParameterDirection = parameterDirection;
             this.ParameterName = parameterName;
+            
             this.IsTableValued = userDefinedTableType != null;
             if(userDefinedTableType != null)
             {

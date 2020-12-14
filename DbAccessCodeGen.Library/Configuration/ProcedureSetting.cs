@@ -17,6 +17,7 @@ namespace DbAccessCodeGen.Configuration
         public DBObjectName StoredProcedure { get; init; }
         public IReadOnlyDictionary<string, object>? ExecuteParameters { get; init; }
         public IReadOnlyCollection<string>? IgnoreParameters { get; }
+        public IReadOnlyDictionary<string, string>? ReplaceParameters { get; init; }
 
         public bool? GenerateAsyncCode { get; init; } = null;
         public bool? GenerateAsyncStreamCode { get; init; } = null;
@@ -40,12 +41,13 @@ namespace DbAccessCodeGen.Configuration
                 {
                     ignoreParameters = o.Select(o => (string)Convert.ChangeType(o, typeof(string))).ToArray();
                 }
+                var replaceParameters = os.GetOrThrow<IReadOnlyDictionary<string, string>?>(nameof(ReplaceParameters), null);
                 return new ProcedureSetting((string)os["SP"], (IReadOnlyDictionary<string, object>?)executeParameters, (IReadOnlyCollection<string>?)ignoreParameters)
                 {
                     GenerateSyncCode = os.GetOrThrow<bool?>(nameof(GenerateSyncCode), null),
                     GenerateAsyncCode = os.GetOrThrow<bool?>(nameof(GenerateAsyncCode), null),
-                    GenerateAsyncStreamCode = os.GetOrThrow<bool?>(nameof(GenerateAsyncStreamCode), null)
-
+                    GenerateAsyncStreamCode = os.GetOrThrow<bool?>(nameof(GenerateAsyncStreamCode), null),
+                    ReplaceParameters = replaceParameters
                 };
             }
             if (obj is string s)

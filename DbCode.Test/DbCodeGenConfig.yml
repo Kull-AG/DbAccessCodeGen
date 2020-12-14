@@ -10,6 +10,8 @@ Procedures:
  - SP: dbo.spGetPets
    IgnoreParameters: 
      - ParameterNoOneLikes
+   ReplaceParameters:
+     ProgramVersion: 4
  - dbo.spGetPet
  - dbo.spAddPet
  - dbo.spDeletePet

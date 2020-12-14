@@ -9,6 +9,7 @@ namespace DbAccessCodeGen.Objects
     public class SPMetadata
     {
         public IReadOnlyCollection<SPParameter> Parameters { get; }
+        public IReadOnlyDictionary<string, string> ReplaceParameters { get; }
         public IReadOnlyCollection<SqlFieldDescription>? ResultFields { get; }
 
 
@@ -22,7 +23,10 @@ namespace DbAccessCodeGen.Objects
         
         public ProcedureSetting Settings {get;}
 
-        public SPMetadata(DBObjectName name, IReadOnlyCollection<SPParameter> parameters, IReadOnlyCollection<SqlFieldDescription> fields,
+        public SPMetadata(DBObjectName name, IReadOnlyCollection<SPParameter> parameters,
+                IReadOnlyDictionary<string, string> replaceParameters,
+
+            IReadOnlyCollection<SqlFieldDescription> fields,
                 string methodName,
                 Identifier resultType,
                 Identifier parameterTypeName,
@@ -30,6 +34,7 @@ namespace DbAccessCodeGen.Objects
         {
             this.SqlName = name;
             this.Parameters = parameters;
+            this.ReplaceParameters = replaceParameters;
             this.ResultFields = fields.Count(f => f.Name != null) == 0 ? null : fields;
             this.MethodName = methodName;
             this.ResultType = fields.Count(f => f.Name != null) == 0 ? new Identifier("", "Dictionary<string, object?>") : resultType;

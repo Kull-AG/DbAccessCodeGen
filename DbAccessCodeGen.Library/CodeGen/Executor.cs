@@ -116,11 +116,16 @@ namespace DbAccessCodeGen.CodeGen
                     {
                         var spprm = await this.sPParametersProvider.GetSPParameters(sp.StoredProcedure, con);
                         var ignoreParameters = sp.IgnoreParameters ?? settings.IgnoreParameters;
-                        var toUsePrm = spprm.Where(p => !ignoreParameters.Contains(p.SqlName.StartsWith("@") ? p.SqlName.Substring(1) : p.SqlName, StringComparer.OrdinalIgnoreCase)).ToArray();
+                        var replaceParaemeters = sp.ReplaceParameters ?? settings.ReplaceParameters;
+                        var toUsePrm = spprm
+                                .Where(p => !ignoreParameters.Contains(p.SqlName.StartsWith("@") ? p.SqlName.Substring(1) : p.SqlName, StringComparer.OrdinalIgnoreCase))
+                                .Where(p => !replaceParaemeters.ContainsKey(p.SqlName.StartsWith("@") ? p.SqlName.Substring(1) : p.SqlName))
+                                .ToArray();
                         try
                         {
                             var result = await this.sqlHelper.GetSPResultSet(con, sp.StoredProcedure, settings.PersistResultPath, sp.ExecuteParameters);
                             writeTasks.Add(toWriteTo.WriteAsync(new SPMetadata(name: sp.StoredProcedure, parameters: toUsePrm,
+                                    replaceParameters: replaceParaemeters,
                                    fields: result,
                                    resultType: namingHandler.GetResultTypeName(sp.StoredProcedure),
                                    parameterTypeName: namingHandler.GetParameterTypeName(sp.StoredProcedure),
@@ -133,6 +138,7 @@ namespace DbAccessCodeGen.CodeGen
                             logger.LogError("Could not get fields. \r\n{0}", err);
                             writeTasks.Add(toWriteTo.WriteAsync(new SPMetadata(name: sp.StoredProcedure, parameters: toUsePrm,
                                   fields: new SqlFieldDescription[] { },
+                                  replaceParameters: replaceParaemeters,
                                   resultType: namingHandler.GetResultTypeName(sp.StoredProcedure),
                                   parameterTypeName: namingHandler.GetParameterTypeName(sp.StoredProcedure),
                                   methodName: namingHandler.GetServiceClassMethodName(sp.StoredProcedure),

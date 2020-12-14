@@ -21,7 +21,7 @@ namespace {{Name.Namespace}}
 		partial void OnCommandStart(DbCommand cmd, DateTime startedAt);
 		partial void OnCommandEnd(DbCommand cmd, DateTime startedAt);
 
-        private void AddCommandParameter<T>(DbCommand cmd, string name, T value, ParameterDirection direction) 
+        private void AddCommandParameter<T>(DbCommand cmd, string name, T value, ParameterDirection direction = ParameterDirection.Input) 
         {
 		    var prm = cmd.CreateParameter();
             prm.Direction = direction;

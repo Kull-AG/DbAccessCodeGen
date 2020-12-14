@@ -13,6 +13,7 @@ CREATE PROCEDURE spGetPets
 	@OnlyNice bit=0,
 	@SearchString varchar(100)='',
 	@IpAddress varchar(100),
+	@ProgramVersion varchar(100),
 	@ParameterNoOneLikes bit = 1
 AS
 BEGIN

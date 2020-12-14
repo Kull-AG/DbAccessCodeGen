@@ -169,7 +169,8 @@ namespace DbAccessCodeGen.CodeGen
                 MethodName = codeGenPrm.MethodName,
                 SqlName = codeGenPrm.SqlName,
                 ParameterTypeName = codeGenPrm.ParameterTypeName,
-                GenerateAsyncCode= codeGenPrm.Settings.GenerateAsyncCode?? settings.GenerateAsyncCode,
+                ReplaceParameters = codeGenPrm.ReplaceParameters,
+                GenerateAsyncCode = codeGenPrm.Settings.GenerateAsyncCode?? settings.GenerateAsyncCode,
                 GenerateSyncCode = codeGenPrm.Settings.GenerateSyncCode ?? settings.GenerateSyncCode,
                 GenerateAsyncStreamCode = codeGenPrm.Settings.GenerateAsyncStreamCode ?? settings.GenerateAsyncStreamCode
             }, memberRenamer: member => member.Name);

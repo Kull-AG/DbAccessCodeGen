@@ -29,6 +29,7 @@ namespace DbAccessCodeGen.Configuration
         public IReadOnlyCollection<ProcedureSetting> Procedures { get; }
 
         public IReadOnlyCollection<string> IgnoreParameters { get; init; }
+        public IReadOnlyDictionary<string, string> ReplaceParameters { get; init; } = new Dictionary<string, string>();
 
         public string OutputDir { get; } = "DbAccess";
 
@@ -70,6 +71,7 @@ namespace DbAccessCodeGen.Configuration
                 {
                     ignoreParameters = o.Select(o => (string)Convert.ChangeType(o, typeof(string))).ToArray();
                 }
+                var replaceParameters = os.GetOrThrow<IReadOnlyDictionary<string, string>>(nameof(ReplaceParameters), new Dictionary<string, string>());
                 return new Settings(os.GetOrThrow<string?>("ConnectionString", null),
                     os.GetOrThrow<string>("Namespace", "DbAccess"),
                     proclist.Select(s => ProcedureSetting.FromObject(s)).ToList(),
@@ -84,7 +86,8 @@ namespace DbAccessCodeGen.Configuration
                 {
                     AlwaysAllowNullForStrings = os.GetOrThrow(nameof(AlwaysAllowNullForStrings), true),
                     GenerateAsyncStreamCode = os.GetOrThrow(nameof(GenerateAsyncStreamCode), false),
-                    PersistResultPath = os.GetOrThrow(nameof(PersistResultPath), "ResultSets")
+                    PersistResultPath = os.GetOrThrow(nameof(PersistResultPath), "ResultSets"),
+                    ReplaceParameters= replaceParameters
                 };
             }
             throw new NotSupportedException("Must be object at root");
