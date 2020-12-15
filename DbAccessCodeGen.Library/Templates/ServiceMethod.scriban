@@ -67,24 +67,19 @@ public async IAsyncEnumerable<{{ResultType}}> {{MethodName}}StreamAsync ({{if Pa
 	OnCommandEnd(cmd, start);
 }
 {{end}}
-{{if GenerateSyncCode || GenerateAsyncCode}} 
+{{if (GenerateSyncCode || GenerateAsyncCode) && ResultFields}} 
 private IEnumerable<{{ResultType}}> {{MethodName}}_FromReader(DbDataReader rdr)
 {
 	if (!rdr.HasRows) 
 	{
 		yield break;
 	}
-	{{if ResultFields}}
 	var ordinals = new {{MethodName}}Ordinals(
 		{{ for prop in ResultFields }}{{prop.ParameterName}}: rdr.GetOrdinal("{{prop.SqlName}}") {{if !for.last}}, {{ end }}{{ end }}
 	);
-	{{else}}
-	int fieldCount = rdr.FieldCount;
-	{{end}}
 	while(rdr.Read())
 	{
-		{{if ResultFields}}yield return {{MethodName}}_FromRecord(rdr, in ordinals);
-		{{else}}yield return ReadDictionary(rdr, fieldCount);{{end}}
+		yield return {{MethodName}}_FromRecord(rdr, in ordinals);
 	}
 }
 {{end}}
@@ -108,7 +103,7 @@ public IEnumerable<{{ResultType}}> {{MethodName}} ({{if ParameterTypeName}}{{Par
 	DateTime start = DateTime.Now;
 	OnCommandStart(cmd, start);
 	var rdr = cmd.ExecuteReader();
-	var dt = {{MethodName}}_FromReader(rdr);
+	var dt = {{if ResultFields}}{{MethodName}}_FromReader(rdr){{else}}DictionaryFromReader(rdr){{end}};
 	return AfterEnumerable(dt, () => OnCommandEnd(cmd, start), cmd, rdr);
 }
 {{end}}
@@ -133,7 +128,7 @@ public async Task<IEnumerable<{{ResultType}}>> {{MethodName}}Async ({{if Paramet
 	DateTime start = DateTime.Now;
 	OnCommandStart(cmd, start);
 	var rdr = await cmd.ExecuteReaderAsync();
-	var dt = {{MethodName}}_FromReader(rdr);
+	var dt = {{if ResultFields}}{{MethodName}}_FromReader(rdr){{else}}DictionaryFromReader(rdr){{end}};
 	return AfterEnumerable(dt, () => OnCommandEnd(cmd, start), cmd, rdr);
 }
 {{end}}

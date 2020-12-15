@@ -112,6 +112,19 @@ namespace {{Name.Namespace}}
                 }
             });
         }
+
+        private IEnumerable<Dictionary<string, object?>> DictionaryFromReader(DbDataReader rdr)
+        {
+	        if (!rdr.HasRows) 
+	        {
+		        yield break;
+	        }
+	        int fieldCount = rdr.FieldCount;
+	        while(rdr.Read())
+	        {
+                yield return ReadDictionary(rdr, fieldCount);
+	        }
+        }
 {{Methods}}
 	}
 

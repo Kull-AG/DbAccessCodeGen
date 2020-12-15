@@ -65,7 +65,8 @@ BEGIN
 END
 GO
 CREATE PROCEDURE spSearchPets
-	@SearchString nvarchar(MAX)
+	@SearchString nvarchar(MAX), 
+	@DateOfTool datetime
 AS
 BEGIN 	
 	SELECT* FROM Pets WHERE PetName LIKE '%' + @SearchString + '%'

@@ -6,6 +6,8 @@ GenerateAsyncCode: true
 GenerateAsyncStreamCode: false
 GenerateSyncCode: true
 ConnectionString: "Server=(LocalDB)\\MSSQLLocalDB; Integrated Security=true;Initial Catalog=CodeGenTestDb;MultipleActiveResultSets=true"
+ReplaceParameters:
+   DateOfTool: DateTime.Now
 Procedures:
  - SP: dbo.spGetPets
    IgnoreParameters: 

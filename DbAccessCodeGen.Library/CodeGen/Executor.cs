@@ -116,7 +116,9 @@ namespace DbAccessCodeGen.CodeGen
                     {
                         var spprm = await this.sPParametersProvider.GetSPParameters(sp.StoredProcedure, con);
                         var ignoreParameters = sp.IgnoreParameters ?? settings.IgnoreParameters;
-                        var replaceParaemeters = sp.ReplaceParameters ?? settings.ReplaceParameters;
+                        var spPrmNames = spprm.Select(s => s.SqlName.StartsWith("@") ? s.SqlName.Substring(1) : s.SqlName).ToArray();
+                        var replaceParaemeters = (sp.ReplaceParameters ?? settings.ReplaceParameters)
+                                .Where(p => spPrmNames.Contains(p.Key)).ToDictionary(k=>k.Key, k=>k.Value);
                         var toUsePrm = spprm
                                 .Where(p => !ignoreParameters.Contains(p.SqlName.StartsWith("@") ? p.SqlName.Substring(1) : p.SqlName, StringComparer.OrdinalIgnoreCase))
                                 .Where(p => !replaceParaemeters.ContainsKey(p.SqlName.StartsWith("@") ? p.SqlName.Substring(1) : p.SqlName))
