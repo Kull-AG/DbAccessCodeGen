@@ -45,6 +45,18 @@ namespace DbAccessCodeGen.Configuration
         public string? TemplateDir { get; }
 
         /// <summary>
+        /// The modifiers for the service class. defaults to "public partial"
+        /// Use this if you want an abstract service class or make it internal only
+        /// </summary>
+        public string ServiceClassModifiers { get; init; } = "public partial";
+
+        /// <summary>
+        /// The visibility of the constructor. Defaults to public
+        /// Use this to set it to private to use you own constructor
+        /// </summary>
+        public string ConstructorVisibility { get; init; } = "public";
+
+        /// <summary>
         /// Path to a javascript file containing naming convention.
         /// </summary>
         public string? NamingJS { get; }
@@ -87,7 +99,9 @@ namespace DbAccessCodeGen.Configuration
                     AlwaysAllowNullForStrings = os.GetOrThrow(nameof(AlwaysAllowNullForStrings), true),
                     GenerateAsyncStreamCode = os.GetOrThrow(nameof(GenerateAsyncStreamCode), false),
                     PersistResultPath = os.GetOrThrow(nameof(PersistResultPath), "ResultSets"),
-                    ReplaceParameters= replaceParameters
+                    ServiceClassModifiers = os.GetOrThrow(nameof(ServiceClassModifiers), "public partial"),
+                    ConstructorVisibility = os.GetOrThrow(nameof(ConstructorVisibility), "public"),
+                    ReplaceParameters = replaceParameters
                 };
             }
             throw new NotSupportedException("Must be object at root");

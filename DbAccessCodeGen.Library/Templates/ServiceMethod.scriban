@@ -30,14 +30,14 @@ private void {{MethodName}}_PrepareCommand(DbCommand cmd{{if ParameterTypeName}}
 }
 {{if GenerateAsyncStreamCode}}
 {{if ParameterTypeName}}
-public IAsyncEnumerable<{{ResultType}}> {{MethodName}}StreamAsync ({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{end}})
+public IAsyncEnumerable<{{ResultType}}> {{MethodName}}StreamAsync({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{end}})
 {
 	return {{MethodName}}StreamAsync(new {{ParameterTypeName}}({{ for prop in Parameters }}{{prop.ParameterName}}: {{prop.ParameterName}}{{if !for.last}}, {{ end }}
 		{{end}}));
 }
 {{end}}
 
-public async IAsyncEnumerable<{{ResultType}}> {{MethodName}}StreamAsync ({{if ParameterTypeName}} {{ParameterTypeName}} parameters{{end}})
+public async IAsyncEnumerable<{{ResultType}}> {{MethodName}}StreamAsync({{if ParameterTypeName}} {{ParameterTypeName}} parameters{{end}})
 {
     using var cmd = connection.CreateCommand();
 	if(connection.State != ConnectionState.Open) 
@@ -45,7 +45,7 @@ public async IAsyncEnumerable<{{ResultType}}> {{MethodName}}StreamAsync ({{if Pa
 		await connection.OpenAsync();
 	}
 	{{MethodName}}_PrepareCommand(cmd{{if ParameterTypeName}}, parameters{{end}});
-	DateTime start = DateTime.Now;
+	DateTime start = DateTime.UtcNow;
 	OnCommandStart(cmd, start);
 	using var rdr = await cmd.ExecuteReaderAsync();
 	if(!rdr.HasRows) 
@@ -85,14 +85,14 @@ private IEnumerable<{{ResultType}}> {{MethodName}}_FromReader(DbDataReader rdr)
 {{end}}
 {{if GenerateSyncCode}}
 {{if ParameterTypeName}}
-public IEnumerable<{{ResultType}}> {{MethodName}} ({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{end}})
+public IEnumerable<{{ResultType}}> {{MethodName}}({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{end}})
 {
 	return {{MethodName}}(new {{ParameterTypeName}}({{ for prop in Parameters }}{{prop.ParameterName}}: {{prop.ParameterName}}{{if !for.last}}, {{ end }}
 	{{end}}));
 }
 {{end}}
 
-public IEnumerable<{{ResultType}}> {{MethodName}} ({{if ParameterTypeName}}{{ParameterTypeName}} parameters{{end}})
+public IEnumerable<{{ResultType}}> {{MethodName}}({{if ParameterTypeName}}{{ParameterTypeName}} parameters{{end}})
 {
     var cmd = connection.CreateCommand();
 	if(connection.State != ConnectionState.Open) 
@@ -100,7 +100,7 @@ public IEnumerable<{{ResultType}}> {{MethodName}} ({{if ParameterTypeName}}{{Par
 		connection.Open();
 	}
 	{{MethodName}}_PrepareCommand(cmd{{if ParameterTypeName}}, parameters{{end}});
-	DateTime start = DateTime.Now;
+	DateTime start = DateTime.UtcNow;
 	OnCommandStart(cmd, start);
 	var rdr = cmd.ExecuteReader();
 	var dt = {{if ResultFields}}{{MethodName}}_FromReader(rdr){{else}}DictionaryFromReader(rdr){{end}};
@@ -110,14 +110,14 @@ public IEnumerable<{{ResultType}}> {{MethodName}} ({{if ParameterTypeName}}{{Par
 
 {{if GenerateAsyncCode}}
 {{if ParameterTypeName}}
-public Task<IEnumerable<{{ResultType}}>> {{MethodName}}Async ({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{end}})
+public Task<IEnumerable<{{ResultType}}>> {{MethodName}}Async({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{end}})
 {
 	return {{MethodName}}Async(new {{ParameterTypeName}}({{ for prop in Parameters }}{{prop.ParameterName}}: {{prop.ParameterName}}{{if !for.last}}, {{ end }}
 	{{end}}));
 }
 {{end}}
 
-public async Task<IEnumerable<{{ResultType}}>> {{MethodName}}Async ({{if ParameterTypeName}}{{ParameterTypeName}} parameters{{end}})
+public async Task<IEnumerable<{{ResultType}}>> {{MethodName}}Async({{if ParameterTypeName}}{{ParameterTypeName}} parameters{{end}})
 {
     using var cmd = connection.CreateCommand();
 	if(connection.State != ConnectionState.Open) 
@@ -125,7 +125,7 @@ public async Task<IEnumerable<{{ResultType}}>> {{MethodName}}Async ({{if Paramet
 		await connection.OpenAsync();
 	}
 	{{MethodName}}_PrepareCommand(cmd{{if ParameterTypeName}}, parameters{{end}});
-	DateTime start = DateTime.Now;
+	DateTime start = DateTime.UtcNow;
 	OnCommandStart(cmd, start);
 	var rdr = await cmd.ExecuteReaderAsync();
 	var dt = {{if ResultFields}}{{MethodName}}_FromReader(rdr){{else}}DictionaryFromReader(rdr){{end}};

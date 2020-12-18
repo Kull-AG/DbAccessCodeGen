@@ -138,7 +138,7 @@ namespace DbAccessCodeGen.CodeGen
                 codeGenPrm.ParameterTypeName!,
                 codeGenPrm.Parameters
                     .Where(d => d.ParameterDirection == System.Data.ParameterDirection.Input || d.ParameterDirection == System.Data.ParameterDirection.InputOutput)
-                    .Select(s => GetModelProperty(s, s.UserDefinedType==null?null: userGeneratedTypes[s.UserDefinedType])
+                    .Select(s => GetModelProperty(s, s.UserDefinedType == null ? null : userGeneratedTypes[s.UserDefinedType])
                 ).ToArray(),
                 codeType: GeneratedCodeType.ParameterClass) : null;
             if (parameterModel != null)
@@ -150,7 +150,7 @@ namespace DbAccessCodeGen.CodeGen
                 codeType: GeneratedCodeType.ResultClass) : null;
             if (resultModel != null)
                 modelsToGenerate.Add(resultModel);
-            
+
 
             var modelTemplate = Scriban.Template.Parse(ModelFileTemplate);
             var serviceMethodTemplate = Scriban.Template.Parse(ServiceMethodTemplate);
@@ -170,7 +170,7 @@ namespace DbAccessCodeGen.CodeGen
                 SqlName = codeGenPrm.SqlName,
                 ParameterTypeName = codeGenPrm.ParameterTypeName,
                 ReplaceParameters = codeGenPrm.ReplaceParameters,
-                GenerateAsyncCode = codeGenPrm.Settings.GenerateAsyncCode?? settings.GenerateAsyncCode,
+                GenerateAsyncCode = codeGenPrm.Settings.GenerateAsyncCode ?? settings.GenerateAsyncCode,
                 GenerateSyncCode = codeGenPrm.Settings.GenerateSyncCode ?? settings.GenerateSyncCode,
                 GenerateAsyncStreamCode = codeGenPrm.Settings.GenerateAsyncStreamCode ?? settings.GenerateAsyncStreamCode
             }, memberRenamer: member => member.Name);
@@ -211,7 +211,9 @@ namespace DbAccessCodeGen.CodeGen
             var serviceString = await serviceClassTemplate.RenderAsync(new
             {
                 Name = serviceClassName,
-                Methods = methodsString
+                Methods = methodsString,
+                ConstructorVisibility = settings.ConstructorVisibility,
+                ServiceClassModifiers = settings.ServiceClassModifiers
             }, memberRenamer: m => m.Name);
             var (fullOutDir, fileName) = GetPaths(serviceClassName, true);
             await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(fullOutDir, fileName), Disclaimer + serviceString);
@@ -219,7 +221,7 @@ namespace DbAccessCodeGen.CodeGen
 
         private ModelProperty GetModelProperty(SPParameter s, Model? userDefinedType)
         {
-            return GetModelProperty(GeneratedCodeType.ParameterClass, s.DbType, s.UserDefinedType,  userDefinedType, s.SqlName, s.IsNullable, s.ParameterDirection);
+            return GetModelProperty(GeneratedCodeType.ParameterClass, s.DbType, s.UserDefinedType, userDefinedType, s.SqlName, s.IsNullable, s.ParameterDirection);
         }
 
         private ModelProperty GetModelProperty(SqlFieldDescription s)

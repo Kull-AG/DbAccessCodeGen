@@ -6,20 +6,20 @@ using System.Threading.Tasks;
 
 namespace {{Name.Namespace}} 
 {
-	public partial class {{Name.Name}}
+	{{ServiceClassModifiers}} class {{Name.Name}}
 	{
 		protected readonly DbConnection connection;
         protected readonly bool isMSSqlServer;
 
-		public {{Name.Name}}(DbConnection connection)
+		{{ConstructorVisibility}} {{Name.Name}}(DbConnection connection)
 		{
 			this.connection = connection;
             this.isMSSqlServer = connection.GetType().FullName.StartsWith("System.Data.SqlClient")
                 || connection.GetType().FullName.StartsWith("Microsoft.Data.SqlClient");
 		}
 
-		partial void OnCommandStart(DbCommand cmd, DateTime startedAt);
-		partial void OnCommandEnd(DbCommand cmd, DateTime startedAt);
+		partial void OnCommandStart(DbCommand cmd, DateTime startedAtUtc);
+		partial void OnCommandEnd(DbCommand cmd, DateTime startedAtUtc);
 
         private void AddCommandParameter<T>(DbCommand cmd, string name, T value, ParameterDirection direction = ParameterDirection.Input) 
         {
