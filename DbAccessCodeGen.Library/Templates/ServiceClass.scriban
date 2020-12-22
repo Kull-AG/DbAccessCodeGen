@@ -21,7 +21,23 @@ namespace {{Name.Namespace}}
 		partial void OnCommandStart(DbCommand cmd, DateTime startedAtUtc);
 		partial void OnCommandEnd(DbCommand cmd, DateTime startedAtUtc);
 
-        private void AddCommandParameter<T>(DbCommand cmd, string name, T value, ParameterDirection direction = ParameterDirection.Input) 
+        protected void SetupConnection()
+        {
+            if(connection.State != ConnectionState.Open) 
+	        {
+		        connection.Open();
+	        }
+        }
+
+        protected async Task SetupConnectionAsync()
+        {
+            if(connection.State != ConnectionState.Open) 
+	        {
+		        await connection.OpenAsync();
+	        }
+        }
+
+        protected void AddCommandParameter<T>(DbCommand cmd, string name, T value, ParameterDirection direction = ParameterDirection.Input) 
         {
 		    var prm = cmd.CreateParameter();
             prm.Direction = direction;
@@ -35,7 +51,7 @@ namespace {{Name.Namespace}}
             cmd.Parameters.Add(prm);
         }
 
-        private Dictionary<string, object?> ReadDictionary(IDataRecord record, int fieldCount) 
+        protected Dictionary<string, object?> ReadDictionary(IDataRecord record, int fieldCount) 
         {
             Dictionary<string, object?> rowData = new Dictionary<string, object?>(fieldCount);
             for(int i = 0; i<fieldCount; i++) 
@@ -45,7 +61,7 @@ namespace {{Name.Namespace}}
             return rowData;
         }
         
-        private void AddTableValuedCommandParameter<T>(DbCommand cmd, string sqlName, IEnumerable<T>? parameterValue, (string fieldName, Type netType)[] fields, Func<T, object[]> getRowData)
+        protected void AddTableValuedCommandParameter<T>(DbCommand cmd, string sqlName, IEnumerable<T>? parameterValue, (string fieldName, Type netType)[] fields, Func<T, object[]> getRowData)
         {
             var p = cmd.CreateParameter();
             p.ParameterName = sqlName;
@@ -113,7 +129,7 @@ namespace {{Name.Namespace}}
             });
         }
 
-        private IEnumerable<Dictionary<string, object?>> DictionaryFromReader(DbDataReader rdr)
+        protected IEnumerable<Dictionary<string, object?>> DictionaryFromReader(DbDataReader rdr)
         {
 	        if (!rdr.HasRows) 
 	        {

@@ -21,11 +21,11 @@ protected {{ResultType}} {{MethodName}}_FromRecord(IDataRecord row, in {{MethodN
 private void {{MethodName}}_PrepareCommand(DbCommand cmd{{if ParameterTypeName}}, {{ParameterTypeName}} parameters{{end}})
 {
 	cmd.CommandType = CommandType.StoredProcedure;
-	cmd.CommandText = "{{SqlName}}";
-	{{ for prop in Parameters }}
+	cmd.CommandText = "{{SqlName}}";{{
+	for prop in Parameters }}
 	{{if prop.IsTableValued}}this.AddTableValuedCommandParameter(cmd, "{{prop.SqlName}}", parameters.{{ prop.CSPropertyName }}, {{prop.TableValuedMeta}}, {{prop.TableValuedFn}});
-	{{else}}this.AddCommandParameter(cmd, "{{prop.SqlName}}", parameters.{{ prop.CSPropertyName }}, ParameterDirection.{{ prop.ParameterDirection }});{{end}}{{ end }}
-	{{ for rp in ReplaceParameters}}
+	{{else}}this.AddCommandParameter(cmd, "{{prop.SqlName}}", parameters.{{ prop.CSPropertyName }}, ParameterDirection.{{ prop.ParameterDirection }});{{end}}{{ end }}{{
+	for rp in ReplaceParameters}}
 	this.AddCommandParameter(cmd, "{{rp.Key}}", {{rp.Value}});{{end}}
 }
 {{if GenerateAsyncStreamCode}}
@@ -40,10 +40,7 @@ public IAsyncEnumerable<{{ResultType}}> {{MethodName}}StreamAsync({{ for prop in
 public async IAsyncEnumerable<{{ResultType}}> {{MethodName}}StreamAsync({{if ParameterTypeName}} {{ParameterTypeName}} parameters{{end}})
 {
     using var cmd = connection.CreateCommand();
-	if(connection.State != ConnectionState.Open) 
-	{
-		await connection.OpenAsync();
-	}
+	await SetupConnectionAsync();
 	{{MethodName}}_PrepareCommand(cmd{{if ParameterTypeName}}, parameters{{end}});
 	DateTime start = DateTime.UtcNow;
 	OnCommandStart(cmd, start);
@@ -95,10 +92,7 @@ public IEnumerable<{{ResultType}}> {{MethodName}}({{ for prop in Parameters }}{{
 public IEnumerable<{{ResultType}}> {{MethodName}}({{if ParameterTypeName}}{{ParameterTypeName}} parameters{{end}})
 {
     var cmd = connection.CreateCommand();
-	if(connection.State != ConnectionState.Open) 
-	{
-		connection.Open();
-	}
+	SetupConnection();
 	{{MethodName}}_PrepareCommand(cmd{{if ParameterTypeName}}, parameters{{end}});
 	DateTime start = DateTime.UtcNow;
 	OnCommandStart(cmd, start);
@@ -120,10 +114,7 @@ public Task<IEnumerable<{{ResultType}}>> {{MethodName}}Async({{ for prop in Para
 public async Task<IEnumerable<{{ResultType}}>> {{MethodName}}Async({{if ParameterTypeName}}{{ParameterTypeName}} parameters{{end}})
 {
     using var cmd = connection.CreateCommand();
-	if(connection.State != ConnectionState.Open) 
-	{
-		await connection.OpenAsync();
-	}
+	await SetupConnectionAsync();
 	{{MethodName}}_PrepareCommand(cmd{{if ParameterTypeName}}, parameters{{end}});
 	DateTime start = DateTime.UtcNow;
 	OnCommandStart(cmd, start);
