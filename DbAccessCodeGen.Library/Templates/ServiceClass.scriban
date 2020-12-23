@@ -44,7 +44,12 @@ namespace {{Name.Namespace}}
             prm.ParameterName = (isMSSqlServer && !name.StartsWith("@") ? "@" : "") +  name;
             prm.Value = (value as object) ?? DBNull.Value;
             
-            if (typeof(T) == typeof(byte[]))
+            if(value is System.IO.Stream)
+            {
+                prm.DbType = DbType.Binary;
+                prm.Size = -1;
+            }
+            else if (typeof(T) == typeof(byte[]) || value is byte[])
             {
                 prm.DbType = DbType.Binary;
             }

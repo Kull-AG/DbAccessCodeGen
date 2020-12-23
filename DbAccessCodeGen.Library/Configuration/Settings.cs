@@ -30,6 +30,7 @@ namespace DbAccessCodeGen.Configuration
 
         public IReadOnlyCollection<string> IgnoreParameters { get; init; }
         public IReadOnlyDictionary<string, string> ReplaceParameters { get; init; } = new Dictionary<string, string>();
+        public IReadOnlyDictionary<string, string> CustomTypeMappings { get; init; } = new Dictionary<string, string>();
 
         public string OutputDir { get; } = "DbAccess";
 
@@ -101,8 +102,9 @@ namespace DbAccessCodeGen.Configuration
                     PersistResultPath = os.GetOrThrow(nameof(PersistResultPath), "ResultSets"),
                     ServiceClassModifiers = os.GetOrThrow(nameof(ServiceClassModifiers), "public partial"),
                     ConstructorVisibility = os.GetOrThrow(nameof(ConstructorVisibility), "public"),
-                    ReplaceParameters = replaceParameters
-                };
+                    ReplaceParameters = replaceParameters,
+                    CustomTypeMappings = os.GetOrThrow<IReadOnlyDictionary<string, string>>(nameof(CustomTypeMappings), new Dictionary<string, string>())
+            };
             }
             throw new NotSupportedException("Must be object at root");
         }

@@ -3,7 +3,7 @@
   "isRoot": true,
   "tools": {
     "dbaccesscodegen": {
-      "version": "0.3.6-beta2",
+      "version": "0.3.7-beta1",
       "commands": [
         "dbcodegen"
       ]

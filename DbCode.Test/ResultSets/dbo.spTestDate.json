@@ -2,6 +2,7 @@
   {
     "Name": "Date",
     "TypeName": "datetime2",
-    "IsNullable": true
+    "IsNullable": true,
+    "MaxLength": null
   }
 ]

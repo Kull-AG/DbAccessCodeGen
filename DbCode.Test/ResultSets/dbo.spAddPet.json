@@ -2,11 +2,13 @@
   {
     "Name": "Success",
     "TypeName": "bit",
-    "IsNullable": true
+    "IsNullable": true,
+    "MaxLength": null
   },
   {
     "Name": "NewPetId",
     "TypeName": "int",
-    "IsNullable": false
+    "IsNullable": false,
+    "MaxLength": null
   }
 ]

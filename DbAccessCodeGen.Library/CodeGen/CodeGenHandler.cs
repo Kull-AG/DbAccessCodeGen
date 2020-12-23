@@ -25,20 +25,20 @@ namespace DbAccessCodeGen.CodeGen
         protected readonly Dictionary<string, string> IntegratedTypeMap = new Dictionary<string, string>()
         {
             { "System.Boolean", "bool" },
-{ "System.Byte", "byte" },
-{ "System.SByte", "sbyte" },
-{ "System.Char", "char" },
-{ "System.Decimal", "decimal" },
-{ "System.Double", "double" },
-{ "System.Single", "float" },
-{ "System.Int32", "int" },
-{ "System.UInt32", "uint" },
-{ "System.Int64", "long" },
-{ "System.UInt64", "ulong" },
-{ "System.Int16", "short" },
-{ "System.UInt16", "ushort" },
-{ "System.Object", "object" },
-{ "System.String", "string" },
+            { "System.Byte", "byte" },
+            { "System.SByte", "sbyte" },
+            { "System.Char", "char" },
+            { "System.Decimal", "decimal" },
+            { "System.Double", "double" },
+            { "System.Single", "float" },
+            { "System.Int32", "int" },
+            { "System.UInt32", "uint" },
+            { "System.Int64", "long" },
+            { "System.UInt64", "ulong" },
+            { "System.Int16", "short" },
+            { "System.UInt16", "ushort" },
+            { "System.Object", "object" },
+            { "System.String", "string" },
 
         };
 
@@ -51,7 +51,7 @@ namespace DbAccessCodeGen.CodeGen
         private readonly NamingHandler namingHandler;
         private readonly SqlTypeMapper sqlTypeMapper;
         private readonly DbConnection connection;
-        ConcurrentDictionary<DBObjectName, SqlFieldDescription[]> userDefinedTypes = new ConcurrentDictionary<DBObjectName, SqlFieldDescription[]>();
+        ConcurrentDictionary<DBObjectName, IReadOnlyCollection<SqlFieldDescription>> userDefinedTypes = new ();
 
         private object templateLock = new object();
         private volatile bool tempalteParsed = false;
@@ -109,6 +109,8 @@ namespace DbAccessCodeGen.CodeGen
         public async Task ExecuteCodeGen(SPMetadata codeGenPrm, ChannelWriter<(string name, string template)> methods)
         {
             ReadTemplates();
+            var customMappings = codeGenPrm.Settings.CustomTypeMappings ?? this.settings.CustomTypeMappings;
+
             logger.LogDebug($"Generate code for {codeGenPrm.SqlName}");
             List<Model> modelsToGenerate = new List<Model>();
             var udtPrms = codeGenPrm.Parameters.Where(u => u.UserDefinedType != null)
@@ -127,7 +129,7 @@ namespace DbAccessCodeGen.CodeGen
                     }
                     var udtmodel = new Model(
                 namingHandler.GetIdentifierForUserDefinedType(item.Name),
-                realFields.Select(s => GetModelProperty(s)).ToArray(),
+                realFields.Select(s => GetModelProperty(s, customMappings)).ToArray(),
                 codeType: GeneratedCodeType.TableValuedParameter);
                     userGeneratedTypes.Add(item, udtmodel);
                     modelsToGenerate.Add(udtmodel);
@@ -138,14 +140,14 @@ namespace DbAccessCodeGen.CodeGen
                 codeGenPrm.ParameterTypeName!,
                 codeGenPrm.Parameters
                     .Where(d => d.ParameterDirection == System.Data.ParameterDirection.Input || d.ParameterDirection == System.Data.ParameterDirection.InputOutput)
-                    .Select(s => GetModelProperty(s, s.UserDefinedType == null ? null : userGeneratedTypes[s.UserDefinedType])
+                    .Select(s => GetModelProperty(s, s.UserDefinedType == null ? null : userGeneratedTypes[s.UserDefinedType], customMappings)
                 ).ToArray(),
                 codeType: GeneratedCodeType.ParameterClass) : null;
             if (parameterModel != null)
                 modelsToGenerate.Add(parameterModel);
             Model? resultModel = codeGenPrm.ResultFields != null && codeGenPrm.ResultFields.Any(r => r.Name != null) && codeGenPrm.ResultFields.Any() ? new Model(
                 codeGenPrm.ResultType!,
-                codeGenPrm.ResultFields.Where(r => r.Name != null).Select(s => GetModelProperty(s)
+                codeGenPrm.ResultFields.Where(r => r.Name != null).Select(s => GetModelProperty(s, customMappings)
                 ).ToArray(),
                 codeType: GeneratedCodeType.ResultClass) : null;
             if (resultModel != null)
@@ -219,20 +221,25 @@ namespace DbAccessCodeGen.CodeGen
             await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(fullOutDir, fileName), Disclaimer + serviceString);
         }
 
-        private ModelProperty GetModelProperty(SPParameter s, Model? userDefinedType)
+        private ModelProperty GetModelProperty(SPParameter s, Model? userDefinedType,
+            IReadOnlyDictionary<string, string> customTypeMappings)
         {
-            return GetModelProperty(GeneratedCodeType.ParameterClass, s.DbType, s.UserDefinedType, userDefinedType, s.SqlName, s.IsNullable, s.ParameterDirection);
+            return GetModelProperty(GeneratedCodeType.ParameterClass, s.DbType, s.UserDefinedType, userDefinedType, s.SqlName, s.IsNullable, s.ParameterDirection,
+                customTypeMappings);
         }
 
-        private ModelProperty GetModelProperty(SqlFieldDescription s)
+        private ModelProperty GetModelProperty(SqlFieldDescription s,
+                IReadOnlyDictionary<string, string> customTypeMappings)
         {
-            return GetModelProperty(GeneratedCodeType.ResultClass, s.DbType, null, null, s.Name, s.IsNullable, null);
+            return GetModelProperty(GeneratedCodeType.ResultClass, s.DbType, null, null, s.Name, s.IsNullable, null, customTypeMappings);
         }
 
         private ModelProperty GetModelProperty(GeneratedCodeType generatedCodeType,
-            SqlType dbType, DBObjectName? userDefinedType, Model? userDefinedTypeGen, string sqlName, bool isNullable, ParameterDirection? parameterDirection)
+            SqlType dbType, DBObjectName? userDefinedType, Model? userDefinedTypeGen, string sqlName, bool isNullable, ParameterDirection? parameterDirection,
+            IReadOnlyDictionary<string, string> customTypeMappings)
         {
-            var type = GetNetType(dbType, userDefinedType);
+            var type = customTypeMappings.ContainsKey(dbType.DbType)  ?
+                customTypeMappings[dbType.DbType] : GetNetType(dbType, userDefinedType);
             var csName = namingHandler.GetPropertyName(sqlName, generatedCodeType);
             return new ModelProperty(
                                 sqlName: sqlName,

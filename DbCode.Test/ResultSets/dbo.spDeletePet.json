@@ -2,6 +2,7 @@
   {
     "Name": "Success",
     "TypeName": "bit",
-    "IsNullable": true
+    "IsNullable": true,
+    "MaxLength": null
   }
 ]

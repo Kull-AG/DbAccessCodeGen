@@ -2,16 +2,19 @@
   {
     "Name": "Content",
     "TypeName": "varbinary",
-    "IsNullable": true
+    "IsNullable": true,
+    "MaxLength": -1
   },
   {
     "Name": "ContentType",
     "TypeName": "varchar",
-    "IsNullable": true
+    "IsNullable": true,
+    "MaxLength": 1000
   },
   {
     "Name": "FileName",
     "TypeName": "varchar",
-    "IsNullable": true
+    "IsNullable": true,
+    "MaxLength": 1000
   }
 ]

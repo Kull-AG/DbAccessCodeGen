@@ -2,26 +2,31 @@
   {
     "Name": "PetId",
     "TypeName": "int",
-    "IsNullable": false
+    "IsNullable": false,
+    "MaxLength": null
   },
   {
     "Name": "PetName",
     "TypeName": "varchar",
-    "IsNullable": false
+    "IsNullable": false,
+    "MaxLength": 100
   },
   {
     "Name": "PetHeight",
     "TypeName": "decimal",
-    "IsNullable": true
+    "IsNullable": true,
+    "MaxLength": null
   },
   {
     "Name": "IsNice",
     "TypeName": "bit",
-    "IsNullable": true
+    "IsNullable": true,
+    "MaxLength": null
   },
   {
     "Name": "ts",
     "TypeName": "timestamp",
-    "IsNullable": false
+    "IsNullable": false,
+    "MaxLength": null
   }
 ]

@@ -2,11 +2,13 @@
   {
     "Name": null,
     "TypeName": "datetime",
-    "IsNullable": false
+    "IsNullable": false,
+    "MaxLength": null
   },
   {
     "Name": null,
     "TypeName": "varchar",
-    "IsNullable": false
+    "IsNullable": false,
+    "MaxLength": 10
   }
 ]

@@ -2,11 +2,13 @@
   {
     "Name": "Id",
     "TypeName": "bigint",
-    "IsNullable": false
+    "IsNullable": false,
+    "MaxLength": null
   },
   {
     "Name": "Name",
     "TypeName": "nvarchar",
-    "IsNullable": true
+    "IsNullable": true,
+    "MaxLength": 4000
   }
 ]
