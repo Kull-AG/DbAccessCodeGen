@@ -43,7 +43,7 @@ namespace DbAccessCodeGen.CodeGen
             this.namingHandler = namingHandler;
         }
 
-        public Task Execute()
+        public async Task Execute()
         {
             Channel<ProcedureSetting> toGetMetadata = Channel.CreateBounded<ProcedureSetting>(3);
             Channel<SPMetadata> CodeGenChannel = Channel.CreateBounded<SPMetadata>(20);
@@ -67,7 +67,10 @@ namespace DbAccessCodeGen.CodeGen
                     methods.Writer.Complete();
                 }, cts.Token);
             Task serviceGentask = codeGenHandler.WriteServiceClass(methods.Reader);
-            return Task.WhenAll(metadataTask, allMetaDataTasks, codeGenTasks, serviceGentask);
+            await metadataTask;
+            await allMetaDataTasks;
+            await codeGenTasks;
+            await serviceGentask;
         }
 
         protected async Task StartGetMetadata(ChannelWriter<ProcedureSetting> channelWriter)
