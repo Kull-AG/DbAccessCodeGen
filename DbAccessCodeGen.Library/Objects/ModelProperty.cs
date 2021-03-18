@@ -49,7 +49,7 @@ namespace DbAccessCodeGen.Objects
             {
                 this.TableValuedMeta =
                     "new (string, Type)[] {" + string.Join(", ", userDefinedTableType.Properties.Select(s => "(" + "\"" + s.SqlName + "\", typeof(" + s.NetType + "))")) + "}";
-                this.TableValuedFn = "row => new object[] {" + string.Join(", ", userDefinedTableType.Properties.Select(s => "row." + s.CSPropertyName)) + "}";
+                this.TableValuedFn = "row => new object?[] {" + string.Join(", ", userDefinedTableType.Properties.Select(s => "row." + s.CSPropertyName)) + "}";
             } 
         }
     }
