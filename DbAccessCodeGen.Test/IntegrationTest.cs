@@ -33,7 +33,8 @@ namespace DbAccessCodeGen.Test
             //Returns the bin/Debug/ folder
             string solutionDir = GetSolutionDir();
             var pkgFolder = Path.Combine(solutionDir, "DbAccessCodeGen/nupkg");
-            System.IO.Directory.Delete(pkgFolder, true);
+            if (System.IO.Directory.Exists(pkgFolder))
+                System.IO.Directory.Delete(pkgFolder, true);
 
         }
 
@@ -48,8 +49,8 @@ namespace DbAccessCodeGen.Test
         {
             var solutionDir = GetSolutionDir();
             // Restore Tools Reference
-            await ExecuteAndAssertSuccess(Path.Combine(solutionDir, "DbCode.Test"), 30, 
-                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "powershell": "pwsh", "-File", "SetupDB.ps1", "-ExecutionPolicy",
+            await ExecuteAndAssertSuccess(Path.Combine(solutionDir, "DbCode.Test"), 30,
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "powershell" : "pwsh", "-File", "SetupDB.ps1", "-ExecutionPolicy",
                     "Unrestricted");
         }
 
@@ -99,7 +100,7 @@ namespace DbAccessCodeGen.Test
         }
 
 
-        
+
         private static string GetSolutionDir()
         {
             var currentDir = System.IO.Directory.GetCurrentDirectory().Replace("\\", "/");

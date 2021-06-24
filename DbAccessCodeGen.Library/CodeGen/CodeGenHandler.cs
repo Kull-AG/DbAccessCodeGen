@@ -174,7 +174,12 @@ namespace DbAccessCodeGen.CodeGen
                 ReplaceParameters = codeGenPrm.ReplaceParameters,
                 GenerateAsyncCode = codeGenPrm.Settings.GenerateAsyncCode ?? settings.GenerateAsyncCode,
                 GenerateSyncCode = codeGenPrm.Settings.GenerateSyncCode ?? settings.GenerateSyncCode,
-                GenerateAsyncStreamCode = codeGenPrm.Settings.GenerateAsyncStreamCode ?? settings.GenerateAsyncStreamCode
+                GenerateAsyncStreamCode = codeGenPrm.Settings.GenerateAsyncStreamCode ?? settings.GenerateAsyncStreamCode,
+                ExecuteOnly = codeGenPrm.Settings.ExecuteOnly,
+                FullStreamAsyncResultType = codeGenPrm.Settings.ExecuteOnly ? "Task<int>" : (codeGenPrm.ResultType == null ? null: $"IAsyncEnumerable<{codeGenPrm.ResultType}>"),
+                FullAsyncResultType = codeGenPrm.Settings.ExecuteOnly ? "Task<int>" : (codeGenPrm.ResultType == null ? null : $"Task<IEnumerable<{codeGenPrm.ResultType}>>"),
+                FullSyncResultType = codeGenPrm.Settings.ExecuteOnly ? "int" : (codeGenPrm.ResultType == null ? null : $"IEnumerable<{codeGenPrm.ResultType}>"),
+
             }, memberRenamer: member => member.Name);
             serviceMethod = serviceMethod.Replace("\t", "    ");
             serviceMethod = string.Join("\r\n", serviceMethod.Split("\r\n").Select(s => "        " + s));

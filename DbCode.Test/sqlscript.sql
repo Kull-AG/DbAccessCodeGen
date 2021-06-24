@@ -155,3 +155,10 @@ AS
 BEGIN
 	SELECT * FROM imp.FileImport WHERE FileId=@FileId;
 END
+GO
+CREATE PROCEDURE imp.spReturnsNothing
+	@FileId bigint
+AS
+BEGIN
+	RETURN 1;
+END

@@ -30,14 +30,14 @@ private void {{MethodName}}_PrepareCommand(DbCommand cmd{{if ParameterTypeName}}
 }
 {{if GenerateAsyncStreamCode}}
 {{if ParameterTypeName}}
-public IAsyncEnumerable<{{ResultType}}> {{MethodName}}StreamAsync({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{end}})
+public {{FullStreamAsyncResultType}} {{MethodName}}StreamAsync({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{end}})
 {
 	return {{MethodName}}StreamAsync(new {{ParameterTypeName}}({{ for prop in Parameters }}{{prop.ParameterName}}: {{prop.ParameterName}}{{if !for.last}}, {{ end }}
 		{{end}}));
 }
 {{end}}
 
-public async IAsyncEnumerable<{{ResultType}}> {{MethodName}}StreamAsync({{if ParameterTypeName}} {{ParameterTypeName}} parameters{{end}})
+public async {{FullStreamAsyncResultType}} {{MethodName}}StreamAsync({{if ParameterTypeName}} {{ParameterTypeName}} parameters{{end}})
 {
     using var cmd = connection.CreateCommand();
 	await SetupConnectionAsync();
@@ -49,7 +49,8 @@ public async IAsyncEnumerable<{{ResultType}}> {{MethodName}}StreamAsync({{if Par
 	{
 		yield break;
 	}
-	{{if ResultFields}}
+	{{if ExecuteOnly}}
+	int result = await cmd.ExecuteNonQueryAsync(); {{else}}{{if ResultFields}}
 	var ordinals = new {{MethodName}}Ordinals(
 		{{ for prop in ResultFields }}{{prop.ParameterName}}: rdr.GetOrdinal("{{prop.SqlName}}") {{if !for.last}}, {{ end }}{{ end }}
 	);
@@ -60,12 +61,13 @@ public async IAsyncEnumerable<{{ResultType}}> {{MethodName}}StreamAsync({{if Par
 	{
 		{{if ResultFields}}yield return {{MethodName}}_FromRecord(rdr, ordinals);
 		{{else}}yield return ReadDictionary(rdr, fieldCount);{{end}}
-	}
-	OnCommandEnd(cmd, start);
+	}{{end}}
+	OnCommandEnd(cmd, start);{{if ExecuteOnly}}
+	return result;{{end}}
 }
 {{end}}
-{{if (GenerateSyncCode || GenerateAsyncCode) && ResultFields}} 
-private IEnumerable<{{ResultType}}> {{MethodName}}_FromReader(DbDataReader rdr)
+{{if (GenerateSyncCode || GenerateAsyncCode) && ResultFields && !ExecuteOnly}} 
+private {{FullSyncResultType}} {{MethodName}}_FromReader(DbDataReader rdr)
 {
 	if (!rdr.HasRows) 
 	{
@@ -82,44 +84,50 @@ private IEnumerable<{{ResultType}}> {{MethodName}}_FromReader(DbDataReader rdr)
 {{end}}
 {{if GenerateSyncCode}}
 {{if ParameterTypeName}}
-public IEnumerable<{{ResultType}}> {{MethodName}}({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{end}})
+public {{FullSyncResultType}} {{MethodName}}({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{end}})
 {
 	return {{MethodName}}(new {{ParameterTypeName}}({{ for prop in Parameters }}{{prop.ParameterName}}: {{prop.ParameterName}}{{if !for.last}}, {{ end }}
 	{{end}}));
 }
 {{end}}
 
-public IEnumerable<{{ResultType}}> {{MethodName}}({{if ParameterTypeName}}{{ParameterTypeName}} parameters{{end}})
+public {{FullSyncResultType}} {{MethodName}}({{if ParameterTypeName}}{{ParameterTypeName}} parameters{{end}})
 {
     var cmd = connection.CreateCommand();
 	SetupConnection();
 	{{MethodName}}_PrepareCommand(cmd{{if ParameterTypeName}}, parameters{{end}});
 	DateTime start = DateTime.UtcNow;
-	OnCommandStart(cmd, start);
+	OnCommandStart(cmd, start);{{if ExecuteOnly}}
+	int result = cmd.ExecuteNonQuery();
+	OnCommandEnd(cmd, start);
+	return result;{{else}}
 	var rdr = cmd.ExecuteReader();
 	var dt = {{if ResultFields}}{{MethodName}}_FromReader(rdr){{else}}DictionaryFromReader(rdr){{end}};
-	return AfterEnumerable(dt, () => OnCommandEnd(cmd, start), cmd, rdr);
+	return AfterEnumerable(dt, () => OnCommandEnd(cmd, start), cmd, rdr);{{end}}
 }
 {{end}}
 
 {{if GenerateAsyncCode}}
 {{if ParameterTypeName}}
-public Task<IEnumerable<{{ResultType}}>> {{MethodName}}Async({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{end}})
+public {{FullAsyncResultType}} {{MethodName}}Async({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{end}})
 {
 	return {{MethodName}}Async(new {{ParameterTypeName}}({{ for prop in Parameters }}{{prop.ParameterName}}: {{prop.ParameterName}}{{if !for.last}}, {{ end }}
 	{{end}}));
 }
 {{end}}
 
-public async Task<IEnumerable<{{ResultType}}>> {{MethodName}}Async({{if ParameterTypeName}}{{ParameterTypeName}} parameters{{end}})
+public async {{FullAsyncResultType}} {{MethodName}}Async({{if ParameterTypeName}}{{ParameterTypeName}} parameters{{end}})
 {
     using var cmd = connection.CreateCommand();
 	await SetupConnectionAsync();
 	{{MethodName}}_PrepareCommand(cmd{{if ParameterTypeName}}, parameters{{end}});
 	DateTime start = DateTime.UtcNow;
-	OnCommandStart(cmd, start);
+	OnCommandStart(cmd, start);{{if ExecuteOnly}}
+	int result = await cmd.ExecuteNonQueryAsync();
+	OnCommandEnd(cmd, start);
+	return result;{{else}}
 	var rdr = await cmd.ExecuteReaderAsync();
 	var dt = {{if ResultFields}}{{MethodName}}_FromReader(rdr){{else}}DictionaryFromReader(rdr){{end}};
-	return AfterEnumerable(dt, () => OnCommandEnd(cmd, start), cmd, rdr);
+	return AfterEnumerable(dt, () => OnCommandEnd(cmd, start), cmd, rdr);{{end}}
 }
 {{end}}

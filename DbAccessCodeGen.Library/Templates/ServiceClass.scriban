@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace {{Name.Namespace}} 
 {
+    [System.CodeDom.Compiler.GeneratedCode("https://github.com/aersamkull/DbAccessCodeGen", "0.4")]
 	{{ServiceClassModifiers}} class {{Name.Name}}
 	{
 		protected readonly DbConnection connection;

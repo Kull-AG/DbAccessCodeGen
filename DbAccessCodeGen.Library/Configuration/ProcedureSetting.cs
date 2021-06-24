@@ -24,6 +24,8 @@ namespace DbAccessCodeGen.Configuration
         public bool? GenerateAsyncStreamCode { get; init; } = null;
         public bool? GenerateSyncCode { get; init; } = null;
 
+        public bool ExecuteOnly { get; set; } = false;
+
         public static ProcedureSetting FromObject(object obj)
         {
             if (obj is IReadOnlyDictionary<object, object> od)
@@ -49,7 +51,8 @@ namespace DbAccessCodeGen.Configuration
                     GenerateAsyncCode = os.GetOrThrow<bool?>(nameof(GenerateAsyncCode), null),
                     GenerateAsyncStreamCode = os.GetOrThrow<bool?>(nameof(GenerateAsyncStreamCode), null),
                     ReplaceParameters = replaceParameters,
-                    CustomTypeMappings = os.GetOrThrow<IReadOnlyDictionary<string, string>?>(nameof(CustomTypeMappings), null)
+                    CustomTypeMappings = os.GetOrThrow<IReadOnlyDictionary<string, string>?>(nameof(CustomTypeMappings), null),
+                    ExecuteOnly = os.GetOrThrow<bool>(nameof(ExecuteOnly), false)
             };
             }
             if (obj is string s)
