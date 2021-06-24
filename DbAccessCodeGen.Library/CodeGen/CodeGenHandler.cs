@@ -168,6 +168,7 @@ namespace DbAccessCodeGen.CodeGen
                 ResultFields = resultModel?.Properties?.Count == 0 ? null : resultModel?.Properties,
                 ResultType = codeGenPrm.ResultType,
                 Parameters = parameterModel?.Properties ?? Array.Empty<ModelProperty>(),
+                OutputParameters = (parameterModel?.Properties ?? Array.Empty<ModelProperty>()).Where(p=>p.ParameterDirection == ParameterDirection.Output || p.ParameterDirection == ParameterDirection.InputOutput).ToList(),
                 MethodName = codeGenPrm.MethodName,
                 SqlName = codeGenPrm.SqlName,
                 ParameterTypeName = codeGenPrm.ParameterTypeName,
@@ -176,9 +177,9 @@ namespace DbAccessCodeGen.CodeGen
                 GenerateSyncCode = codeGenPrm.Settings.GenerateSyncCode ?? settings.GenerateSyncCode,
                 GenerateAsyncStreamCode = codeGenPrm.Settings.GenerateAsyncStreamCode ?? settings.GenerateAsyncStreamCode,
                 ExecuteOnly = codeGenPrm.Settings.ExecuteOnly,
-                FullStreamAsyncResultType = codeGenPrm.Settings.ExecuteOnly ? "Task<int>" : (codeGenPrm.ResultType == null ? null: $"IAsyncEnumerable<{codeGenPrm.ResultType}>"),
-                FullAsyncResultType = codeGenPrm.Settings.ExecuteOnly ? "Task<int>" : (codeGenPrm.ResultType == null ? null : $"Task<IEnumerable<{codeGenPrm.ResultType}>>"),
-                FullSyncResultType = codeGenPrm.Settings.ExecuteOnly ? "int" : (codeGenPrm.ResultType == null ? null : $"IEnumerable<{codeGenPrm.ResultType}>"),
+                FullStreamAsyncResultType = codeGenPrm.Settings.ExecuteOnly ? "Task<(int AffectedRows, int ReturnValue)>" : (codeGenPrm.ResultType == null ? null: $"IAsyncEnumerable<{codeGenPrm.ResultType}>"),
+                FullAsyncResultType = codeGenPrm.Settings.ExecuteOnly ? "Task<(int AffectedRows, int ReturnValue)>" : (codeGenPrm.ResultType == null ? null : $"Task<IEnumerable<{codeGenPrm.ResultType}>>"),
+                FullSyncResultType = codeGenPrm.Settings.ExecuteOnly ? "(int AffectedRows, int ReturnValue)" : (codeGenPrm.ResultType == null ? null : $"IEnumerable<{codeGenPrm.ResultType}>"),
 
             }, memberRenamer: member => member.Name);
             serviceMethod = serviceMethod.Replace("\t", "    ");

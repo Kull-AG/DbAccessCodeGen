@@ -50,7 +50,10 @@ public async {{FullStreamAsyncResultType}} {{MethodName}}StreamAsync({{if Parame
 		yield break;
 	}
 	{{if ExecuteOnly}}
-	int result = await cmd.ExecuteNonQueryAsync(); {{else}}{{if ResultFields}}
+	var returnPrm = AddCommandParameter(cmd, "__returnvalue", 0, ParameterDirection.ReturnValue);
+	int affectedRows = await cmd.ExecuteNonQueryAsync(); 
+	int returnValue = (int)returnPrm.Value;
+	{{else}}{{if ResultFields}}
 	var ordinals = new {{MethodName}}Ordinals(
 		{{ for prop in ResultFields }}{{prop.ParameterName}}: rdr.GetOrdinal("{{prop.SqlName}}") {{if !for.last}}, {{ end }}{{ end }}
 	);
@@ -63,7 +66,7 @@ public async {{FullStreamAsyncResultType}} {{MethodName}}StreamAsync({{if Parame
 		{{else}}yield return ReadDictionary(rdr, fieldCount);{{end}}
 	}{{end}}
 	OnCommandEnd(cmd, start);{{if ExecuteOnly}}
-	return result;{{end}}
+	return (affectedRows,returnValue);{{end}}
 }
 {{end}}
 {{if (GenerateSyncCode || GenerateAsyncCode) && ResultFields && !ExecuteOnly}} 
@@ -98,9 +101,11 @@ public {{FullSyncResultType}} {{MethodName}}({{if ParameterTypeName}}{{Parameter
 	{{MethodName}}_PrepareCommand(cmd{{if ParameterTypeName}}, parameters{{end}});
 	DateTime start = DateTime.UtcNow;
 	OnCommandStart(cmd, start);{{if ExecuteOnly}}
-	int result = cmd.ExecuteNonQuery();
+	var returnPrm = AddCommandParameter(cmd, "__returnvalue", 0, ParameterDirection.ReturnValue);
+	int affectedRows = cmd.ExecuteNonQuery(); 
+	int returnValue = (int)returnPrm.Value;
 	OnCommandEnd(cmd, start);
-	return result;{{else}}
+	return (affectedRows, returnValue);{{else}}
 	var rdr = cmd.ExecuteReader();
 	var dt = {{if ResultFields}}{{MethodName}}_FromReader(rdr){{else}}DictionaryFromReader(rdr){{end}};
 	return AfterEnumerable(dt, () => OnCommandEnd(cmd, start), cmd, rdr);{{end}}
@@ -123,9 +128,11 @@ public async {{FullAsyncResultType}} {{MethodName}}Async({{if ParameterTypeName}
 	{{MethodName}}_PrepareCommand(cmd{{if ParameterTypeName}}, parameters{{end}});
 	DateTime start = DateTime.UtcNow;
 	OnCommandStart(cmd, start);{{if ExecuteOnly}}
-	int result = await cmd.ExecuteNonQueryAsync();
+	var returnPrm = AddCommandParameter(cmd, "__returnvalue", 0, ParameterDirection.ReturnValue);
+	int affectedRows = await cmd.ExecuteNonQueryAsync(); 
+	int returnValue = (int)returnPrm.Value;
 	OnCommandEnd(cmd, start);
-	return result;{{else}}
+	return (affectedRows, returnValue);{{else}}
 	var rdr = await cmd.ExecuteReaderAsync();
 	var dt = {{if ResultFields}}{{MethodName}}_FromReader(rdr){{else}}DictionaryFromReader(rdr){{end}};
 	return AfterEnumerable(dt, () => OnCommandEnd(cmd, start), cmd, rdr);{{end}}

@@ -34,7 +34,12 @@ namespace DbCode.Test
             {
 
             }
-            int a = dba.spReturnsNothing(1);
+            int a = dba.spReturnsNothing(1).ReturnValue;
+            if (a != 1)
+            {
+                Console.Error.WriteLine("FAILED TEST for spReturnsNothing");
+                Environment.ExitCode = -2;
+            }
         }
     }
 }
