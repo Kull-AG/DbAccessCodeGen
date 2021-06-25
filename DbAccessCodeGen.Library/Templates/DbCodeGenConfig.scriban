@@ -1,0 +1,9 @@
+﻿---
+OutputDir: "DbAccess"
+Namespace: {{Namespace}}
+GenerateAsyncCode: true
+GenerateAsyncStreamCode: false
+GenerateSyncCode: false
+ConnectionString: "Server={{server}}; Integrated Security=true;Initial Catalog={{db}};MultipleActiveResultSets=true"
+Procedures:
+- Listsomeprocedurehere

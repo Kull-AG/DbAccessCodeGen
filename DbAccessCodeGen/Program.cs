@@ -34,9 +34,9 @@ namespace DbAccessCodeGen
 
         static async Task Main(string[] args)
         {
-            
-            if (!DbProviderFactories.TryGetFactory("System.Data.SqlClient", out var _))
-                DbProviderFactories.RegisterFactory("System.Data.SqlClient", System.Data.SqlClient.SqlClientFactory.Instance);
+            Kull.Data.DatabaseUtils.UseNewMSSqlClient = true;
+            if (!DbProviderFactories.TryGetFactory("Microsoft.Data.SqlClient", out var _))
+                DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", Microsoft.Data.SqlClient.SqlClientFactory.Instance);
 
             var subcommand = GetSubCommand(args);
             if (subcommand == null || subcommand == "generate")
@@ -58,7 +58,10 @@ namespace DbAccessCodeGen
                 };
                 if (show_help)
                 {
+                    
                     p.WriteOptionDescriptions(Console.Out);
+                    Console.WriteLine("You can also you the subcommands init and migrateef if you want:");
+                    Console.WriteLine("Eg type `dbcodegen init -h` for more info");
                     return;
                 }
                 try
@@ -76,6 +79,38 @@ namespace DbAccessCodeGen
 
                 await ExecuteCodeGen(configInfo ?? throw new ArgumentNullException(),
                     connectionString);
+            }
+            else if (subcommand == "init")
+            {
+                var argsReal = args.Skip(Array.IndexOf(args, "init")).ToArray();
+                string configfile = "DbCodeGenConfig.yml";
+                bool show_help = false;
+                var p = new OptionSet() {
+                    "Usage: init [OPTIONS]+",
+                    "",
+                    "Options:",
+                    { "c|config=", "the DbCodeGenConfig.yml location",
+                      c => configfile = c},
+                    { "h|help",  "show this message and exit",
+                      v => show_help = v != null },
+                };
+                if (show_help)
+                {
+                    p.WriteOptionDescriptions(Console.Out);
+                    return;
+                }
+                try
+                {
+                    p.Parse(args);
+
+                }
+                catch (OptionException e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine("Try `--help' for more information.");
+                    return;
+                }
+                await ExecuteInit(configfile);
             }
             else if (subcommand == "migrateef")
             {
@@ -139,6 +174,13 @@ namespace DbAccessCodeGen
             return executor.Execute(edmxFile, outDir);
         }
 
+        public static Task ExecuteInit(string configFilePath)
+        {
+            var sp = RegisterServices4Init();
+            // TODO
+            return Task.CompletedTask;
+        }
+
         public static async Task ExecuteCodeGen(FileInfo config, string? connectionString)
         {
             var content = await System.IO.File.ReadAllTextAsync(config.FullName);
@@ -156,6 +198,17 @@ namespace DbAccessCodeGen
             await ExecuteCodeGen(settings);
         }
 
+        public static ServiceProvider RegisterServices4Init()
+        {
+            var services = new ServiceCollection();
+
+            services.AddLogging(l =>
+            {
+                l.AddConsole();
+                l.SetMinimumLevel(LogLevel.Debug);
+            });
+            return services.BuildServiceProvider();
+        }
         public static ServiceProvider RegisterServices4Migrate()
         {
             var services = new ServiceCollection();
