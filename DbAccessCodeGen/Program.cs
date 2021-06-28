@@ -43,7 +43,7 @@ namespace DbAccessCodeGen
             {
                 FileInfo? configInfo = null;
                 string? connectionString = null;
-                bool show_help=false;
+                bool show_help = false;
                 var p = new OptionSet() {
                     "Usage: dbcodegen [OPTIONS]+",
                     "",
@@ -58,7 +58,7 @@ namespace DbAccessCodeGen
                 };
                 if (show_help)
                 {
-                    
+
                     p.WriteOptionDescriptions(Console.Out);
                     Console.WriteLine("You can also you the subcommands init and migrateef if you want:");
                     Console.WriteLine("Eg type `dbcodegen init -h` for more info");
@@ -146,7 +146,7 @@ namespace DbAccessCodeGen
                     Console.WriteLine("Try `--help' for more information.");
                     return;
                 }
-                if(edmxFile == null)
+                if (edmxFile == null)
                 {
                     Console.Error.WriteLine("Must provide edmx File (-e)");
                     p.WriteOptionDescriptions(Console.Out);
@@ -177,7 +177,27 @@ namespace DbAccessCodeGen
         public static Task ExecuteInit(string configFilePath)
         {
             var sp = RegisterServices4Init();
-            // TODO
+            Console.WriteLine("Enter namespace:");
+            string? @namespace = Console.ReadLine();
+            Console.WriteLine("Enter Server (default localhost):");
+            string? server = Console.ReadLine();
+            if (String.IsNullOrEmpty(server))
+                server = "localhost";
+            Console.WriteLine("Enter Databasename:");
+            string? db = Console.ReadLine();
+            string template = Templates.TemplateRetrieval.GetTemplate("DbCodeGenConfig");
+            template = template.Replace("{{Namespace}}", @namespace ?? "Enter.your.Namespace");
+            template = template.Replace("{{server}}", server);
+            template = template.Replace("{{db}}", db ?? "testdb");
+            System.IO.File.WriteAllText(configFilePath, template);
+
+            var runTool = @"dotnet tool restore
+dotnet tool run dbcodegen -c DbCodeGenConfig.yml";
+            var path = System.IO.Path.GetDirectoryName(configFilePath)!;
+            System.IO.File.WriteAllText(Path.Combine(path, "rundbcodegen.bat"), runTool, System.Text.Encoding.ASCII);
+            System.IO.File.WriteAllText(Path.Combine(path, "rundbcodegen.sh"), runTool, System.Text.Encoding.ASCII);
+
+            // TODO: Testing
             return Task.CompletedTask;
         }
 
