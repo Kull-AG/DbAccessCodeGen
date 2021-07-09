@@ -1,0 +1,8 @@
+[
+  {
+    "Name": "TestId",
+    "TypeName": "int",
+    "IsNullable": true,
+    "MaxLength": null
+  }
+]

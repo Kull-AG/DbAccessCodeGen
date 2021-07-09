@@ -51,7 +51,7 @@ namespace DbAccessCodeGen.CodeGen
         private readonly NamingHandler namingHandler;
         private readonly SqlTypeMapper sqlTypeMapper;
         private readonly DbConnection connection;
-        ConcurrentDictionary<DBObjectName, IReadOnlyCollection<SqlFieldDescription>> userDefinedTypes = new ();
+        ConcurrentDictionary<DBObjectName, IReadOnlyCollection<SqlFieldDescription>> userDefinedTypes = new();
 
         private object templateLock = new object();
         private volatile bool tempalteParsed = false;
@@ -155,7 +155,9 @@ namespace DbAccessCodeGen.CodeGen
 
 
             var modelTemplate = Scriban.Template.Parse(ModelFileTemplate);
+            ValidateTemplate(modelTemplate, "ModelFile");
             var serviceMethodTemplate = Scriban.Template.Parse(ServiceMethodTemplate);
+            ValidateTemplate(serviceMethodTemplate, "ServiceMethod");
             foreach (var m in modelsToGenerate)
             {
                 var str = await modelTemplate.RenderAsync(m, memberRenamer: member => member.Name);
@@ -168,7 +170,7 @@ namespace DbAccessCodeGen.CodeGen
                 ResultFields = resultModel?.Properties?.Count == 0 ? null : resultModel?.Properties,
                 ResultType = codeGenPrm.ResultType,
                 Parameters = parameterModel?.Properties ?? Array.Empty<ModelProperty>(),
-                OutputParameters = (parameterModel?.Properties ?? Array.Empty<ModelProperty>()).Where(p=>p.ParameterDirection == ParameterDirection.Output || p.ParameterDirection == ParameterDirection.InputOutput).ToList(),
+                OutputParameters = (parameterModel?.Properties ?? Array.Empty<ModelProperty>()).Where(p => p.ParameterDirection == ParameterDirection.Output || p.ParameterDirection == ParameterDirection.InputOutput).ToList(),
                 MethodName = codeGenPrm.MethodName,
                 SqlName = codeGenPrm.SqlName,
                 ParameterTypeName = codeGenPrm.ParameterTypeName,
@@ -177,7 +179,7 @@ namespace DbAccessCodeGen.CodeGen
                 GenerateSyncCode = codeGenPrm.Settings.GenerateSyncCode ?? settings.GenerateSyncCode,
                 GenerateAsyncStreamCode = codeGenPrm.Settings.GenerateAsyncStreamCode ?? settings.GenerateAsyncStreamCode,
                 ExecuteOnly = codeGenPrm.Settings.ExecuteOnly,
-                FullStreamAsyncResultType = codeGenPrm.Settings.ExecuteOnly ? "Task<(int AffectedRows, int ReturnValue)>" : (codeGenPrm.ResultType == null ? null: $"IAsyncEnumerable<{codeGenPrm.ResultType}>"),
+                FullStreamAsyncResultType = codeGenPrm.Settings.ExecuteOnly ? "Task<(int AffectedRows, int ReturnValue)>" : (codeGenPrm.ResultType == null ? null : $"IAsyncEnumerable<{codeGenPrm.ResultType}>"),
                 FullAsyncResultType = codeGenPrm.Settings.ExecuteOnly ? "Task<(int AffectedRows, int ReturnValue)>" : (codeGenPrm.ResultType == null ? null : $"Task<IEnumerable<{codeGenPrm.ResultType}>>"),
                 FullSyncResultType = codeGenPrm.Settings.ExecuteOnly ? "(int AffectedRows, int ReturnValue)" : (codeGenPrm.ResultType == null ? null : $"IEnumerable<{codeGenPrm.ResultType}>"),
 
@@ -215,6 +217,7 @@ namespace DbAccessCodeGen.CodeGen
             };
             string methodsString = string.Join("\r\n\r\n", allMethods.Select(k => k.Value));
             var serviceClassTemplate = Scriban.Template.Parse(ServiceClassTemplate);
+            ValidateTemplate(serviceClassTemplate, "ServiceClass");
             var serviceClassName = namingHandler.GetServiceClassName();
             var serviceString = await serviceClassTemplate.RenderAsync(new
             {
@@ -225,6 +228,26 @@ namespace DbAccessCodeGen.CodeGen
             }, memberRenamer: m => m.Name);
             var (fullOutDir, fileName) = GetPaths(serviceClassName, true);
             await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(fullOutDir, fileName), Disclaimer + serviceString);
+        }
+
+        private void ValidateTemplate(Scriban.Template template, string templateName)
+        {
+            if (template.HasErrors)
+            {
+                Console.Error.WriteLine("ERRORS for " + templateName);
+                foreach (var m in template.Messages)
+                {
+                    if (m.Type == Scriban.Parsing.ParserMessageType.Error)
+                    {
+                        Console.Error.WriteLine( m.Span.ToStringSimple() + ": " + m.Message);
+                    }
+                    else if (m.Type == Scriban.Parsing.ParserMessageType.Warning)
+                    {
+                        Console.Error.WriteLine("WARNING: " + m.Span.ToStringSimple() + ": " + m.Message);
+                    }
+                }
+                throw new SyntaxErrorException("Template error for " + templateName) ;
+            }
         }
 
         private ModelProperty GetModelProperty(SPParameter s, Model? userDefinedType,
@@ -244,7 +267,7 @@ namespace DbAccessCodeGen.CodeGen
             SqlType dbType, DBObjectName? userDefinedType, Model? userDefinedTypeGen, string sqlName, bool isNullable, ParameterDirection? parameterDirection,
             IReadOnlyDictionary<string, string> customTypeMappings)
         {
-            var type = customTypeMappings.ContainsKey(dbType.DbType)  ?
+            var type = customTypeMappings.ContainsKey(dbType.DbType) ?
                 customTypeMappings[dbType.DbType] : GetNetType(dbType, userDefinedType);
             var csName = namingHandler.GetPropertyName(sqlName, generatedCodeType);
             return new ModelProperty(
