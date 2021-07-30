@@ -17,7 +17,10 @@ CREATE PROCEDURE spGetPets
 	@ParameterNoOneLikes bit = 1
 AS
 BEGIN
-	SELECT PetId, PetName, IsNice, ts, 1.0 AS [IsARealPet%], '' AS TestCol FROM dbo.Pets
+	SELECT PetId, PetName, IsNice, ts, 1.0 AS [IsARealPet%], '' AS TestCol--,
+		--geography::STGeomFromText('POINT(0 0)',4326) AS PetPosition Not Supported on .Net Core
+		-- see https://github.com/dotnet/SqlClient/issues/30
+	FROM dbo.Pets
 		WHERE IsNice=1 OR @OnlyNice=0
 		ORDER BY PetId;
 END

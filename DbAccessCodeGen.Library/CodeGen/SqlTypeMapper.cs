@@ -22,7 +22,8 @@ namespace DbAccessCodeGen.CodeGen
             {"short", nameof(IDataRecord.GetInt16) },
             {"int", nameof(IDataRecord.GetInt32) },
             {"long", nameof(IDataRecord.GetInt64) },
-            {"string", nameof(IDataRecord.GetString) }
+            {"string", nameof(IDataRecord.GetString) },
+            {"object", nameof(IDataRecord.GetValue) }
         };
 
         public SqlTypeMapper(Configuration.Settings settings)

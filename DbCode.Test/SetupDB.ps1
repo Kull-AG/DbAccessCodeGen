@@ -1,6 +1,6 @@
 ﻿$server = "(LocalDB)\MSSQLLocalDB"
 $db = "CodeGenTestDb"
-$shouldVNr = 10
+$shouldVNr = 12
 $hasDb = ( & "sqlcmd" -E -S $server -d master -Q "SELECT name FROM sys.databases" ) | Where-Object { $_.Trim() -eq $db }
 $createNewDb = $false
 if ($hasDb) {

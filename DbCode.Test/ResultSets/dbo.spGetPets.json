@@ -34,5 +34,11 @@
     "TypeName": "varchar",
     "IsNullable": false,
     "MaxLength": 1
+  },
+  {
+    "Name": "PetPosition",
+    "TypeName": "geography",
+    "IsNullable": true,
+    "MaxLength": null
   }
 ]
