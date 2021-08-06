@@ -52,7 +52,8 @@ Procedures:
     - ObsoleteParameterName
     - VeryOldParameter
 - bfm.spGetForeCastDataV2
-
+- SP: test.Company_Update
+  ExecuteOnly: true # You do not expect results
 ```
 
 The template dir allows you to overwrite the templates used, the default ones are in the [DbAccessCodeGen/Templates](DbAccessCodeGen/Templates) folder.
