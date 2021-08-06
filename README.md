@@ -7,7 +7,7 @@ This project aims to generate low-level .Net Code to access a database.
 For all platforms, System.Linq.Async might be helpful
 - It uses Scriban as a template language which is very powerful, making it simple to Customize
 - Currently only Stored Procedures are supported and only MS SQL Server works realiably.
-- Generated Code requires C# 8.0. This can easily be set in the project settings and allows for certain great features like Nullable Context
+- Generated Code requires C# 8.0 (and soon C# 9). This can easily be set in the project settings and allows for certain great features like Nullable Context
 
 ## Why you should use it
 
