@@ -17,6 +17,8 @@ namespace DbAccessCodeGen.Configuration
         public DBObjectName StoredProcedure { get; init; }
         public IReadOnlyDictionary<string, object?>? ExecuteParameters { get; init; }
         public IReadOnlyCollection<string>? IgnoreParameters { get; }
+
+        public IReadOnlyCollection<string>? IgnoreFields { get; init; }
         public IReadOnlyDictionary<string, string>? ReplaceParameters { get; init; }
 
         public IReadOnlyDictionary<string, string>? CustomTypeMappings { get; init; }
@@ -52,6 +54,7 @@ namespace DbAccessCodeGen.Configuration
                     GenerateAsyncStreamCode = os.GetOrThrow<bool?>(nameof(GenerateAsyncStreamCode), null),
                     ReplaceParameters = replaceParameters,
                     CustomTypeMappings = os.GetOrThrow<IReadOnlyDictionary<string, string>?>(nameof(CustomTypeMappings), null),
+                    IgnoreFields = os.GetOrThrow<IReadOnlyCollection<string>?>(nameof(IgnoreFields), null),
                     ExecuteOnly = os.GetOrThrow<bool>(nameof(ExecuteOnly), false)
             };
             }

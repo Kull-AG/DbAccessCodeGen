@@ -12,6 +12,8 @@ Procedures:
  - SP: dbo.spGetPets
    IgnoreParameters: 
      - ParameterNoOneLikes
+   IgnoreFields:
+     - IsNice
    ReplaceParameters:
      ProgramVersion: 4
  - dbo.spGetPet

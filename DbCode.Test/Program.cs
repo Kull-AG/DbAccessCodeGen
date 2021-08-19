@@ -14,8 +14,13 @@ namespace DbCode.Test
                 DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", Microsoft.Data.SqlClient.SqlClientFactory.Instance);
 #endif
             string conStr = "Server=(LocalDB)\\MSSQLLocalDB; Integrated Security=true;Initial Catalog=CodeGenTestDb;MultipleActiveResultSets=true";
-            
 
+            var props = typeof(spGetPetsResult).GetProperties(System.Reflection.BindingFlags.GetProperty | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
+                .Select(s => s.Name).ToArray();
+            if (props.Length == 0)
+                throw new Exception("Expected to have properties");
+            if (props.Contains("IsNice", StringComparer.InvariantCultureIgnoreCase))
+                throw new Exception("Expected not to have IsNice property, as it's ignored");
             DataAccessor dba = new DataAccessor(new Microsoft.Data.SqlClient.SqlConnection(conStr));
             var res = (await dba.spGetPetsAsync(false, "", "::1")).ToList();
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(res);

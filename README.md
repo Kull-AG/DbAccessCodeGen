@@ -41,7 +41,9 @@ Procedures:
 - bfm.spGetFinancialPeriods
 - bfm.spGetSaldo
 - bfm.spGetForeCastData
-- bfm.spGetPlanningSubTypes
+- SP: bfm.spGetPlanningSubTypes
+  IgnoreFields:
+    - SomeFieldIDoIgnore
 - SP: bfm.spGetBudgetData
   GenerateStreamAsyncCode: true # Overwrites default of false
 - bfm.spGetBudgetDataV2
