@@ -69,7 +69,7 @@ namespace DbAccessCodeGen.EFMigrate
                     var info = new ComplexTypeInfo(xmlReader.GetAttribute("Type")!,
                         xmlReader.GetAttribute("Name")!,
                          string.IsNullOrEmpty(nullable) ? true : bool.Parse(nullable),
-                        string.IsNullOrEmpty(maxLength) ? 0 : int.Parse(maxLength));
+                        string.IsNullOrEmpty(maxLength) || "MAX".Equals(maxLength, StringComparison.InvariantCultureIgnoreCase) ? 0 : int.Parse(maxLength));
                     curList.Add(info);
                 }
 
