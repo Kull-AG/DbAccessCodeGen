@@ -40,7 +40,7 @@ namespace DbAccessCodeGen.Configuration
             if (identifier.Length == 0) return "empty";
             if(identifier[0] >= '0' && identifier[0] <= '9')
             {
-                return "c" + MakeIdentifierValid(identifier);
+                return MakeIdentifierValid("C" + identifier);
             }
             return identifier.Replace(" ", "").Replace("-", "").Replace("%", "_").Replace("@", "_").Replace(".", "_");
         }
