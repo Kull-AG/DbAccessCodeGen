@@ -179,6 +179,14 @@ namespace DbAccessCodeGen
             var sp = RegisterServices4Init();
             Console.WriteLine("Enter namespace:");
             string? @namespace = Console.ReadLine();
+            if (String.IsNullOrEmpty(@namespace))
+                @namespace = "DbAccess";
+
+            Console.WriteLine("Enter Output Directory:");
+            string? outputDir = Console.ReadLine();
+            if (String.IsNullOrEmpty(outputDir))
+                outputDir = "DbAccess";
+            
             Console.WriteLine("Enter Server (default localhost):");
             string? server = Console.ReadLine();
             if (String.IsNullOrEmpty(server))
@@ -189,6 +197,7 @@ namespace DbAccessCodeGen
             template = template.Replace("{{Namespace}}", @namespace ?? "Enter.your.Namespace");
             template = template.Replace("{{server}}", server);
             template = template.Replace("{{db}}", db ?? "testdb");
+            template = template.Replace("{{OutputDir}}", outputDir); 
             System.IO.File.WriteAllText(configFilePath, template);
 
             var runTool = @"dotnet tool restore
@@ -197,7 +206,6 @@ dotnet tool run dbcodegen -c DbCodeGenConfig.yml";
             System.IO.File.WriteAllText(Path.Combine(path, "rundbcodegen.bat"), runTool, System.Text.Encoding.ASCII);
             System.IO.File.WriteAllText(Path.Combine(path, "rundbcodegen.sh"), runTool, System.Text.Encoding.ASCII);
 
-            // TODO: Testing
             return Task.CompletedTask;
         }
 

@@ -1,5 +1,5 @@
 ﻿---
-OutputDir: "DbAccess"
+OutputDir: "{{OutputDir}}"
 Namespace: {{Namespace}}
 GenerateAsyncCode: true
 GenerateAsyncStreamCode: false
