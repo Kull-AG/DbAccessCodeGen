@@ -205,7 +205,9 @@ dotnet tool run dbcodegen -c DbCodeGenConfig.yml";
             var path = System.IO.Path.GetDirectoryName(configFilePath)!;
             System.IO.File.WriteAllText(Path.Combine(path, "rundbcodegen.bat"), runTool, System.Text.Encoding.ASCII);
             System.IO.File.WriteAllText(Path.Combine(path, "rundbcodegen.sh"), runTool, System.Text.Encoding.ASCII);
-
+            Console.WriteLine("Do not forget to execute (if needed): ");
+            Console.WriteLine("dotnet new tool-manifest");
+            Console.WriteLine("dotnet tool install DbAccessCodeGen");
             return Task.CompletedTask;
         }
 
