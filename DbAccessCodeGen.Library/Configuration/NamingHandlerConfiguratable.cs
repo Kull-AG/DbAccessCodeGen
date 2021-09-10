@@ -21,7 +21,10 @@ namespace DbAccessCodeGen.Configuration
                 var namingJSFile = System.IO.File.ReadAllText(settings.NamingJS);
                 engine = new Jint.Engine();
                 engine.SetValue("Identifier", Jint.Runtime.Interop.TypeReference.CreateTypeReference(engine, typeof(Identifier)));
-                engine.SetValue("DBObjectName", Jint.Runtime.Interop.TypeReference.CreateTypeReference(engine, typeof(DBObjectName)));
+                engine.SetValue("DBObjectName", Jint.Runtime.Interop.TypeReference.CreateTypeReference(engine, 
+                    typeof(DBObjectName)));
+                engine.SetValue("DBObjectType", Jint.Runtime.Interop.TypeReference.CreateTypeReference(engine,
+                    typeof(DBObjectType)));
                 engine.SetValue("NamingHandler", Jint.Runtime.Interop.TypeReference.CreateTypeReference(engine, typeof(NamingHandler)));
                 engine.SetValue("Settings", Jint.Runtime.Interop.TypeReference.CreateTypeReference(engine, typeof(Settings)));
                 engine.SetValue("GeneratedCodeType", Jint.Runtime.Interop.TypeReference.CreateTypeReference(engine, typeof(GeneratedCodeType)));
@@ -51,9 +54,9 @@ namespace DbAccessCodeGen.Configuration
             return InvokeExternal<string>(nameof(GetPropertyName), sqlName, generatedCodeType) ?? base.GetPropertyName(sqlName, generatedCodeType);
         }
 
-        public override Identifier GetResultTypeName(DBObjectName name)
+        public override Identifier GetResultTypeName(DBObjectName name, DBObjectType dBObjectType)
         {
-            return InvokeExternal<Identifier>(nameof(GetResultTypeName), name) ?? base.GetResultTypeName(name);
+            return InvokeExternal<Identifier>(nameof(GetResultTypeName), name, dBObjectType) ?? base.GetResultTypeName(name, dBObjectType);
         }
 
         public override string GetServiceClassMethodName(DBObjectName sp)

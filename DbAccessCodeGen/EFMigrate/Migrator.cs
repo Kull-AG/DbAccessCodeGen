@@ -20,7 +20,7 @@ namespace DbAccessCodeGen.EFMigrate
 
         public async Task Execute(string edmxFile, string outDir)
         {
-
+            // TODO: ExecuteOnly if needed
             string? currentFunctionImportName = null;
             string? currentComplexType = null;
             Dictionary<string, string> mapFunctionToReturnType = new Dictionary<string, string>();
@@ -105,14 +105,14 @@ namespace DbAccessCodeGen.EFMigrate
                     Console.Error.WriteLine($"Error for {typeName}: \r\n{e}");
                 }
             }
-            var procs = sps.OrderBy(s=>s).Select(s=>s.ToString(false)).ToArray();
-            var procString = string.Join("\r\n", procs.Select(s => " - " + s).OrderBy(k => k));
+            var procs = sps.OrderBy(s => s).Select(s => s.ToString(false, true)).ToArray();
+            var procString = string.Join("\r\n", procs.Select(s => " - SP: " + s).OrderBy(k => k));
             var yaml =
 @"---
 OutputDir: SET_THIS
 Namespace: SET_THIS
 ConnectionString: SET_THIS
-Procedures:
+Items:
 " + procString;
             await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(outDir, "DbCodeGenConfig.yml"), yaml);
         }

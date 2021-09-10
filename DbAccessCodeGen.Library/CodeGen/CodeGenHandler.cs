@@ -106,7 +106,7 @@ namespace DbAccessCodeGen.CodeGen
             return TemplateRetrieval.GetTemplate(name);
         }
 
-        public async Task ExecuteCodeGen(SPMetadata codeGenPrm, ChannelWriter<(string name, string template)> methods)
+        public async Task ExecuteCodeGen(DbOperationMetadata codeGenPrm, ChannelWriter<(string name, string template)> methods)
         {
             ReadTemplates();
             var customMappings = codeGenPrm.Settings.CustomTypeMappings ?? this.settings.CustomTypeMappings;
@@ -173,6 +173,8 @@ namespace DbAccessCodeGen.CodeGen
                 OutputParameters = (parameterModel?.Properties ?? Array.Empty<ModelProperty>()).Where(p => p.ParameterDirection == ParameterDirection.Output || p.ParameterDirection == ParameterDirection.InputOutput).ToList(),
                 MethodName = codeGenPrm.MethodName,
                 SqlName = codeGenPrm.SqlName,
+                CommandText = codeGenPrm.CommandText,
+                CommandType = codeGenPrm.CommandType,
                 ParameterTypeName = codeGenPrm.ParameterTypeName,
                 ReplaceParameters = codeGenPrm.ReplaceParameters,
                 GenerateAsyncCode = codeGenPrm.Settings.GenerateAsyncCode ?? settings.GenerateAsyncCode,
@@ -239,14 +241,14 @@ namespace DbAccessCodeGen.CodeGen
                 {
                     if (m.Type == Scriban.Parsing.ParserMessageType.Error)
                     {
-                        Console.Error.WriteLine( m.Span.ToStringSimple() + ": " + m.Message);
+                        Console.Error.WriteLine(m.Span.ToStringSimple() + ": " + m.Message);
                     }
                     else if (m.Type == Scriban.Parsing.ParserMessageType.Warning)
                     {
                         Console.Error.WriteLine("WARNING: " + m.Span.ToStringSimple() + ": " + m.Message);
                     }
                 }
-                throw new SyntaxErrorException("Template error for " + templateName) ;
+                throw new SyntaxErrorException("Template error for " + templateName);
             }
         }
 

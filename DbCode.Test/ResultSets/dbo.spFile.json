@@ -3,7 +3,7 @@
     "Name": "Content",
     "TypeName": "varbinary",
     "IsNullable": true,
-    "MaxLength": -1
+    "MaxLength": null
   },
   {
     "Name": "ContentType",

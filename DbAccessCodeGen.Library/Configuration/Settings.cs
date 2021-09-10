@@ -7,14 +7,14 @@ namespace DbAccessCodeGen.Configuration
     public record Settings
     {
         public Settings(string? connectionString, string @namespace,
-            IReadOnlyCollection<ProcedureSetting> procedures,
+            IReadOnlyCollection<DBOperationSetting> dBOperations,
             IReadOnlyCollection<string>? ignoreParameters,
             string outputDir, bool generateAsyncCode, bool generateSyncCode,
             string? serviceClassName, string? templateDir, string? namingJS)
         {
             ConnectionString = connectionString;
             Namespace = @namespace ?? throw new ArgumentNullException(nameof(@namespace));
-            Procedures = procedures ?? throw new ArgumentNullException(nameof(procedures));
+            DBOperations = dBOperations ?? throw new ArgumentNullException(nameof(dBOperations));
             OutputDir = outputDir ?? throw new ArgumentNullException(nameof(outputDir));
             GenerateAsyncCode = generateAsyncCode;
             GenerateSyncCode = generateSyncCode;
@@ -26,7 +26,7 @@ namespace DbAccessCodeGen.Configuration
 
         public string? ConnectionString { get; init; }
         public string Namespace { get; } = "DbAccess";
-        public IReadOnlyCollection<ProcedureSetting> Procedures { get; }
+        public IReadOnlyCollection<DBOperationSetting> DBOperations { get; }
 
         public IReadOnlyCollection<string> IgnoreParameters { get; init; }
         public IReadOnlyDictionary<string, string> ReplaceParameters { get; init; } = new Dictionary<string, string>();
@@ -70,10 +70,10 @@ namespace DbAccessCodeGen.Configuration
             }
             if (obj is IReadOnlyDictionary<string, object> os)
             {
-                var procs = os["Procedures"];
+                var procs = os["Items"] ?? os["Procedures"];
                 if (procs == null)
                 {
-                    throw new ArgumentNullException("Procedures");
+                    throw new ArgumentNullException("Items");
                 }
                 if (procs is not IEnumerable<object> proclist)
                 {
@@ -87,7 +87,7 @@ namespace DbAccessCodeGen.Configuration
                 var replaceParameters = os.GetOrThrow<IReadOnlyDictionary<string, string>>(nameof(ReplaceParameters), new Dictionary<string, string>());
                 return new Settings(os.GetOrThrow<string?>("ConnectionString", null),
                     os.GetOrThrow<string>("Namespace", "DbAccess"),
-                    proclist.Select(s => ProcedureSetting.FromObject(s)).ToList(),
+                    proclist.Select(s => DBOperationSetting.FromObject(s)).ToList(),
                     ignoreParameters: (IReadOnlyCollection<string>?)ignoreParameters,
                     outputDir: os.GetOrThrow<string>("OutputDir", "DbAccess"),
                     generateAsyncCode: os.GetOrThrow(nameof(GenerateAsyncCode), true),

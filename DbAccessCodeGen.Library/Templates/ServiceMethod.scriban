@@ -20,8 +20,8 @@ protected {{ResultType}} {{MethodName}}_FromRecord(IDataRecord row, in {{MethodN
 {{end}}
 private void {{MethodName}}_PrepareCommand(DbCommand cmd{{if ParameterTypeName}}, {{ParameterTypeName}} parameters{{end}})
 {
-	cmd.CommandType = CommandType.StoredProcedure;
-	cmd.CommandText = "{{SqlName}}";{{
+	cmd.CommandType = {{CommandType}};
+	cmd.CommandText = "{{CommandText}}";{{
 	for prop in Parameters }}
 	{{if prop.IsTableValued}}this.AddTableValuedCommandParameter(cmd, "{{prop.SqlName}}", parameters.{{ prop.CSPropertyName }}, {{prop.TableValuedMeta}}, {{prop.TableValuedFn}});
 	{{else}}this.AddCommandParameter(cmd, "{{prop.SqlName}}", parameters.{{ prop.CSPropertyName }}, ParameterDirection.{{ prop.ParameterDirection }});{{end}}{{ end }}{{

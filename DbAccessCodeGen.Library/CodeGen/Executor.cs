@@ -45,8 +45,8 @@ namespace DbAccessCodeGen.CodeGen
 
         public async Task Execute()
         {
-            Channel<ProcedureSetting> toGetMetadata = Channel.CreateBounded<ProcedureSetting>(3);
-            Channel<SPMetadata> CodeGenChannel = Channel.CreateBounded<SPMetadata>(20);
+            Channel<DBOperationSetting> toGetMetadata = Channel.CreateBounded<DBOperationSetting>(3);
+            Channel<DbOperationMetadata> CodeGenChannel = Channel.CreateBounded<DbOperationMetadata>(20);
             Channel<(string name, string template)> methods = Channel.CreateUnbounded<(string, string)>();
             Task metadataTask = StartGetMetadata(toGetMetadata);
 
@@ -73,30 +73,32 @@ namespace DbAccessCodeGen.CodeGen
             await serviceGentask;
         }
 
-        protected async Task StartGetMetadata(ChannelWriter<ProcedureSetting> channelWriter)
+        protected async Task StartGetMetadata(ChannelWriter<DBOperationSetting> channelWriter)
         {
-            List<DBObjectName> allSps = new List<DBObjectName>();
+            List<(DBObjectName objectName, DBObjectType type)> allSps = new();
             var con = serviceProvider.GetRequiredService<DbConnection>();
             await con.OpenAsync();
             try
             {
-                using (var rdr = await con.CreateCommand("SELECT SCHEMA_NAME(p.schema_id), p.name FROM sys.procedures p", System.Data.CommandType.Text)
+                using (var rdr = await con.CreateCommand("SELECT SCHEMA_NAME(p.schema_id), p.name, 'StoredProcedure' AS Type FROM sys.procedures p" +
+                    "   UNION ALL " +
+                    " SELECT TABLE_SCHEMA, TABLE_NAME, 'Table' AS Type FROM INFORMATION_SCHEMA.TABLES ", System.Data.CommandType.Text)
                     .ExecuteReaderAsync())
                 {
                     while (rdr.Read())
                     {
-                        allSps.Add(new DBObjectName(rdr.GetString(0), rdr.GetString(1)));
+                        allSps.Add((new DBObjectName(rdr.GetString(0), rdr.GetString(1)), Enum.Parse<DBObjectType>(rdr.GetString(2), true)));
                     }
                 }
-                foreach (var sp in settings.Procedures)
+                foreach (var sp in settings.DBOperations)
                 {
-                    if (allSps.Contains(sp.StoredProcedure))
+                    if (allSps.Contains((sp.DBObjectName, sp.DBObjectType)))
                     {
                         await channelWriter.WriteAsync(sp);
                     }
                     else
                     {
-                        logger.LogError("Cannot find SP {0}. Ignore it", sp.StoredProcedure);
+                        logger.LogError($"Cannot find {sp.DBObjectType} {sp.DBObjectName}. Ignore it");
                     }
                 }
             }
@@ -107,7 +109,7 @@ namespace DbAccessCodeGen.CodeGen
             }
         }
 
-        protected async Task ExecuteGetMetadataForSP(ChannelReader<ProcedureSetting> metadataReader, ChannelWriter<SPMetadata> toWriteTo)
+        protected async Task ExecuteGetMetadataForSP(ChannelReader<DBOperationSetting> metadataReader, ChannelWriter<DbOperationMetadata> toWriteTo)
         {
             List<ValueTask> writeTasks = new List<ValueTask>();
             await foreach (var sp in metadataReader.ReadAllAsync())
@@ -117,36 +119,44 @@ namespace DbAccessCodeGen.CodeGen
                     var con = scope.ServiceProvider.GetRequiredService<DbConnection>();
                     try
                     {
-                        var spprm = await this.sPParametersProvider.GetSPParameters(sp.StoredProcedure, con);
+                        var spprm = sp.DBObjectType == DBObjectType.StoredProcedure ?  await this.sPParametersProvider.GetSPParameters(sp.DBObjectName, con): 
+                                Array.Empty<SPParameter>();
                         var ignoreParameters = sp.IgnoreParameters ?? settings.IgnoreParameters;
                         var spPrmNames = spprm.Select(s => s.SqlName.StartsWith("@") ? s.SqlName.Substring(1) : s.SqlName).ToArray();
                         var replaceParaemeters = (sp.ReplaceParameters ?? settings.ReplaceParameters)
-                                .Where(p => spPrmNames.Contains(p.Key)).ToDictionary(k=>k.Key, k=>k.Value);
+                                .Where(p => spPrmNames.Contains(p.Key)).ToDictionary(k => k.Key, k => k.Value);
                         var toUsePrm = spprm
                                 .Where(p => !ignoreParameters.Contains(p.SqlName.StartsWith("@") ? p.SqlName.Substring(1) : p.SqlName, StringComparer.OrdinalIgnoreCase))
                                 .Where(p => !replaceParaemeters.ContainsKey(p.SqlName.StartsWith("@") ? p.SqlName.Substring(1) : p.SqlName))
                                 .ToArray();
                         try
                         {
-                            var result = await this.sqlHelper.GetSPResultSet(con, sp.StoredProcedure, settings.PersistResultPath, sp.ExecuteParameters);
-                            writeTasks.Add(toWriteTo.WriteAsync(new SPMetadata(name: sp.StoredProcedure, parameters: toUsePrm,
+                            var result = sp.ExecuteOnly ? Array.Empty<SqlFieldDescription>():
+                                sp.DBObjectType == DBObjectType.StoredProcedure ?
+                                await this.sqlHelper.GetSPResultSet(con, sp.DBObjectName, settings.PersistResultPath, sp.ExecuteParameters):
+                                await this.sqlHelper.GetTableOrViewFields(con, sp.DBObjectName);
+                            writeTasks.Add(toWriteTo.WriteAsync(new DbOperationMetadata(name: sp.DBObjectName,
+                                dBObjectType: sp.DBObjectType,    
+                                parameters: toUsePrm,
                                     replaceParameters: replaceParaemeters,
                                    fields: result,
-                                   resultType: namingHandler.GetResultTypeName(sp.StoredProcedure),
-                                   parameterTypeName: namingHandler.GetParameterTypeName(sp.StoredProcedure),
-                                   methodName: namingHandler.GetServiceClassMethodName(sp.StoredProcedure),
+                                   resultType: namingHandler.GetResultTypeName(sp.DBObjectName, sp.DBObjectType),
+                                   parameterTypeName: namingHandler.GetParameterTypeName(sp.DBObjectName),
+                                   methodName: namingHandler.GetServiceClassMethodName(sp.DBObjectName),
                                    setting: sp
                                    )));
                         }
                         catch (Exception err)
                         {
                             logger.LogError("Could not get fields. \r\n{0}", err);
-                            writeTasks.Add(toWriteTo.WriteAsync(new SPMetadata(name: sp.StoredProcedure, parameters: toUsePrm,
+                            writeTasks.Add(toWriteTo.WriteAsync(new DbOperationMetadata(name: sp.DBObjectName,
+                                dBObjectType: sp.DBObjectType,
+                                parameters: toUsePrm,
                                   fields: new SqlFieldDescription[] { },
                                   replaceParameters: replaceParaemeters,
-                                  resultType: namingHandler.GetResultTypeName(sp.StoredProcedure),
-                                  parameterTypeName: namingHandler.GetParameterTypeName(sp.StoredProcedure),
-                                  methodName: namingHandler.GetServiceClassMethodName(sp.StoredProcedure),
+                                  resultType: namingHandler.GetResultTypeName(sp.DBObjectName, sp.DBObjectType),
+                                  parameterTypeName: namingHandler.GetParameterTypeName(sp.DBObjectName),
+                                  methodName: namingHandler.GetServiceClassMethodName(sp.DBObjectName),
                                   setting: sp
                                   )));
                         }
@@ -160,7 +170,7 @@ namespace DbAccessCodeGen.CodeGen
             await Task.WhenAll(writeTasks.Select(v => v.AsTask()));
         }
 
-        public async Task ExecuteCodeGen(ChannelReader<SPMetadata> channelReader, ChannelWriter<(string name, string template)> methods)
+        public async Task ExecuteCodeGen(ChannelReader<DbOperationMetadata> channelReader, ChannelWriter<(string name, string template)> methods)
         {
             await foreach (var codeGenPrm in channelReader.ReadAllAsync())
             {

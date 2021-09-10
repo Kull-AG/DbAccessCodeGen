@@ -8,7 +8,7 @@ GenerateSyncCode: true
 ConnectionString: "Server=(LocalDB)\\MSSQLLocalDB; Integrated Security=true;Initial Catalog=CodeGenTestDb;MultipleActiveResultSets=true"
 ReplaceParameters:
    DateOfTool: DateTime.Now
-Procedures:
+Items:
  - SP: dbo.spGetPets
    IgnoreParameters: 
      - ParameterNoOneLikes
@@ -31,6 +31,7 @@ Procedures:
  - dbo.spFile
  - SP: imp.spReturnsNothing
    ExecuteOnly: true
- - SP: spTestExecuteParams # Execute  if not otherwise possible to get metadata
+ - SP: dbo.spTestExecuteParams # Execute  if not otherwise possible to get metadata
    ExecuteParameters:
         testId: 1
+ - Table: dbo.Pets

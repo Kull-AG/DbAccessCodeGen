@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace DbAccessCodeGen.Objects
 {
-    public class SPMetadata
+    public class DbOperationMetadata
     {
         public IReadOnlyCollection<SPParameter> Parameters { get; }
         public IReadOnlyDictionary<string, string> ReplaceParameters { get; }
@@ -16,23 +16,34 @@ namespace DbAccessCodeGen.Objects
 
         public DBObjectName SqlName { get; }
 
+        public string CommandText { get; }
+
+        public string CommandType { get; } = "CommandType.StoredProcedure";
+
         public string MethodName { get; }
 
         public Identifier? ResultType { get; }
 
         public Identifier? ParameterTypeName { get; }
         
-        public ProcedureSetting Settings {get;}
+        public DBOperationSetting Settings {get;}
 
-        public SPMetadata(DBObjectName name, IReadOnlyCollection<SPParameter> parameters,
+        public DbOperationMetadata(DBObjectName name,
+                DBObjectType dBObjectType, 
+                IReadOnlyCollection<SPParameter> parameters,
                 IReadOnlyDictionary<string, string> replaceParameters,
 
             IReadOnlyCollection<SqlFieldDescription> fields,
                 string methodName,
                 Identifier resultType,
                 Identifier parameterTypeName,
-                ProcedureSetting setting)
+                DBOperationSetting setting)
         {
+            this.CommandType = dBObjectType == DBObjectType.StoredProcedure ?
+                    "CommandType.StoredProcedure":
+                    "CommandType.Text";
+            this.CommandText = dBObjectType == DBObjectType.StoredProcedure ?
+                    name.ToString(false, true) : "SELECT * FROM " + name.ToString(false, true);
             this.SqlName = name;
             this.Parameters = parameters;
             this.ReplaceParameters = replaceParameters;

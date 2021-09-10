@@ -64,8 +64,10 @@ namespace DbAccessCodeGen.Configuration
             return new Identifier(settings.Namespace, GetCSName(name.Name) + "Parameters");
         }
 
-        public virtual Identifier GetResultTypeName(DBObjectName name)
+        public virtual Identifier GetResultTypeName(DBObjectName name, DBObjectType dBObjectType)
         {
+            if(dBObjectType == DBObjectType.Table)
+                return new Identifier(settings.Namespace, GetCSName(name.Name) + "Data");
             return new Identifier(settings.Namespace, GetCSName(name.Name) + "Result");
         }
 

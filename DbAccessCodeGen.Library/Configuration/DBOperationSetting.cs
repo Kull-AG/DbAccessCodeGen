@@ -5,16 +5,23 @@ using System.Linq;
 
 namespace DbAccessCodeGen.Configuration
 {
-    public class ProcedureSetting
+    public partial class DBOperationSetting
     {
-        public ProcedureSetting(string storedProcedure, IReadOnlyDictionary<string, object?>? executeParameters, IReadOnlyCollection<string>? ignoreParameters)
+        public DBOperationSetting(string dbObjectName,
+            DBObjectType objectType,
+
+            IReadOnlyDictionary<string, object?>? executeParameters, IReadOnlyCollection<string>? ignoreParameters)
         {
-            StoredProcedure = storedProcedure ?? throw new ArgumentNullException(nameof(storedProcedure));
+            this.DBObjectType = objectType;
+            DBObjectName = dbObjectName ?? throw new ArgumentNullException(nameof(dbObjectName));
             ExecuteParameters = executeParameters;
             IgnoreParameters = ignoreParameters;
         }
 
-        public DBObjectName StoredProcedure { get; init; }
+        public DBObjectName DBObjectName { get; init; }
+
+        public DBObjectType DBObjectType { get; init; }
+
         public IReadOnlyDictionary<string, object?>? ExecuteParameters { get; init; }
         public IReadOnlyCollection<string>? IgnoreParameters { get; }
 
@@ -28,7 +35,7 @@ namespace DbAccessCodeGen.Configuration
 
         public bool ExecuteOnly { get; set; } = false;
 
-        public static ProcedureSetting FromObject(object obj)
+        public static DBOperationSetting FromObject(object obj)
         {
             if (obj is IReadOnlyDictionary<object, object> od)
             {
@@ -47,7 +54,25 @@ namespace DbAccessCodeGen.Configuration
                     ignoreParameters = o.Select(o => (string)Convert.ChangeType(o, typeof(string))).ToArray();
                 }
                 var replaceParameters = os.GetOrThrow<IReadOnlyDictionary<string, string>?>(nameof(ReplaceParameters), null);
-                return new ProcedureSetting((string)os["SP"], (IReadOnlyDictionary<string, object?>?)executeParameters, (IReadOnlyCollection<string>?)ignoreParameters)
+                string dbObjectName;
+                DBObjectType type;
+                if (os.ContainsKey("SP"))
+                {
+                    dbObjectName = (string)os["SP"];
+                    type = DBObjectType.StoredProcedure;
+                }
+                else if (os.ContainsKey("Table"))
+                {
+                    dbObjectName = (string)os["Table"];
+                    type = DBObjectType.Table;
+                }
+                else
+                {
+                    throw new InvalidOperationException("Must set either SP or Table, but never both");
+                }
+                return new DBOperationSetting(dbObjectName, 
+                    type,
+                    (IReadOnlyDictionary<string, object?>?)executeParameters, (IReadOnlyCollection<string>?)ignoreParameters)
                 {
                     GenerateSyncCode = os.GetOrThrow<bool?>(nameof(GenerateSyncCode), null),
                     GenerateAsyncCode = os.GetOrThrow<bool?>(nameof(GenerateAsyncCode), null),
@@ -59,7 +84,7 @@ namespace DbAccessCodeGen.Configuration
             };
             }
             if (obj is string s)
-                return new ProcedureSetting(s, null, null);
+                return new DBOperationSetting(s, DBObjectType.StoredProcedure, null, null);
             throw new NotSupportedException($"{obj} is not a proc");
         }
     }
