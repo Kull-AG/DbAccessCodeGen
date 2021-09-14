@@ -34,4 +34,4 @@ Items:
  - SP: dbo.spTestExecuteParams # Execute  if not otherwise possible to get metadata
    ExecuteParameters:
         testId: 1
- - Table: dbo.Pets
+ - View: dbo.Pets

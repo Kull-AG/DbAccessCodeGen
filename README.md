@@ -37,7 +37,7 @@ TemplateDir: "./Templates"
 OutputDir: "../DbCode.Test/DbAccess"
 ServiceClassName: "DataEntities"
 Namespace: DbCode.Test
-Procedures:
+Items:
 - bfm.spGetFinancialPeriods
 - bfm.spGetSaldo
 - bfm.spGetForeCastData
@@ -56,6 +56,7 @@ Procedures:
 - bfm.spGetForeCastDataV2
 - SP: test.Company_Update
   ExecuteOnly: true # You do not expect results
+- View: dbo.V_TestView
 ```
 
 The template dir allows you to overwrite the templates used, the default ones are in the [DbAccessCodeGen/Templates](DbAccessCodeGen/Templates) folder.

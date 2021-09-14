@@ -82,7 +82,7 @@ namespace DbAccessCodeGen.CodeGen
             {
                 using (var rdr = await con.CreateCommand("SELECT SCHEMA_NAME(p.schema_id), p.name, 'StoredProcedure' AS Type FROM sys.procedures p" +
                     "   UNION ALL " +
-                    " SELECT TABLE_SCHEMA, TABLE_NAME, 'Table' AS Type FROM INFORMATION_SCHEMA.TABLES ", System.Data.CommandType.Text)
+                    " SELECT TABLE_SCHEMA, TABLE_NAME, 'View' AS Type FROM INFORMATION_SCHEMA.TABLES ", System.Data.CommandType.Text)
                     .ExecuteReaderAsync())
                 {
                     while (rdr.Read())

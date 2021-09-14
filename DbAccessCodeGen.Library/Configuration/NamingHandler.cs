@@ -66,7 +66,7 @@ namespace DbAccessCodeGen.Configuration
 
         public virtual Identifier GetResultTypeName(DBObjectName name, DBObjectType dBObjectType)
         {
-            if(dBObjectType == DBObjectType.Table)
+            if(dBObjectType == DBObjectType.View)
                 return new Identifier(settings.Namespace, GetCSName(name.Name) + "Data");
             return new Identifier(settings.Namespace, GetCSName(name.Name) + "Result");
         }
@@ -78,7 +78,7 @@ namespace DbAccessCodeGen.Configuration
 
         public virtual string GetServiceClassMethodName(DBObjectName sp, DBObjectType dBObjectType)
         {
-            if (dBObjectType == DBObjectType.Table)
+            if (dBObjectType == DBObjectType.View)
                 return "Get" + sp.Name;
             return sp.Name;
         }

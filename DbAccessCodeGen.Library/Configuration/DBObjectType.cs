@@ -4,6 +4,6 @@
     public enum DBObjectType
     {
         StoredProcedure,
-        Table
+        View
     }
 }

@@ -61,14 +61,14 @@ namespace DbAccessCodeGen.Configuration
                     dbObjectName = (string)os["SP"];
                     type = DBObjectType.StoredProcedure;
                 }
-                else if (os.ContainsKey("Table"))
+                else if (os.ContainsKey("View"))
                 {
-                    dbObjectName = (string)os["Table"];
-                    type = DBObjectType.Table;
+                    dbObjectName = (string)os["View"];
+                    type = DBObjectType.View;
                 }
                 else
                 {
-                    throw new InvalidOperationException("Must set either SP or Table, but never both");
+                    throw new InvalidOperationException("Must set either SP or View, but never both");
                 }
                 return new DBOperationSetting(dbObjectName, 
                     type,
