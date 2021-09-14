@@ -34,7 +34,7 @@ namespace DbAccessCodeGen.Configuration
 
         public string OutputDir { get; } = "DbAccess";
 
-        public string PersistResultPath { get; init; } = "ResultSets";
+        public string? PersistResultPath { get; init; } = "ResultSets";
 
         public bool GenerateAsyncStreamCode { get; init; } = false;
         public bool GenerateAsyncCode { get; } = true;
@@ -86,10 +86,10 @@ namespace DbAccessCodeGen.Configuration
                 }
                 var replaceParameters = os.GetOrThrow<IReadOnlyDictionary<string, string>>(nameof(ReplaceParameters), new Dictionary<string, string>());
                 return new Settings(os.GetOrThrow<string?>("ConnectionString", null),
-                    os.GetOrThrow<string>("Namespace", "DbAccess"),
+                    os.GetOrThrow<string>("Namespace", "DbAccess")?? "DbAccess",
                     proclist.Select(s => DBOperationSetting.FromObject(s)).ToList(),
                     ignoreParameters: (IReadOnlyCollection<string>?)ignoreParameters,
-                    outputDir: os.GetOrThrow<string>("OutputDir", "DbAccess"),
+                    outputDir: os.GetOrThrow<string>("OutputDir", "DbAccess")?? "DbAccess",
                     generateAsyncCode: os.GetOrThrow(nameof(GenerateAsyncCode), true),
                     generateSyncCode: os.GetOrThrow(nameof(GenerateSyncCode), true),
                     serviceClassName: os.GetOrThrow<string?>(nameof(ServiceClassName), null),
@@ -100,11 +100,12 @@ namespace DbAccessCodeGen.Configuration
                     AlwaysAllowNullForStrings = os.GetOrThrow(nameof(AlwaysAllowNullForStrings), true),
                     GenerateAsyncStreamCode = os.GetOrThrow(nameof(GenerateAsyncStreamCode), false),
                     PersistResultPath = os.GetOrThrow(nameof(PersistResultPath), "ResultSets"),
-                    ServiceClassModifiers = os.GetOrThrow(nameof(ServiceClassModifiers), "public partial"),
-                    ConstructorVisibility = os.GetOrThrow(nameof(ConstructorVisibility), "public"),
-                    ReplaceParameters = replaceParameters,
+                    ServiceClassModifiers = os.GetOrThrow(nameof(ServiceClassModifiers), "public partial") ?? "",
+                    ConstructorVisibility = os.GetOrThrow(nameof(ConstructorVisibility), "public") ?? "",
+                    ReplaceParameters = replaceParameters ?? new Dictionary<string, string>(),
                     CustomTypeMappings = os.GetOrThrow<IReadOnlyDictionary<string, string>>(nameof(CustomTypeMappings), new Dictionary<string, string>())
-            };
+                        ?? new Dictionary<string, string>()
+                };
             }
             throw new NotSupportedException("Must be object at root");
         }

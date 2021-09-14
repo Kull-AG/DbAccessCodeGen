@@ -8,7 +8,7 @@ namespace DbAccessCodeGen.Configuration
 {
     internal static class SettingsHelper
     {
-        private static bool HandleSpecialCases<T>(object vl, out T output)
+        private static bool HandleSpecialCases<T>(object vl, out T? output)
         {
             if (typeof(T) == typeof(IReadOnlyDictionary<string, string>))
             {
@@ -35,13 +35,13 @@ namespace DbAccessCodeGen.Configuration
             return false;
         }
 
-        public static T GetOrThrow<T>(this IReadOnlyDictionary<string, object> col, string key)
+        public static T? GetOrThrow<T>(this IReadOnlyDictionary<string, object> col, string key)
         {
             if (col.TryGetValue(key, out var vl))
             {
                 if (vl is T t)
                     return t;
-                if (vl == (object)default(T))
+                if (vl == (object?)default(T))
                 {
                     return default(T);
                 }
@@ -51,13 +51,13 @@ namespace DbAccessCodeGen.Configuration
             throw new ArgumentException($"vl missing for key {key}");
         }
 
-        public static T GetOrThrow<T>(this IReadOnlyDictionary<string, object> col, string key, T defaultIfMissing)
+        public static T? GetOrThrow<T>(this IReadOnlyDictionary<string, object> col, string key, T defaultIfMissing)
         {
             if (col.TryGetValue(key, out var vl))
             {
                 if (vl is T t)
                     return t;
-                if (vl == (object)default(T))
+                if (vl == (object?)default(T))
                 {
                     return default(T);
                 }

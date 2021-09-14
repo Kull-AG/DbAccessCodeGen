@@ -9,7 +9,7 @@
     <RunWorkingDirectory>$(MSBuildProjectDirectory)</RunWorkingDirectory>
     <Nullable>Enable</Nullable>
     <Version>0.5.1</Version>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/aersamkull/DbAccessCodeGen/master/LICENSE.txt</PackageLicenseUrl>
+	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryURL>https://github.com/aersamkull/DbAccessCodeGen</RepositoryURL>
   </PropertyGroup>
 
