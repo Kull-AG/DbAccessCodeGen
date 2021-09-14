@@ -76,8 +76,10 @@ namespace DbAccessCodeGen.Configuration
             return MakeIdentifierValid(sqlName); // Default: do not transform
         }
 
-        public virtual string GetServiceClassMethodName(DBObjectName sp)
+        public virtual string GetServiceClassMethodName(DBObjectName sp, DBObjectType dBObjectType)
         {
+            if (dBObjectType == DBObjectType.Table)
+                return "Get" + sp.Name;
             return sp.Name;
         }
 

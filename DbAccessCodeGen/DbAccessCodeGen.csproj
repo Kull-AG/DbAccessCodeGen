@@ -8,7 +8,7 @@
     <PackageOutputPath>./nupkg</PackageOutputPath>
     <RunWorkingDirectory>$(MSBuildProjectDirectory)</RunWorkingDirectory>
     <Nullable>Enable</Nullable>
-    <Version>0.5.0-beta2</Version>
+    <Version>0.5.0</Version>
     <PackageLicenseUrl>https://raw.githubusercontent.com/aersamkull/DbAccessCodeGen/master/LICENSE.txt</PackageLicenseUrl>
     <RepositoryURL>https://github.com/aersamkull/DbAccessCodeGen</RepositoryURL>
   </PropertyGroup>
@@ -16,7 +16,7 @@
   <ItemGroup>
     <PackageReference Include="Jint" Version="3.0.0-beta-1914" />
     <PackageReference Include="Kull.Data" Version="6.0.0-beta7" />
-    <PackageReference Include="Kull.DatabaseMetadata" Version="1.1.0" />
+    <PackageReference Include="Kull.DatabaseMetadata" Version="1.1.1" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.7.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.7" />

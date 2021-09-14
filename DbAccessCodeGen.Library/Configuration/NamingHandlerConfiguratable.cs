@@ -59,9 +59,9 @@ namespace DbAccessCodeGen.Configuration
             return InvokeExternal<Identifier>(nameof(GetResultTypeName), name, dBObjectType) ?? base.GetResultTypeName(name, dBObjectType);
         }
 
-        public override string GetServiceClassMethodName(DBObjectName sp)
+        public override string GetServiceClassMethodName(DBObjectName sp, DBObjectType dBObjectType)
         {
-            return InvokeExternal<string>(nameof(GetServiceClassMethodName), sp) ?? base.GetServiceClassMethodName(sp);
+            return InvokeExternal<string>(nameof(GetServiceClassMethodName), sp, dBObjectType) ?? base.GetServiceClassMethodName(sp, dBObjectType);
         }
 
 
