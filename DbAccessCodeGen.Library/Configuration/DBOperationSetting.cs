@@ -14,6 +14,10 @@ namespace DbAccessCodeGen.Configuration
         {
             this.DBObjectType = objectType;
             DBObjectName = dbObjectName ?? throw new ArgumentNullException(nameof(dbObjectName));
+            if (DBObjectName.Schema == null)
+            {
+                DBObjectName = new DBObjectName("dbo" /* we assume default schema dbo */, DBObjectName.Name);
+            }
             ExecuteParameters = executeParameters;
             IgnoreParameters = ignoreParameters;
         }

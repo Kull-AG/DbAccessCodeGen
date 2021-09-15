@@ -29,13 +29,14 @@ namespace DbCode.Test
             var res2 = await dba.spTestBackendStreamAsync(1, new UDT.IdNameType[] { new UDT.IdNameType(23, "tester"), new UDT.IdNameType(12, "3425") }).ToListAsync();
             var json2 = Newtonsoft.Json.JsonConvert.SerializeObject(res2);
             Console.WriteLine(json2);
-            
+
             var res3 = (await dba.spTestExecuteParamsAsync(3)).ToArray();
-            if(res3.Length!=1 || res3[0].TestId != 3)
+            if (res3.Length != 1 || res3[0].TestId != 3)
             {
                 Console.Error.WriteLine("FAILED TEST for spTestExecuteParamsAsync");
                 Environment.ExitCode = -1;
-            }else
+            }
+            else
             {
 
             }
@@ -43,6 +44,12 @@ namespace DbCode.Test
             if (a != 1)
             {
                 Console.Error.WriteLine("FAILED TEST for spReturnsNothing");
+                Environment.ExitCode = -2;
+            }
+            var pets = dba.GetPets().ToArray();
+            if (pets.Length != 2)
+            {
+                Console.Error.WriteLine("FAILED TEST for GetPets");
                 Environment.ExitCode = -2;
             }
         }
