@@ -1,5 +1,6 @@
 ﻿using DbAccessCodeGen.Objects;
 using Kull.Data;
+using Kull.DatabaseMetadata;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -66,7 +67,7 @@ namespace DbAccessCodeGen.Configuration
 
         public virtual Identifier GetResultTypeName(DBObjectName name, DBObjectType dBObjectType)
         {
-            if(dBObjectType == DBObjectType.View)
+            if(dBObjectType == DBObjectType.TableOrView)
                 return new Identifier(settings.Namespace, GetCSName(name.Name) + "Data");
             return new Identifier(settings.Namespace, GetCSName(name.Name) + "Result");
         }
@@ -78,7 +79,7 @@ namespace DbAccessCodeGen.Configuration
 
         public virtual string GetServiceClassMethodName(DBObjectName sp, DBObjectType dBObjectType)
         {
-            if (dBObjectType == DBObjectType.View)
+            if (dBObjectType == DBObjectType.TableOrView)
                 return "Get" + sp.Name;
             return sp.Name;
         }

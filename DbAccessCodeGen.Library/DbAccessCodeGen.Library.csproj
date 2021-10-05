@@ -27,11 +27,11 @@
     </EmbeddedResource>
   </ItemGroup>
 <ItemGroup>
-    <PackageReference Include="Kull.Data" Version="6.0.0-beta7" />
+    <PackageReference Include="Kull.Data" Version="6.0.0-beta9" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="3.1.0" />
   <PackageReference Include="Jint" Version="3.0.0-beta-1914" />
-    <PackageReference Include="Kull.DatabaseMetadata" Version="1.1.1" />
+    <PackageReference Include="Kull.DatabaseMetadata" Version="1.2.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.7.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.7" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.7" />

@@ -1,4 +1,5 @@
 ﻿using Kull.Data;
+using Kull.DatabaseMetadata;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,7 +69,7 @@ namespace DbAccessCodeGen.Configuration
                 else if (os.ContainsKey("View"))
                 {
                     dbObjectName = (string)os["View"];
-                    type = DBObjectType.View;
+                    type = DBObjectType.TableOrView;
                 }
                 else
                 {

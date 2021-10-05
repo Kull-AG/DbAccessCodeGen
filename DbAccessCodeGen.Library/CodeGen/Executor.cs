@@ -87,7 +87,13 @@ namespace DbAccessCodeGen.CodeGen
                 {
                     while (rdr.Read())
                     {
-                        allSps.Add((new DBObjectName(rdr.GetString(0), rdr.GetString(1)), Enum.Parse<DBObjectType>(rdr.GetString(2), true)));
+                        var typeStr = rdr.GetString(2);
+                        allSps.Add((new DBObjectName(rdr.GetString(0), rdr.GetString(1)),
+                            typeStr.Equals("SP", StringComparison.InvariantCultureIgnoreCase) ?
+                            DBObjectType.StoredProcedure :
+                            typeStr.Equals("View", StringComparison.InvariantCultureIgnoreCase) ?
+                            DBObjectType.TableOrView :
+                            Enum.Parse<DBObjectType>(typeStr, true)));
                     }
                 }
                 foreach (var sp in settings.DBOperations)
@@ -119,7 +125,7 @@ namespace DbAccessCodeGen.CodeGen
                     var con = scope.ServiceProvider.GetRequiredService<DbConnection>();
                     try
                     {
-                        var spprm = sp.DBObjectType == DBObjectType.StoredProcedure ?  await this.sPParametersProvider.GetSPParameters(sp.DBObjectName, con): 
+                        var spprm = sp.DBObjectType == DBObjectType.StoredProcedure ? await this.sPParametersProvider.GetSPParameters(sp.DBObjectName, con) :
                                 Array.Empty<SPParameter>();
                         var ignoreParameters = sp.IgnoreParameters ?? settings.IgnoreParameters;
                         var spPrmNames = spprm.Select(s => s.SqlName.StartsWith("@") ? s.SqlName.Substring(1) : s.SqlName).ToArray();
@@ -131,12 +137,10 @@ namespace DbAccessCodeGen.CodeGen
                                 .ToArray();
                         try
                         {
-                            var result = sp.ExecuteOnly ? Array.Empty<SqlFieldDescription>():
-                                sp.DBObjectType == DBObjectType.StoredProcedure ?
-                                await this.sqlHelper.GetSPResultSet(con, sp.DBObjectName, settings.PersistResultPath, sp.ExecuteParameters):
-                                await this.sqlHelper.GetTableOrViewFields(con, sp.DBObjectName);
+                            var result = sp.ExecuteOnly ? Array.Empty<SqlFieldDescription>() :
+                                await this.sqlHelper.GetResultSet(con, sp.DBObjectName, sp.DBObjectType, settings.PersistResultPath, sp.ExecuteParameters);
                             writeTasks.Add(toWriteTo.WriteAsync(new DbOperationMetadata(name: sp.DBObjectName,
-                                dBObjectType: sp.DBObjectType,    
+                                dBObjectType: sp.DBObjectType,
                                 parameters: toUsePrm,
                                     replaceParameters: replaceParaemeters,
                                    fields: result,
