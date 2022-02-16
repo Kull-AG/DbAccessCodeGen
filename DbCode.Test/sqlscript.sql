@@ -75,6 +75,15 @@ BEGIN
 	SELECT* FROM Pets WHERE PetName LIKE '%' + @SearchString + '%'
 END
 GO
+CREATE PROCEDURE spSearchPets2
+	@SearchString nvarchar(MAX), 
+	@DateOfTool datetime
+AS
+BEGIN 	
+	SELECT* into #pt FROM Pets WHERE PetName LIKE '%' + @SearchString + '%'
+	sELECT* FROM #pt
+END
+GO
 CREATE TYPE dbo.IdNameType AS TABLE 
 (
 	Id bigint, 

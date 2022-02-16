@@ -270,7 +270,7 @@ dotnet tool run dbcodegen -c DbCodeGenConfig.yml";
             services.AddTransient<CodeGen.Executor>();
             services.AddTransient<CodeGen.CodeGenHandler>();
             services.AddTransient<CodeGen.SqlTypeMapper>();
-            services.AddSingleton<IHostingEnvironment, Configuration.DummyHosingEnvironment>();
+            services.AddSingleton<IHostEnvironment, Configuration.DummyHosingEnvironment>();
             services.AddScoped<DbConnection>(_ =>
             {
                 return Kull.Data.DatabaseUtils.GetConnectionFromEFString(settings.ConnectionString!, true);

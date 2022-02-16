@@ -1,45 +1,46 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net5</TargetFramework>
-    <PackAsTool>true</PackAsTool>
-    <ToolCommandName>dbcodegen</ToolCommandName>
-    <PackageOutputPath>./nupkg</PackageOutputPath>
-    <RunWorkingDirectory>$(MSBuildProjectDirectory)</RunWorkingDirectory>
-    <Nullable>Enable</Nullable>
-    <Version>0.5.4</Version>
-	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryURL>https://github.com/aersamkull/DbAccessCodeGen</RepositoryURL>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net6</TargetFramework>
+		<PackAsTool>true</PackAsTool>
+		<ToolCommandName>dbcodegen</ToolCommandName>
+		<PackageOutputPath>./nupkg</PackageOutputPath>
+		<RunWorkingDirectory>$(MSBuildProjectDirectory)</RunWorkingDirectory>
+		<Nullable>Enable</Nullable>
+		<Version>0.6.0</Version>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<RepositoryURL>https://github.com/aersamkull/DbAccessCodeGen</RepositoryURL>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Jint" Version="3.0.0-beta-1914" />
-    <PackageReference Include="Kull.Data" Version="6.0.0-beta9" />
-    <PackageReference Include="Kull.DatabaseMetadata" Version="1.2.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.7.0" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="3.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.7" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.7" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.7" />
-    <PackageReference Include="Mono.Options" Version="6.6.0.161" />
-    <PackageReference Include="Scriban" Version="4.0.1" />
-    <PackageReference Include="YamlDotNet" Version="11.2.0" />
+	<ItemGroup>
+		<PackageReference Include="Jint" Version="3.0.0-beta-2037" />
+		<PackageReference Include="Kull.Data" Version="6.0.1" />
+		<PackageReference Include="Kull.DatabaseMetadata" Version="1.4.1" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.1.0-3.final" />
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.2-mauipre.1.22102.15" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.2-mauipre.1.22102.15" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.2-mauipre.1.22102.15" />
+		<PackageReference Include="Mono.Options" Version="6.12.0.148" />
+		<PackageReference Include="Scriban" Version="5.4.0" />
+		<PackageReference Include="YamlDotNet" Version="11.2.1" />
 
-  </ItemGroup>
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\DbAccessCodeGen.Library\DbAccessCodeGen.Library.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\DbAccessCodeGen.Library\DbAccessCodeGen.Library.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="Templates\ModelFile.cs.scriban">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Update="Templates\ModelFile.cs.scriban">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Init\" />
-  </ItemGroup>
+	<ItemGroup>
+		<Folder Include="Init\" />
+	</ItemGroup>
 
 </Project>

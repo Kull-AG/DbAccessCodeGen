@@ -29,7 +29,8 @@ namespace DbCode.Test
             var res2 = await dba.spTestBackendStreamAsync(1, new UDT.IdNameType[] { new UDT.IdNameType(23, "tester"), new UDT.IdNameType(12, "3425") }).ToListAsync();
             var json2 = Newtonsoft.Json.JsonConvert.SerializeObject(res2);
             Console.WriteLine(json2);
-
+            var es = dba.spSearchPets2("b");
+            var pn = es.FirstOrDefault()?.PetName;// If it compiles it' ok
             var res3 = (await dba.spTestExecuteParamsAsync(3)).ToArray();
             if (res3.Length != 1 || res3[0].TestId != 3)
             {

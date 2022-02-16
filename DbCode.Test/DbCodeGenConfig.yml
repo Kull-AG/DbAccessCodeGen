@@ -22,6 +22,7 @@ Items:
  - dbo.spUpdatePet
  - dbo.spUpdateDog
  - dbo.spSearchPets
+ - dbo.spSearchPets2
  - SP: dbo.spTestBackend
    GenerateAsyncStreamCode: true
  - dbo.spTestNoColumnName

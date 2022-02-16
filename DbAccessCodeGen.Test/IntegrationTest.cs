@@ -54,32 +54,21 @@ namespace DbAccessCodeGen.Test
                     "Unrestricted");
         }
 
-        [TestMethod]
-        public async Task D_Restore()
-        {
-            var solutionDir = GetSolutionDir();
-            // Restore Tools Reference
-            await ExecuteAndAssertSuccess(Path.Combine(solutionDir, "DbCode.Test"), 30, "dotnet", "restore", "--no-cache", "--configfile", "NuGet.config");
-        }
-
 
         [TestMethod]
-        public async Task D_RestoreTool()
+        public async Task D_Build_Tool()
         {
             var solutionDir = GetSolutionDir();
-            // Restore Tools Reference
-            await ExecuteAndAssertSuccess(Path.Combine(solutionDir, "DbCode.Test"), 30, "dotnet", "tool", "restore", "--no-cache", "--configfile", "NuGet.config");
+
+            await ExecuteAndAssertSuccess(Path.Combine(solutionDir, "DbAccessCodeGen"), 30, "dotnet", "build","-c","Debug");
         }
-
-
-
 
         [TestMethod]
         public async Task E_CodeGen()
         {
             var solutionDir = GetSolutionDir();
 
-            await ExecuteAndAssertSuccess(Path.Combine(solutionDir, "DbCode.Test"), 60, "dotnet", "tool", "run", "dbcodegen",
+            await ExecuteAndAssertSuccess(Path.Combine(solutionDir, "DbCode.Test"), 60, Path.Combine(solutionDir, "DbAccessCodeGen/bin/Debug/net6/DbAccessCodeGen.exe"),
                 "-c", "DbCodeGenConfig.yml");
         }
 
