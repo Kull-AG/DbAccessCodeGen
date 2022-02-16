@@ -97,7 +97,9 @@ namespace DbAccessCodeGen.EFMigrate
                     {
                         System.IO.Directory.CreateDirectory(resultDir);
                     }
-                    var filePath = System.IO.Path.Combine(resultDir, (DBObjectName)spName + ".json");
+                    var obj = (DBObjectName)spName;
+                    var spN = new DBObjectName(obj.Schema ?? "dbo", obj.Name);
+                    var filePath = System.IO.Path.Combine(resultDir, spN + ".json");
                     await System.IO.File.WriteAllTextAsync(filePath, json);
                 }
                 catch (Exception e)

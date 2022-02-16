@@ -70,7 +70,7 @@ namespace DbAccessCodeGen.Configuration
             }
             if (obj is IReadOnlyDictionary<string, object> os)
             {
-                var procs = os["Items"] ?? os["Procedures"];
+                var procs = os.ContainsKey("Items")?  os["Items"] : os["Procedures"];
                 if (procs == null)
                 {
                     throw new ArgumentNullException("Items");
