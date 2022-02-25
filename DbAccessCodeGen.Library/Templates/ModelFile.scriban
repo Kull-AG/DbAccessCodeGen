@@ -5,11 +5,13 @@ namespace {{Name.Namespace}}
 {
     public partial class {{Name.Name}} 
     {
-        {{ for prop in Properties }}public {{prop.CompleteNetType}} {{prop.CSPropertyName}} { get; }{{ end }}
+{{ for prop in Properties }}
+        public {{prop.CompleteNetType}} {{prop.CSPropertyName}} { get; }{{ end }}
 
         public {{Name.Name}}({{ for prop in Properties }}{{prop.CompleteNetType}} {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{ end }})
         {
-            {{ for prop in Properties }}this.{{prop.CSPropertyName}} = {{prop.ParameterName}};{{ end }}
+{{ for prop in Properties }}
+            this.{{prop.CSPropertyName}} = {{prop.ParameterName}};{{ end }}
         }
     }
 
