@@ -30,28 +30,28 @@ private void {{MethodName}}_PrepareCommand(DbCommand cmd{{if ParameterTypeName}}
 }
 {{if GenerateAsyncStreamCode}}
 {{if ParameterTypeName}}
-public {{FullStreamAsyncResultType}} {{MethodName}}StreamAsync({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{end}})
+public {{FullStreamAsyncResultType}} {{MethodName}}StreamAsync({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}, {{end}}CancellationToken cancellationToken = default)
 {
 	return {{MethodName}}StreamAsync(new {{ParameterTypeName}}({{ for prop in Parameters }}{{prop.ParameterName}}: {{prop.ParameterName}}{{if !for.last}}, {{ end }}
-		{{end}}));
+		{{end}}), cancellationToken);
 }
 {{end}}
 
-public async {{FullStreamAsyncResultType}} {{MethodName}}StreamAsync({{if ParameterTypeName}} {{ParameterTypeName}} parameters{{end}})
+public async {{FullStreamAsyncResultType}} {{MethodName}}StreamAsync({{if ParameterTypeName}} {{ParameterTypeName}} parameters{{end}}, CancellationToken cancellationToken = default)
 {
     using var cmd = connection.CreateCommand();
-	await SetupConnectionAsync();
+	await SetupConnectionAsync(cancellationToken);
 	{{MethodName}}_PrepareCommand(cmd{{if ParameterTypeName}}, parameters{{end}});
 	DateTime start = DateTime.UtcNow;
 	OnCommandStart(cmd, start);
-	using var rdr = await cmd.ExecuteReaderAsync();
+	using var rdr = await cmd.ExecuteReaderAsync(cancellationToken);
 	if(!rdr.HasRows) 
 	{
 		yield break;
 	}
 	{{if ExecuteOnly}}
 	var returnPrm = AddCommandParameter(cmd, "__returnvalue", 0, ParameterDirection.ReturnValue);
-	int affectedRows = await cmd.ExecuteNonQueryAsync(); 
+	int affectedRows = await cmd.ExecuteNonQueryAsync(cancellationToken); 
 	int returnValue = (int)returnPrm.Value;
 	{{else}}{{if ResultFields}}
 	var ordinals = new {{MethodName}}Ordinals(
@@ -60,7 +60,7 @@ public async {{FullStreamAsyncResultType}} {{MethodName}}StreamAsync({{if Parame
 	{{else}}
 	int fieldCount = rdr.FieldCount;
 	{{end}}
-	while(await rdr.ReadAsync())
+	while(await rdr.ReadAsync(cancellationToken))
 	{
 		{{if ResultFields}}yield return {{MethodName}}_FromRecord(rdr, ordinals);
 		{{else}}yield return ReadDictionary(rdr, fieldCount);{{end}}
@@ -114,26 +114,26 @@ public {{FullSyncResultType}} {{MethodName}}({{if ParameterTypeName}}{{Parameter
 
 {{if GenerateAsyncCode}}
 {{if ParameterTypeName}}
-public {{FullAsyncResultType}} {{MethodName}}Async({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}{{if !for.last}}, {{ end }}{{end}})
+public {{FullAsyncResultType}} {{MethodName}}Async({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}, {{end}}CancellationToken cancellationToken = default)
 {
 	return {{MethodName}}Async(new {{ParameterTypeName}}({{ for prop in Parameters }}{{prop.ParameterName}}: {{prop.ParameterName}}{{if !for.last}}, {{ end }}
-	{{end}}));
+	{{end}}), cancellationToken);
 }
 {{end}}
 
-public async {{FullAsyncResultType}} {{MethodName}}Async({{if ParameterTypeName}}{{ParameterTypeName}} parameters{{end}})
+public async {{FullAsyncResultType}} {{MethodName}}Async({{if ParameterTypeName}}{{ParameterTypeName}} parameters, {{end}}CancellationToken cancellationToken = default)
 {
     using var cmd = connection.CreateCommand();
-	await SetupConnectionAsync();
+	await SetupConnectionAsync(cancellationToken);
 	{{MethodName}}_PrepareCommand(cmd{{if ParameterTypeName}}, parameters{{end}});
 	DateTime start = DateTime.UtcNow;
 	OnCommandStart(cmd, start);{{if ExecuteOnly}}
 	var returnPrm = AddCommandParameter(cmd, "__returnvalue", 0, ParameterDirection.ReturnValue);
-	int affectedRows = await cmd.ExecuteNonQueryAsync(); 
+	int affectedRows = await cmd.ExecuteNonQueryAsync(cancellationToken); 
 	int returnValue = (int)returnPrm.Value;
 	OnCommandEnd(cmd, start);
 	return (affectedRows, returnValue);{{else}}
-	var rdr = await cmd.ExecuteReaderAsync();
+	var rdr = await cmd.ExecuteReaderAsync(cancellationToken);
 	var dt = {{if ResultFields}}{{MethodName}}_FromReader(rdr){{else}}DictionaryFromReader(rdr){{end}};
 	return AfterEnumerable(dt, () => OnCommandEnd(cmd, start), cmd, rdr);{{end}}
 }
