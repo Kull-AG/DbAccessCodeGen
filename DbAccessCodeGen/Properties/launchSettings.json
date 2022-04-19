@@ -2,8 +2,8 @@
   "profiles": {
     "DbAccessCodeGen": {
       "commandName": "Project",
-      "commandLineArgs": "-c DbCodeGenConfig.yml",
-      "workingDirectory": "../DbCode.Test"
+      "commandLineArgs": "-c DbCodeGenConfig.yml -l Information",
+      "workingDirectory": "C:\\Projects\\P1096\\DistributionPlan\\DistributionPlan.Entities"
     }
   }
 }

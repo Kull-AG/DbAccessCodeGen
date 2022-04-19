@@ -38,6 +38,7 @@ namespace DbAccessCodeGen
             if (!DbProviderFactories.TryGetFactory("Microsoft.Data.SqlClient", out var _))
                 DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", Microsoft.Data.SqlClient.SqlClientFactory.Instance);
 
+            LogLevel logLevel = LogLevel.Information;
             var subcommand = GetSubCommand(args);
             if (subcommand == null || subcommand == "generate")
             {
@@ -53,6 +54,8 @@ namespace DbAccessCodeGen
                     { "cs|connectionstring=",
                         "the connection string." ,
                       (cs) => connectionString=cs },
+                    { "l|loglevel=", "the Log Level",
+                      l => logLevel = Enum.Parse<LogLevel>(l, true)},
                     { "h|help",  "show this message and exit",
                       v => show_help = v != null },
                 };
@@ -78,7 +81,7 @@ namespace DbAccessCodeGen
 
 
                 await ExecuteCodeGen(configInfo ?? throw new ArgumentNullException(),
-                    connectionString);
+                    connectionString, logLevel);
             }
             else if (subcommand == "init")
             {
@@ -91,6 +94,8 @@ namespace DbAccessCodeGen
                     "Options:",
                     { "c|config=", "the DbCodeGenConfig.yml location",
                       c => configfile = c},
+                    { "l|loglevel=", "the Log Level",
+                      l => logLevel = Enum.Parse<LogLevel>(l, true)},
                     { "h|help",  "show this message and exit",
                       v => show_help = v != null },
                 };
@@ -110,7 +115,7 @@ namespace DbAccessCodeGen
                     Console.WriteLine("Try `--help' for more information.");
                     return;
                 }
-                await ExecuteInit(configfile);
+                await ExecuteInit(configfile, logLevel);
             }
             else if (subcommand == "migrateef")
             {
@@ -174,9 +179,9 @@ namespace DbAccessCodeGen
             return executor.Execute(edmxFile, outDir);
         }
 
-        public static Task ExecuteInit(string configFilePath)
+        public static Task ExecuteInit(string configFilePath, LogLevel logLevel)
         {
-            var sp = RegisterServices4Init();
+            var sp = RegisterServices4Init(logLevel);
             Console.WriteLine("Enter namespace:");
             string? @namespace = Console.ReadLine();
             if (String.IsNullOrEmpty(@namespace))
@@ -211,7 +216,7 @@ dotnet tool run dbcodegen -c DbCodeGenConfig.yml";
             return Task.CompletedTask;
         }
 
-        public static async Task ExecuteCodeGen(FileInfo config, string? connectionString)
+        public static async Task ExecuteCodeGen(FileInfo config, string? connectionString, LogLevel logLevel)
         {
             var content = await System.IO.File.ReadAllTextAsync(config.FullName);
             var deserializer = new YamlDotNet.Serialization.DeserializerBuilder()
@@ -225,17 +230,17 @@ dotnet tool run dbcodegen -c DbCodeGenConfig.yml";
                 Console.Error.WriteLine("Must provide connection string");
                 Environment.Exit(-1);
             }
-            await ExecuteCodeGen(settings);
+            await ExecuteCodeGen(settings, logLevel);
         }
 
-        public static ServiceProvider RegisterServices4Init()
+        public static ServiceProvider RegisterServices4Init(LogLevel logLevel)
         {
             var services = new ServiceCollection();
 
             services.AddLogging(l =>
             {
                 l.AddConsole();
-                l.SetMinimumLevel(LogLevel.Debug);
+                l.SetMinimumLevel(logLevel);
             });
             return services.BuildServiceProvider();
         }
@@ -254,7 +259,7 @@ dotnet tool run dbcodegen -c DbCodeGenConfig.yml";
             return services.BuildServiceProvider();
         }
 
-        public static ServiceProvider RegisterServices(Configuration.Settings settings)
+        public static ServiceProvider RegisterServices(Configuration.Settings settings, LogLevel logLevel)
         {
             //setup our DI
             var services = new ServiceCollection();
@@ -262,7 +267,7 @@ dotnet tool run dbcodegen -c DbCodeGenConfig.yml";
             services.AddLogging(l =>
             {
                 l.AddConsole();
-                l.SetMinimumLevel(LogLevel.Debug);
+                l.SetMinimumLevel(logLevel);
             });
             services.AddKullDatabaseMetadata();
             services.AddSingleton(settings);
@@ -280,9 +285,9 @@ dotnet tool run dbcodegen -c DbCodeGenConfig.yml";
 
         }
 
-        public static Task ExecuteCodeGen(Configuration.Settings settings)
+        public static Task ExecuteCodeGen(Configuration.Settings settings, LogLevel logLevel)
         {
-            var sp = RegisterServices(settings);
+            var sp = RegisterServices(settings, logLevel);
             var executor = sp.GetRequiredService<CodeGen.Executor>();
             return executor.Execute();
         }
