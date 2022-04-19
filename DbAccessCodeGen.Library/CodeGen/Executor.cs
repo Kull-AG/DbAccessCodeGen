@@ -71,6 +71,7 @@ namespace DbAccessCodeGen.CodeGen
             await allMetaDataTasks;
             await codeGenTasks;
             await serviceGentask;
+            codeGenHandler.CleanupDirectory();
         }
 
         protected async Task StartGetMetadata(ChannelWriter<DBOperationSetting> channelWriter)

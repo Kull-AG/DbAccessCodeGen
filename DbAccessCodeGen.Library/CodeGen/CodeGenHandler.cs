@@ -21,7 +21,7 @@ namespace DbAccessCodeGen.CodeGen
     public class CodeGenHandler
     {
         public const string Disclaimer = "// This is generated code. Never ever edit this!\r\n\r\n";
-
+        List<string> generatedFileList = new();
         protected readonly Dictionary<string, string> IntegratedTypeMap = new Dictionary<string, string>()
         {
             { "System.Boolean", "bool" },
@@ -164,6 +164,7 @@ namespace DbAccessCodeGen.CodeGen
                 str = str.Replace("\t", "    ");
                 var (fullOutDir, fileName) = GetPaths(m.Name, true);
                 await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(fullOutDir, fileName), Disclaimer + str);
+                generatedFileList.Add(System.IO.Path.Combine(fullOutDir, fileName));
             }
             var serviceMethod = await serviceMethodTemplate.RenderAsync(new
             {
@@ -230,6 +231,36 @@ namespace DbAccessCodeGen.CodeGen
             }, memberRenamer: m => m.Name);
             var (fullOutDir, fileName) = GetPaths(serviceClassName, true);
             await System.IO.File.WriteAllTextAsync(System.IO.Path.Combine(fullOutDir, fileName), Disclaimer + serviceString);
+            generatedFileList.Add(System.IO.Path.Combine(fullOutDir, fileName));
+        }
+
+        public void CleanupDirectory()
+        {
+            var files = System.IO.Directory.GetFiles(settings.OutputDir, "*.cs", SearchOption.AllDirectories);
+            var genFiles = generatedFileList.Select(s => s.Replace('\\', '/').ToLower()).ToArray();
+            char[] buffer = new char[Disclaimer.Length];
+            foreach (var file in files)
+            {
+                if (!genFiles.Contains(file.Replace('\\', '/').ToLower()) && new FileInfo(file).Length >= Disclaimer.Length)
+                {
+                    bool delete = false;
+                    using (var f = File.OpenText(file))
+                    {
+                        if (f.Read(buffer, 0, buffer.Length) == buffer.Length)
+                        {
+                            if (new String(buffer, 0, buffer.Length) == Disclaimer)
+                            {
+                                delete = true;
+                            }
+                        }
+                    }
+                    if (delete)
+                    {
+                        File.Delete(file);
+                        logger.LogInformation($"deleted {file}");
+                    }
+                }
+            }
         }
 
         private void ValidateTemplate(Scriban.Template template, string templateName)
