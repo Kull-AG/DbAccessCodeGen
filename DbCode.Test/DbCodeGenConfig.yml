@@ -19,7 +19,8 @@ Items:
  - dbo.spGetPet
  - dbo.spAddPet
  - dbo.spDeletePet
- - dbo.spUpdatePet
+ - SP: dbo.spUpdatePet
+   MethodName: UpdateThatPet
  - dbo.spUpdateDog
  - dbo.spSearchPets
  - dbo.spSearchPets2

@@ -10,7 +10,7 @@ namespace DbAccessCodeGen.Configuration
     {
         public DBOperationSetting(string dbObjectName,
             DBObjectType objectType,
-
+            string? methodName,
             IReadOnlyDictionary<string, object?>? executeParameters, IReadOnlyCollection<string>? ignoreParameters)
         {
             this.DBObjectType = objectType;
@@ -21,11 +21,14 @@ namespace DbAccessCodeGen.Configuration
             }
             ExecuteParameters = executeParameters;
             IgnoreParameters = ignoreParameters;
+            MethodName = methodName;
         }
 
         public DBObjectName DBObjectName { get; init; }
 
         public DBObjectType DBObjectType { get; init; }
+
+        public string? MethodName { get; init; }
 
         public IReadOnlyDictionary<string, object?>? ExecuteParameters { get; init; }
         public IReadOnlyCollection<string>? IgnoreParameters { get; }
@@ -77,7 +80,8 @@ namespace DbAccessCodeGen.Configuration
                 }
                 return new DBOperationSetting(dbObjectName, 
                     type,
-                    (IReadOnlyDictionary<string, object?>?)executeParameters, (IReadOnlyCollection<string>?)ignoreParameters)
+                    methodName: os.GetOrThrow("MethodName", (string?)null),
+                    executeParameters: (IReadOnlyDictionary<string, object?>?)executeParameters, ignoreParameters: (IReadOnlyCollection<string>?)ignoreParameters)
                 {
                     GenerateSyncCode = os.GetOrThrow<bool?>(nameof(GenerateSyncCode), null),
                     GenerateAsyncCode = os.GetOrThrow<bool?>(nameof(GenerateAsyncCode), null),
@@ -89,7 +93,7 @@ namespace DbAccessCodeGen.Configuration
             };
             }
             if (obj is string s)
-                return new DBOperationSetting(s, DBObjectType.StoredProcedure, null, null);
+                return new DBOperationSetting(s, DBObjectType.StoredProcedure, methodName: null, executeParameters: null, ignoreParameters: null);
             throw new NotSupportedException($"{obj} is not a proc");
         }
     }

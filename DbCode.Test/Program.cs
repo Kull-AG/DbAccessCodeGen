@@ -32,6 +32,7 @@ namespace DbCode.Test
             var es = dba.spSearchPets2("b");
             var pn = es.FirstOrDefault()?.PetName;// If it compiles it' ok
             var res3 = (await dba.spTestExecuteParamsAsync(3)).ToArray();
+            dba.UpdateThatPet(1, new byte[] {});
             if (res3.Length != 1 || res3[0].TestId != 3)
             {
                 Console.Error.WriteLine("FAILED TEST for spTestExecuteParamsAsync");
