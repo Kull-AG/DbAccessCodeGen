@@ -60,16 +60,16 @@ namespace DbAccessCodeGen.Configuration
             }
         }
 
-        public virtual Identifier GetParameterTypeName(DBObjectName name)
+        public virtual Identifier GetParameterTypeName(DBObjectName name, string? MethodName)
         {
-            return new Identifier(settings.Namespace, GetCSName(name.Name) + "Parameters");
+            return new Identifier(settings.Namespace, GetCSName(MethodName ?? name.Name) + "Parameters");
         }
 
-        public virtual Identifier GetResultTypeName(DBObjectName name, DBObjectType dBObjectType)
+        public virtual Identifier GetResultTypeName(DBObjectName name, DBObjectType dBObjectType, string? MethodName)
         {
             if(dBObjectType == DBObjectType.TableOrView)
-                return new Identifier(settings.Namespace, GetCSName(name.Name) + "Data");
-            return new Identifier(settings.Namespace, GetCSName(name.Name) + "Result");
+                return new Identifier(settings.Namespace, GetCSName(MethodName ?? name.Name) + "Data");
+            return new Identifier(settings.Namespace, GetCSName(MethodName ?? name.Name) + "Result");
         }
 
         public virtual string GetPropertyName(string sqlName, GeneratedCodeType generatedCodeType)

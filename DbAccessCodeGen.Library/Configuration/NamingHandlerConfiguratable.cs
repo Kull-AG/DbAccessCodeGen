@@ -35,9 +35,9 @@ namespace DbAccessCodeGen.Configuration
             }
         }
 
-        public override Identifier GetParameterTypeName(DBObjectName name)
+        public override Identifier GetParameterTypeName(DBObjectName name, string? MethodName)
         {
-            return InvokeExternal<Identifier>(nameof(GetParameterTypeName), name) ?? base.GetParameterTypeName(name);
+            return InvokeExternal<Identifier>(nameof(GetParameterTypeName), name, MethodName) ?? base.GetParameterTypeName(name, MethodName);
         }
 
         public override Identifier GetIdentifierForUserDefinedType(DBObjectName type)
@@ -55,9 +55,9 @@ namespace DbAccessCodeGen.Configuration
             return InvokeExternal<string>(nameof(GetPropertyName), sqlName, generatedCodeType) ?? base.GetPropertyName(sqlName, generatedCodeType);
         }
 
-        public override Identifier GetResultTypeName(DBObjectName name, DBObjectType dBObjectType)
+        public override Identifier GetResultTypeName(DBObjectName name, DBObjectType dBObjectType, string? methodName)
         {
-            return InvokeExternal<Identifier>(nameof(GetResultTypeName), name, dBObjectType) ?? base.GetResultTypeName(name, dBObjectType);
+            return InvokeExternal<Identifier>(nameof(GetResultTypeName), name, dBObjectType, methodName) ?? base.GetResultTypeName(name, dBObjectType, methodName);
         }
 
         public override string GetServiceClassMethodName(DBObjectName sp, DBObjectType dBObjectType)
@@ -80,7 +80,7 @@ namespace DbAccessCodeGen.Configuration
 
         static object executionLock = new object();
 
-        private T? InvokeExternal<T>(string functionName, params object[] args)
+        private T? InvokeExternal<T>(string functionName, params object?[] args)
             where T : class
         {
             if (engine == null) return default(T);

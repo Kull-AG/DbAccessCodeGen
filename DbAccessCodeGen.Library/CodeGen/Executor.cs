@@ -145,8 +145,8 @@ namespace DbAccessCodeGen.CodeGen
                                 parameters: toUsePrm,
                                     replaceParameters: replaceParaemeters,
                                    fields: result,
-                                   resultType: namingHandler.GetResultTypeName(sp.DBObjectName, sp.DBObjectType),
-                                   parameterTypeName: namingHandler.GetParameterTypeName(sp.DBObjectName),
+                                   resultType: namingHandler.GetResultTypeName(sp.DBObjectName, sp.DBObjectType, sp.MethodName),
+                                   parameterTypeName: namingHandler.GetParameterTypeName(sp.DBObjectName, sp.MethodName),
                                    methodName: sp.MethodName ?? namingHandler.GetServiceClassMethodName(sp.DBObjectName, sp.DBObjectType),
                                    setting: sp
                                    )));
@@ -159,8 +159,8 @@ namespace DbAccessCodeGen.CodeGen
                                 parameters: toUsePrm,
                                   fields: new SqlFieldDescription[] { },
                                   replaceParameters: replaceParaemeters,
-                                  resultType: namingHandler.GetResultTypeName(sp.DBObjectName, sp.DBObjectType),
-                                  parameterTypeName: namingHandler.GetParameterTypeName(sp.DBObjectName),
+                                  resultType: namingHandler.GetResultTypeName(sp.DBObjectName, sp.DBObjectType, sp.MethodName),
+                                  parameterTypeName: namingHandler.GetParameterTypeName(sp.DBObjectName, sp.MethodName),
                                   methodName: sp.MethodName ?? namingHandler.GetServiceClassMethodName(sp.DBObjectName, sp.DBObjectType),
                                   setting: sp
                                   )));

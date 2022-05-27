@@ -15,7 +15,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Jint" Version="3.0.0-beta-2037" />
-		<PackageReference Include="Kull.Data" Version="6.0.1" />
+		<PackageReference Include="Kull.Data" Version="6.0.3" />
 		<PackageReference Include="Kull.DatabaseMetadata" Version="1.4.1" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.1.0-3.final" />
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0" />

@@ -27,7 +27,7 @@
     </EmbeddedResource>
   </ItemGroup>
 <ItemGroup>
-    <PackageReference Include="Kull.Data" Version="6.0.1" />
+    <PackageReference Include="Kull.Data" Version="6.0.3" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="6.0.2" />
   <PackageReference Include="Jint" Version="3.0.0-beta-2037" />
