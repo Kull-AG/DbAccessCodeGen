@@ -52,7 +52,7 @@ public async {{FullStreamAsyncResultType}} {{MethodName}}StreamAsync({{if Parame
 	{{if ExecuteOnly}}
 	var returnPrm = AddCommandParameter(cmd, "__returnvalue", 0, ParameterDirection.ReturnValue);
 	int affectedRows = await cmd.ExecuteNonQueryAsync(cancellationToken); 
-	int returnValue = (int)returnPrm.Value;
+	int returnValue = (int)returnPrm.Value!;
 	{{else}}{{if ResultFields}}
 	var ordinals = new {{MethodName}}Ordinals(
 		{{ for prop in ResultFields }}{{prop.ParameterName}}: rdr.GetOrdinal("{{prop.SqlName}}") {{if !for.last}}, {{ end }}{{ end }}
@@ -103,7 +103,7 @@ public {{FullSyncResultType}} {{MethodName}}({{if ParameterTypeName}}{{Parameter
 	OnCommandStart(cmd, start);{{if ExecuteOnly}}
 	var returnPrm = AddCommandParameter(cmd, "__returnvalue", 0, ParameterDirection.ReturnValue);
 	int affectedRows = cmd.ExecuteNonQuery(); 
-	int returnValue = (int)returnPrm.Value;
+	int returnValue = (int)returnPrm.Value!;
 	OnCommandEnd(cmd, start);
 	return (affectedRows, returnValue);{{else}}
 	var rdr = cmd.ExecuteReader();
@@ -130,7 +130,7 @@ public async {{FullAsyncResultType}} {{MethodName}}Async({{if ParameterTypeName}
 	OnCommandStart(cmd, start);{{if ExecuteOnly}}
 	var returnPrm = AddCommandParameter(cmd, "__returnvalue", 0, ParameterDirection.ReturnValue);
 	int affectedRows = await cmd.ExecuteNonQueryAsync(cancellationToken); 
-	int returnValue = (int)returnPrm.Value;
+	int returnValue = (int)returnPrm.Value!;
 	OnCommandEnd(cmd, start);
 	return (affectedRows, returnValue);{{else}}
 	var rdr = await cmd.ExecuteReaderAsync(cancellationToken);
