@@ -8,7 +8,7 @@
 		<PackageOutputPath>./nupkg</PackageOutputPath>
 		<RunWorkingDirectory>$(MSBuildProjectDirectory)</RunWorkingDirectory>
 		<Nullable>Enable</Nullable>
-		<Version>0.6.3-beta3</Version>
+		<Version>0.6.3-beta4</Version>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<RepositoryURL>https://github.com/aersamkull/DbAccessCodeGen</RepositoryURL>
 	</PropertyGroup>
@@ -16,7 +16,7 @@
 	<ItemGroup>
 		<PackageReference Include="Jint" Version="3.0.0-beta-2037" />
 		<PackageReference Include="Kull.Data" Version="6.0.3" />
-		<PackageReference Include="Kull.DatabaseMetadata" Version="1.4.1" />
+		<PackageReference Include="Kull.DatabaseMetadata" Version="1.5.0-beta7" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.1.0-3.final" />
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.2-mauipre.1.22102.15" />

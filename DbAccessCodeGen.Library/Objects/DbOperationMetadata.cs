@@ -11,6 +11,8 @@ namespace DbAccessCodeGen.Objects
     {
         public IReadOnlyCollection<SPParameter> Parameters { get; }
         public IReadOnlyDictionary<string, string> ReplaceParameters { get; }
+        public ResultSource FieldSource { get; }
+        public bool ExecuteOnly { get; }
         public IReadOnlyCollection<SqlFieldDescription>? ResultFields { get; }
 
 
@@ -32,8 +34,9 @@ namespace DbAccessCodeGen.Objects
                 DBObjectType dBObjectType, 
                 IReadOnlyCollection<SPParameter> parameters,
                 IReadOnlyDictionary<string, string> replaceParameters,
-
+                ResultSource fieldSource,
             IReadOnlyCollection<SqlFieldDescription> fields,
+            bool executeOnly,
                 string methodName,
                 Identifier resultType,
                 Identifier parameterTypeName,
@@ -47,6 +50,8 @@ namespace DbAccessCodeGen.Objects
             this.SqlName = name;
             this.Parameters = parameters;
             this.ReplaceParameters = replaceParameters;
+            FieldSource = fieldSource;
+            ExecuteOnly = executeOnly;
             this.ResultFields = fields.Count(f => f.Name != null) == 0 ? null : fields;
             if(setting.IgnoreFields != null && this.ResultFields != null)
             {

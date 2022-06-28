@@ -26,7 +26,6 @@ namespace DbAccessCodeGen.CodeGen
         private readonly SqlHelper sqlHelper;
         private readonly CodeGenHandler codeGenHandler;
         private readonly NamingHandler namingHandler;
-        ConcurrentDictionary<DBObjectName, SqlFieldDescription[]> userDefinedTypes = new ConcurrentDictionary<DBObjectName, SqlFieldDescription[]>();
 
         public Executor(IServiceProvider serviceProvider, Configuration.Settings settings, ILogger<Executor> logger,
             SPParametersProvider sPParametersProvider,
@@ -61,17 +60,33 @@ namespace DbAccessCodeGen.CodeGen
                 }, cts.Token);
 
 
-            Task codeGenTasks = Task.WhenAll(Enumerable.Range(1, 2).Select(s => ExecuteCodeGen(CodeGenChannel.Reader, methods.Writer)))
+            var codeGenTasks =
+                Task.WhenAll(Enumerable.Range(1, 2).Select(s => ExecuteCodeGen(CodeGenChannel.Reader, methods.Writer)))
                 .ContinueWith(t =>
                 {
                     methods.Writer.Complete();
+                    return t.Result;
                 }, cts.Token);
             Task serviceGentask = codeGenHandler.WriteServiceClass(methods.Reader);
             await metadataTask;
             await allMetaDataTasks;
-            await codeGenTasks;
+            var results = await codeGenTasks;
             await serviceGentask;
             codeGenHandler.CleanupDirectory();
+            string resultSummary = "Summary for results not from Metadata: ";
+            bool hasSome = false;
+            foreach (var i in results.SelectMany(s => s).Where(s => !s.ExecuteOnly && s.FieldSource != ResultSource.Metadata).GroupBy(s => s.FieldSource))
+            {
+                hasSome = true;
+                var dt = i.ToArray();
+                resultSummary += Environment.NewLine + "from " + i.Key + ":" + Environment.NewLine
+                        + string.Join(Environment.NewLine, dt.Select(op => "\t" + op.MethodName));
+            }
+            if (hasSome)
+            {
+                logger.LogWarning(resultSummary);
+
+            }
         }
 
         protected async Task StartGetMetadata(ChannelWriter<DBOperationSetting> channelWriter)
@@ -138,13 +153,16 @@ namespace DbAccessCodeGen.CodeGen
                                 .ToArray();
                         try
                         {
-                            var result = sp.ExecuteOnly ? Array.Empty<SqlFieldDescription>() :
-                                await this.sqlHelper.GetResultSet(con, sp.DBObjectName, sp.DBObjectType, settings.PersistResultPath, sp.ExecuteParameters);
+                            var result = sp.ExecuteOnly ? (source: ResultSource.None, result: Array.Empty<SqlFieldDescription>()) :
+                                await this.sqlHelper.GetResultSet2(con, sp.DBObjectName, sp.DBObjectType, settings.PersistResultPath, sp.ExecuteParameters);
+                            
                             writeTasks.Add(toWriteTo.WriteAsync(new DbOperationMetadata(name: sp.DBObjectName,
                                 dBObjectType: sp.DBObjectType,
                                 parameters: toUsePrm,
                                     replaceParameters: replaceParaemeters,
-                                   fields: result,
+                                   fields: result.result,
+                                   executeOnly: sp.ExecuteOnly,
+                                  fieldSource: result.source,
                                    resultType: namingHandler.GetResultTypeName(sp.DBObjectName, sp.DBObjectType, sp.MethodName),
                                    parameterTypeName: namingHandler.GetParameterTypeName(sp.DBObjectName, sp.MethodName),
                                    methodName: sp.MethodName ?? namingHandler.GetServiceClassMethodName(sp.DBObjectName, sp.DBObjectType),
@@ -158,6 +176,8 @@ namespace DbAccessCodeGen.CodeGen
                                 dBObjectType: sp.DBObjectType,
                                 parameters: toUsePrm,
                                   fields: new SqlFieldDescription[] { },
+                                  executeOnly: false,
+                                  fieldSource: ResultSource.None,
                                   replaceParameters: replaceParaemeters,
                                   resultType: namingHandler.GetResultTypeName(sp.DBObjectName, sp.DBObjectType, sp.MethodName),
                                   parameterTypeName: namingHandler.GetParameterTypeName(sp.DBObjectName, sp.MethodName),
@@ -175,15 +195,18 @@ namespace DbAccessCodeGen.CodeGen
             await Task.WhenAll(writeTasks.Select(v => v.AsTask()));
         }
 
-        public async Task ExecuteCodeGen(ChannelReader<DbOperationMetadata> channelReader, ChannelWriter<(string name, string template)> methods)
+        public async Task<IReadOnlyCollection<DbOperationMetadata>> ExecuteCodeGen(ChannelReader<DbOperationMetadata> channelReader, ChannelWriter<(string name, string template)> methods)
         {
+            List<DbOperationMetadata> allOperations = new List<DbOperationMetadata>();
             await foreach (var codeGenPrm in channelReader.ReadAllAsync())
             {
                 using (var scope = serviceProvider.CreateScope())
                 {
+                    allOperations.Add(codeGenPrm);
                     await codeGenHandler.ExecuteCodeGen(codeGenPrm, methods);
                 }
             }
+            return allOperations;
         }
     }
 }

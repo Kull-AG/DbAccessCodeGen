@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6</TargetFramework>
     <Nullable>Enable</Nullable>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <RootNamespace>DbAccessCodeGen</RootNamespace>
     
   </PropertyGroup>
@@ -31,7 +31,7 @@
     <PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="6.0.2" />
   <PackageReference Include="Jint" Version="3.0.0-beta-2037" />
-    <PackageReference Include="Kull.DatabaseMetadata" Version="1.4.1" />
+    <PackageReference Include="Kull.DatabaseMetadata" Version="1.5.0-beta7" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.1.0-3.final" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.2-mauipre.1.22102.15" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
