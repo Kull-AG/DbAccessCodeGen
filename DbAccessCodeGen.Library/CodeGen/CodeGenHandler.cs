@@ -286,18 +286,18 @@ namespace DbAccessCodeGen.CodeGen
         private ModelProperty GetModelProperty(SPParameter s, Model? userDefinedType,
             IReadOnlyDictionary<string, string> customTypeMappings)
         {
-            return GetModelProperty(GeneratedCodeType.ParameterClass, s.DbType, s.UserDefinedType, userDefinedType, s.SqlName, s.IsNullable, s.ParameterDirection,
+            return GetModelProperty(GeneratedCodeType.ParameterClass, s.DbType, s.MaxLength, s.UserDefinedType, userDefinedType, s.SqlName, s.IsNullable, s.ParameterDirection,
                 customTypeMappings);
         }
 
         private ModelProperty GetModelProperty(SqlFieldDescription s,
                 IReadOnlyDictionary<string, string> customTypeMappings)
         {
-            return GetModelProperty(GeneratedCodeType.ResultClass, s.DbType, null, null, s.Name, s.IsNullable, null, customTypeMappings);
+            return GetModelProperty(GeneratedCodeType.ResultClass, s.DbType, s.MaxLength, null, null, s.Name, s.IsNullable, null, customTypeMappings);
         }
 
         private ModelProperty GetModelProperty(GeneratedCodeType generatedCodeType,
-            SqlType dbType, DBObjectName? userDefinedType, Model? userDefinedTypeGen, string sqlName, bool isNullable, ParameterDirection? parameterDirection,
+            SqlType dbType, int? dbSize, DBObjectName? userDefinedType, Model? userDefinedTypeGen, string sqlName, bool isNullable, ParameterDirection? parameterDirection,
             IReadOnlyDictionary<string, string> customTypeMappings)
         {
             var type = customTypeMappings.ContainsKey(dbType.DbType) ?
@@ -312,7 +312,9 @@ namespace DbAccessCodeGen.CodeGen
                                 getCode: sqlTypeMapper.GetMappingCode(type,
                                     isNullable, csName),
                                 parameterDirection: parameterDirection,
-                                userDefinedTableType: userDefinedTypeGen
+                                userDefinedTableType: userDefinedTypeGen,
+                                sqlType: dbType,
+                                size: dbSize
                                 );
         }
 

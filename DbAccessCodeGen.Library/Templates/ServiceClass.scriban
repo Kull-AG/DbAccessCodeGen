@@ -47,7 +47,7 @@ namespace {{Name.Namespace}}
             return (T)cmd.Parameters.Cast<DbParameter>().First(p => p.Direction == ParameterDirection.Output || p.Direction == ParameterDirection.InputOutput && p.ParameterName.Substring(1) == parameterName).Value;
         }
 
-        protected DbParameter AddCommandParameter<T>(DbCommand cmd, string name, T value, ParameterDirection direction = ParameterDirection.Input) 
+        protected DbParameter AddCommandParameter<T>(DbCommand cmd, string name, T value, ParameterDirection direction = ParameterDirection.Input, int? size = null) 
         {
 		    var prm = cmd.CreateParameter();
             prm.Direction = direction;
@@ -62,6 +62,10 @@ namespace {{Name.Namespace}}
             else if (typeof(T) == typeof(byte[]) || value is byte[])
             {
                 prm.DbType = DbType.Binary;
+            }
+            if(size != null)
+            {
+                prm.Size = size.Value;
             }
             cmd.Parameters.Add(prm);
             return prm;

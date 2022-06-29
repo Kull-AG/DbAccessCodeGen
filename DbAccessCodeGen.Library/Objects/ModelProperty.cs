@@ -25,6 +25,9 @@ namespace DbAccessCodeGen.Objects
 
         public string? TableValuedMeta { get; }
         public string? TableValuedFn { get; }
+
+        public string? DefaultIfRequired { get; }
+        public int? SizeIfRequired { get; }
         public ModelProperty(string sqlName, 
             string csName, 
             string parameterName, 
@@ -32,7 +35,9 @@ namespace DbAccessCodeGen.Objects
             bool nullable,
             string getCode,
             ParameterDirection? parameterDirection,
-            Model? userDefinedTableType)
+            Model? userDefinedTableType,
+            int? size,
+            SqlType sqlType)
         {
             this.SqlName = sqlName;
             this.CSPropertyName = csName;
@@ -45,6 +50,30 @@ namespace DbAccessCodeGen.Objects
             this.ParameterName = parameterName;
             
             this.IsTableValued = userDefinedTableType != null;
+            if(this.ParameterDirection == System.Data.ParameterDirection.InputOutput)
+            {
+                if (sqlType.JsType == "string")
+                {
+                    DefaultIfRequired = "\"\"";
+                }
+                else if (sqlType.JsType == "number" || sqlType.JsType == "integer" || sqlType.JsType == "float")
+                {
+                    DefaultIfRequired = "0";
+                }
+                else if (sqlType.JsType == "boolean")
+                {
+                    DefaultIfRequired = "false";
+                }
+                else
+                {
+                    DefaultIfRequired = "default(" + sqlType.NetType + ")";
+                }
+                if (sqlType.DbType == "nvarchar" || sqlType.DbType == "ntext" || sqlType.DbType == "nchar") {
+                    this.SizeIfRequired = size < 0 ? size: size * 2;
+                }
+                else
+                    this.SizeIfRequired = size;
+            }
             if(userDefinedTableType != null)
             {
                 this.TableValuedMeta =

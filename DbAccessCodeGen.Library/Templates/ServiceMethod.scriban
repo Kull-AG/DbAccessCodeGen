@@ -24,7 +24,7 @@ private void {{MethodName}}_PrepareCommand(DbCommand cmd{{if ParameterTypeName}}
 	cmd.CommandText = "{{CommandText}}";{{
 	for prop in Parameters }}
 	{{if prop.IsTableValued}}this.AddTableValuedCommandParameter(cmd, "{{prop.SqlName}}", parameters.{{ prop.CSPropertyName }}, {{prop.TableValuedMeta}}, {{prop.TableValuedFn}});
-	{{else}}this.AddCommandParameter(cmd, "{{prop.SqlName}}", parameters.{{ prop.CSPropertyName }}, ParameterDirection.{{ prop.ParameterDirection }});{{end}}{{ end }}{{
+	{{else}}this.AddCommandParameter(cmd, "{{prop.SqlName}}", parameters.{{ prop.CSPropertyName }}{{if prop.DefaultIfRequired}} ?? {{prop.DefaultIfRequired}}{{end}}, ParameterDirection.{{ prop.ParameterDirection }}{{if prop.SizeIfRequired}}, size: {{prop.SizeIfRequired}}{{end}});{{end}}{{ end }}{{
 	for rp in ReplaceParameters}}
 	this.AddCommandParameter(cmd, "{{rp.Key}}", {{rp.Value}});{{end}}
 }
