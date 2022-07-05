@@ -1,6 +1,11 @@
 {
   "profiles": {
-    "DbAccessCodeGen": {
+    "Test": {
+      "commandName": "Project",
+      "commandLineArgs": "-c DbCodeGenConfig.yml",
+      "workingDirectory": "C:\\Projects\\Github\\DbAccessCodeGen\\DbCode.Test"
+    },
+    "VP": {
       "commandName": "Project",
       "commandLineArgs": "-c DbCodeGenConfig.yml -l Information",
       "workingDirectory": "C:\\Projects\\P1096\\DistributionPlan\\DistributionPlan.Entities"

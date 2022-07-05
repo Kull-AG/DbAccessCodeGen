@@ -30,14 +30,14 @@ private void {{MethodName}}_PrepareCommand(DbCommand cmd{{if ParameterTypeName}}
 }
 {{if GenerateAsyncStreamCode}}
 {{if ParameterTypeName}}
-public {{FullStreamAsyncResultType}} {{MethodName}}StreamAsync({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}, {{end}}CancellationToken cancellationToken = default)
+public {{FullStreamAsyncResultType}} {{MethodName}}StreamAsync({{ for prop in Parameters }}{{prop.CompleteNetType}} {{prop.ParameterName}}, {{end}}[System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
 {
 	return {{MethodName}}StreamAsync(new {{ParameterTypeName}}({{ for prop in Parameters }}{{prop.ParameterName}}: {{prop.ParameterName}}{{if !for.last}}, {{ end }}
 		{{end}}), cancellationToken);
 }
 {{end}}
 
-public async {{FullStreamAsyncResultType}} {{MethodName}}StreamAsync({{if ParameterTypeName}} {{ParameterTypeName}} parameters{{end}}, CancellationToken cancellationToken = default)
+public async {{FullStreamAsyncResultType}} {{MethodName}}StreamAsync({{if ParameterTypeName}} {{ParameterTypeName}} parameters{{end}},[System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
 {
     using var cmd = connection.CreateCommand();
 	await SetupConnectionAsync(cancellationToken);
@@ -53,7 +53,7 @@ public async {{FullStreamAsyncResultType}} {{MethodName}}StreamAsync({{if Parame
 	var returnPrm = AddCommandParameter(cmd, "__returnvalue", 0, ParameterDirection.ReturnValue);
 	int affectedRows = await cmd.ExecuteNonQueryAsync(cancellationToken); 
 	int returnValue = (int)returnPrm.Value!;
-	{{else}}{{if ResultFields}}
+	{{else}}{{if ReturnResult}}
 	var ordinals = new {{MethodName}}Ordinals(
 		{{ for prop in ResultFields }}{{prop.ParameterName}}: rdr.GetOrdinal("{{prop.SqlName}}") {{if !for.last}}, {{ end }}{{ end }}
 	);
@@ -62,14 +62,14 @@ public async {{FullStreamAsyncResultType}} {{MethodName}}StreamAsync({{if Parame
 	{{end}}
 	while(await rdr.ReadAsync(cancellationToken))
 	{
-		{{if ResultFields}}yield return {{MethodName}}_FromRecord(rdr, ordinals);
+		{{if ReturnResult}}yield return {{MethodName}}_FromRecord(rdr, ordinals);
 		{{else}}yield return ReadDictionary(rdr, fieldCount);{{end}}
 	}{{end}}
 	OnCommandEnd(cmd, start);{{if ExecuteOnly}}
 	return (affectedRows,returnValue);{{end}}
 }
 {{end}}
-{{if (GenerateSyncCode || GenerateAsyncCode) && ResultFields && !ExecuteOnly}} 
+{{if (GenerateSyncCode || GenerateAsyncCode) && ReturnResult && !ExecuteOnly}} 
 private {{FullSyncResultType}} {{MethodName}}_FromReader(DbDataReader rdr)
 {
 	if (!rdr.HasRows) 
@@ -107,8 +107,9 @@ public {{FullSyncResultType}} {{MethodName}}({{if ParameterTypeName}}{{Parameter
 	OnCommandEnd(cmd, start);
 	return (affectedRows, returnValue);{{else}}
 	var rdr = cmd.ExecuteReader();
-	var dt = {{if ResultFields}}{{MethodName}}_FromReader(rdr){{else}}DictionaryFromReader(rdr){{end}};
-	return AfterEnumerable(dt, () => OnCommandEnd(cmd, start), cmd, rdr);{{end}}
+	{{if ReturnReader}}return rdr;{{else}}
+	var dt = {{if ReturnResult}}{{MethodName}}_FromReader(rdr){{else}}DictionaryFromReader(rdr){{end}};
+	return AfterEnumerable(dt, () => OnCommandEnd(cmd, start), cmd, rdr);{{end}}{{end}}
 }
 {{end}}
 
@@ -134,7 +135,8 @@ public async {{FullAsyncResultType}} {{MethodName}}Async({{if ParameterTypeName}
 	OnCommandEnd(cmd, start);
 	return (affectedRows, returnValue);{{else}}
 	var rdr = await cmd.ExecuteReaderAsync(cancellationToken);
-	var dt = {{if ResultFields}}{{MethodName}}_FromReader(rdr){{else}}DictionaryFromReader(rdr){{end}};
-	return AfterEnumerable(dt, () => OnCommandEnd(cmd, start), cmd, rdr);{{end}}
+	{{if ReturnReader}}return rdr;{{else}}
+	var dt = {{if ReturnResult }}{{MethodName}}_FromReader(rdr){{else}}DictionaryFromReader(rdr){{end}};
+	return AfterEnumerable(dt, () => OnCommandEnd(cmd, start), cmd, rdr);{{end}}{{end}}
 }
 {{end}}

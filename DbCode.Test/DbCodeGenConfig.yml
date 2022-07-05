@@ -37,3 +37,7 @@ Items:
    ExecuteParameters:
         testId: 1
  - View: dbo.Pets
+ - SP: spReturnAsDict
+   ResultType: Dictionary
+ - SP: spReturnAsReader
+   ResultType: Reader

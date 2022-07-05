@@ -75,7 +75,7 @@ namespace DbAccessCodeGen.CodeGen
             codeGenHandler.CleanupDirectory();
             string resultSummary = "Summary for results not from Metadata: ";
             bool hasSome = false;
-            foreach (var i in results.SelectMany(s => s).Where(s => !s.ExecuteOnly && s.FieldSource != ResultSource.Metadata).GroupBy(s => s.FieldSource))
+            foreach (var i in results.SelectMany(s => s).Where(s => s.DBOperationResultType == DBOperationResultType.Result && s.FieldSource != ResultSource.Metadata).GroupBy(s => s.FieldSource))
             {
                 hasSome = true;
                 var dt = i.ToArray();
@@ -153,7 +153,7 @@ namespace DbAccessCodeGen.CodeGen
                                 .ToArray();
                         try
                         {
-                            var result = sp.ExecuteOnly ? (source: ResultSource.None, result: Array.Empty<SqlFieldDescription>()) :
+                            var result = sp.ResultType != DBOperationResultType.Result ? (source: ResultSource.None, result: Array.Empty<SqlFieldDescription>()) :
                                 await this.sqlHelper.GetResultSet2(con, sp.DBObjectName, sp.DBObjectType, settings.PersistResultPath, sp.ExecuteParameters);
                             
                             writeTasks.Add(toWriteTo.WriteAsync(new DbOperationMetadata(name: sp.DBObjectName,
@@ -161,7 +161,7 @@ namespace DbAccessCodeGen.CodeGen
                                 parameters: toUsePrm,
                                     replaceParameters: replaceParaemeters,
                                    fields: result.result,
-                                   executeOnly: sp.ExecuteOnly,
+                                   dBOperationResultType: sp.ResultType,
                                   fieldSource: result.source,
                                    resultType: namingHandler.GetResultTypeName(sp.DBObjectName, sp.DBObjectType, sp.MethodName),
                                    parameterTypeName: namingHandler.GetParameterTypeName(sp.DBObjectName, sp.MethodName),
@@ -176,7 +176,7 @@ namespace DbAccessCodeGen.CodeGen
                                 dBObjectType: sp.DBObjectType,
                                 parameters: toUsePrm,
                                   fields: new SqlFieldDescription[] { },
-                                  executeOnly: false,
+                                  dBOperationResultType: sp.ResultType,
                                   fieldSource: ResultSource.None,
                                   replaceParameters: replaceParaemeters,
                                   resultType: namingHandler.GetResultTypeName(sp.DBObjectName, sp.DBObjectType, sp.MethodName),

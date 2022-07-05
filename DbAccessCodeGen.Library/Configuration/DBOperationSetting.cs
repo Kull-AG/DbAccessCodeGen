@@ -6,6 +6,14 @@ using System.Linq;
 
 namespace DbAccessCodeGen.Configuration
 {
+    public enum DBOperationResultType
+    {
+        Result=1,
+        AffectedRows=2,
+        Reader=3,
+        Dictionary=4
+    }
+
     public partial class DBOperationSetting
     {
         public DBOperationSetting(string dbObjectName,
@@ -41,7 +49,8 @@ namespace DbAccessCodeGen.Configuration
         public bool? GenerateAsyncStreamCode { get; init; } = null;
         public bool? GenerateSyncCode { get; init; } = null;
 
-        public bool ExecuteOnly { get; set; } = false;
+        public DBOperationResultType ResultType { get; init; } = DBOperationResultType.Result;
+
 
         public static DBOperationSetting FromObject(object obj)
         {
@@ -89,7 +98,8 @@ namespace DbAccessCodeGen.Configuration
                     ReplaceParameters = replaceParameters,
                     CustomTypeMappings = os.GetOrThrow<IReadOnlyDictionary<string, string>?>(nameof(CustomTypeMappings), null),
                     IgnoreFields = os.GetOrThrow<IReadOnlyCollection<string>?>(nameof(IgnoreFields), null),
-                    ExecuteOnly = os.GetOrThrow<bool>(nameof(ExecuteOnly), false)
+                    ResultType = os.GetOrThrow<bool>("ExecuteOnly", false) ? DBOperationResultType.AffectedRows
+                        : os.GetOrThrow<DBOperationResultType>("ResultType", DBOperationResultType.Result)
             };
             }
             if (obj is string s)

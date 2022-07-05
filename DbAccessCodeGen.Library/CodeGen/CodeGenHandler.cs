@@ -106,6 +106,63 @@ namespace DbAccessCodeGen.CodeGen
             return TemplateRetrieval.GetTemplate(name);
         }
 
+        enum CodeGenerationType { Sync, Async, StreamAsync }
+
+        private string GetFullResultType(DBOperationResultType dBOperationResultType, CodeGenerationType codeGenerationType, Identifier baseResultType)
+        {
+            if (dBOperationResultType == DBOperationResultType.AffectedRows)
+            {
+                string resType = "(int AffectedRows, int ReturnValue)";
+                if (codeGenerationType == CodeGenerationType.Sync)
+                {
+                    return resType;
+                }
+                else
+                {
+                    return "Task<" + resType + ">";
+                }
+            }
+            else if (dBOperationResultType == DBOperationResultType.Result)
+            {
+                switch (codeGenerationType)
+                {
+                    case CodeGenerationType.Sync:
+                        return $"IEnumerable<{baseResultType}>";
+                    case CodeGenerationType.Async:
+                        return $"Task<IEnumerable<{baseResultType}>>";
+                    case CodeGenerationType.StreamAsync:
+                        return $"IAsyncEnumerable<{baseResultType}>";
+                    default:
+                        break;
+                }
+            }
+            else if (dBOperationResultType == DBOperationResultType.Reader)
+            {
+                string resType = "DbDataReader";
+                if (codeGenerationType == CodeGenerationType.Sync)
+                {
+                    return resType;
+                }
+                else
+                {
+                    return "Task<" + resType + ">";
+                }
+            }
+            else if (dBOperationResultType == DBOperationResultType.Dictionary)
+            {
+                string resType = "IEnumerable<Dictionary<string, object?>>";
+                if (codeGenerationType == CodeGenerationType.Sync)
+                {
+                    return resType;
+                }
+                else
+                {
+                    return "Task<" + resType + ">";
+                }
+            }
+            throw new InvalidOperationException("Cannot generate code");
+        }
+
         public async Task ExecuteCodeGen(DbOperationMetadata codeGenPrm, ChannelWriter<(string name, string template)> methods)
         {
             ReadTemplates();
@@ -178,19 +235,47 @@ namespace DbAccessCodeGen.CodeGen
                 CommandType = codeGenPrm.CommandType,
                 ParameterTypeName = codeGenPrm.ParameterTypeName,
                 ReplaceParameters = codeGenPrm.ReplaceParameters,
-                GenerateAsyncCode = codeGenPrm.Settings.GenerateAsyncCode ?? settings.GenerateAsyncCode,
+                GenerateAsyncCode = GetRealAsyncType(codeGenPrm.Settings.GenerateAsyncStreamCode ?? settings.GenerateAsyncStreamCode, codeGenPrm.Settings.GenerateAsyncCode ?? settings.GenerateAsyncCode, CodeGenerationType.Async, codeGenPrm.Settings.ResultType),
                 GenerateSyncCode = codeGenPrm.Settings.GenerateSyncCode ?? settings.GenerateSyncCode,
-                GenerateAsyncStreamCode = codeGenPrm.Settings.GenerateAsyncStreamCode ?? settings.GenerateAsyncStreamCode,
-                ExecuteOnly = codeGenPrm.Settings.ExecuteOnly,
-                FullStreamAsyncResultType = codeGenPrm.Settings.ExecuteOnly ? "Task<(int AffectedRows, int ReturnValue)>" : (codeGenPrm.ResultType == null ? null : $"IAsyncEnumerable<{codeGenPrm.ResultType}>"),
-                FullAsyncResultType = codeGenPrm.Settings.ExecuteOnly ? "Task<(int AffectedRows, int ReturnValue)>" : (codeGenPrm.ResultType == null ? null : $"Task<IEnumerable<{codeGenPrm.ResultType}>>"),
-                FullSyncResultType = codeGenPrm.Settings.ExecuteOnly ? "(int AffectedRows, int ReturnValue)" : (codeGenPrm.ResultType == null ? null : $"IEnumerable<{codeGenPrm.ResultType}>"),
+                GenerateAsyncStreamCode = GetRealAsyncType(codeGenPrm.Settings.GenerateAsyncStreamCode ?? settings.GenerateAsyncStreamCode, codeGenPrm.Settings.GenerateAsyncCode ?? settings.GenerateAsyncCode, CodeGenerationType.StreamAsync, codeGenPrm.Settings.ResultType),
+                ExecuteOnly = codeGenPrm.Settings.ResultType == DBOperationResultType.AffectedRows,
+                ReturnResult =
+                    codeGenPrm.Settings.ResultType == DBOperationResultType.Result && (resultModel?.Properties?.Count ?? 0) > 0,
+                ReturnReader = codeGenPrm.Settings.ResultType == DBOperationResultType.Reader,
+                OperationResultType = codeGenPrm.Settings.ResultType,
+                FullStreamAsyncResultType = GetFullResultType(codeGenPrm.Settings.ResultType, CodeGenerationType.StreamAsync, codeGenPrm.ResultType),
+                FullAsyncResultType = GetFullResultType(codeGenPrm.Settings.ResultType, CodeGenerationType.Async, codeGenPrm.ResultType),
+                FullSyncResultType = GetFullResultType(codeGenPrm.Settings.ResultType, CodeGenerationType.Sync, codeGenPrm.ResultType),
 
             }, memberRenamer: member => member.Name);
             serviceMethod = serviceMethod.Replace("\t", "    ");
             serviceMethod = string.Join("\r\n", serviceMethod.Split("\r\n").Select(s => "        " + s));
             await methods.WriteAsync((codeGenPrm.MethodName, serviceMethod));
             logger.LogDebug($"Finished Generate code for {codeGenPrm.SqlName}");
+        }
+
+        private bool GetRealAsyncType(bool asyncStreamCode, bool asyncCode, CodeGenerationType codeGenType, DBOperationResultType resultType)
+        {
+            if (resultType == DBOperationResultType.AffectedRows || resultType == DBOperationResultType.Reader || resultType == DBOperationResultType.Dictionary)
+            {//Stream async makes no sense for these result types, therefore map them to Async
+                if (codeGenType == CodeGenerationType.Async)
+                {
+                    return asyncCode||asyncStreamCode;
+                }
+                if (codeGenType == CodeGenerationType.StreamAsync)
+                {
+                    return false;
+                }
+            }
+            if (codeGenType == CodeGenerationType.Async)
+            {
+                return asyncCode;
+            }
+            if (codeGenType == CodeGenerationType.StreamAsync)
+            {
+                return asyncStreamCode;
+            }
+            throw new InvalidOperationException("not supported");
         }
 
         private (string, string) GetPaths(Identifier name, bool createDir)
@@ -216,6 +301,7 @@ namespace DbAccessCodeGen.CodeGen
             SortedDictionary<string, string> allMethods = new SortedDictionary<string, string>(); ;
             await foreach ((string name, string template) in methods.ReadAllAsync())
             {
+
                 allMethods.Add(name, template);
             };
             string methodsString = string.Join("\r\n\r\n", allMethods.Select(k => k.Value));

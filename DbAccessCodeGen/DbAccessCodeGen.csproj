@@ -8,7 +8,7 @@
 		<PackageOutputPath>./nupkg</PackageOutputPath>
 		<RunWorkingDirectory>$(MSBuildProjectDirectory)</RunWorkingDirectory>
 		<Nullable>Enable</Nullable>
-		<Version>0.6.3-beta5</Version>
+		<Version>0.7.0</Version>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<RepositoryURL>https://github.com/aersamkull/DbAccessCodeGen</RepositoryURL>
 	</PropertyGroup>

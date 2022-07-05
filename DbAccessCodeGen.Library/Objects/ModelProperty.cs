@@ -56,6 +56,10 @@ namespace DbAccessCodeGen.Objects
                 {
                     DefaultIfRequired = "\"\"";
                 }
+                if (sqlType.NetType == typeof(byte[]))
+                {
+                    DefaultIfRequired = "Array.Empty<byte>()";
+                }
                 else if (sqlType.JsType == "number" || sqlType.JsType == "integer" || sqlType.JsType == "float")
                 {
                     DefaultIfRequired = "0";

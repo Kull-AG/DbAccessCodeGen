@@ -174,3 +174,18 @@ AS
 BEGIN
 	RETURN 1;
 END
+GO
+
+CREATE PROCEDURE dbo.spReturnAsDict
+AS
+BEGIN
+	SELECT 'hallo' AS Test
+END
+GO
+
+CREATE PROCEDURE dbo.spReturnAsReader
+AS
+BEGIN
+	SELECT 'hallo' AS Test
+END
+GO

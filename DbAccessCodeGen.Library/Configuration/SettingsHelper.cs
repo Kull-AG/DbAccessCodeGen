@@ -10,6 +10,11 @@ namespace DbAccessCodeGen.Configuration
     {
         private static bool HandleSpecialCases<T>(object vl, out T? output)
         {
+            if(typeof(T).IsEnum && vl is string s)
+            {
+                output = (T)Enum.Parse(typeof(T), s);
+                return true;
+            }
             if (typeof(T) == typeof(IReadOnlyDictionary<string, string>))
             {
                 if (vl is IReadOnlyDictionary<string, object> orr)

@@ -12,7 +12,6 @@ namespace DbAccessCodeGen.Objects
         public IReadOnlyCollection<SPParameter> Parameters { get; }
         public IReadOnlyDictionary<string, string> ReplaceParameters { get; }
         public ResultSource FieldSource { get; }
-        public bool ExecuteOnly { get; }
         public IReadOnlyCollection<SqlFieldDescription>? ResultFields { get; }
 
 
@@ -30,17 +29,19 @@ namespace DbAccessCodeGen.Objects
         
         public DBOperationSetting Settings {get;}
 
+        public DBOperationResultType DBOperationResultType { get; }
+
         public DbOperationMetadata(DBObjectName name,
                 DBObjectType dBObjectType, 
                 IReadOnlyCollection<SPParameter> parameters,
                 IReadOnlyDictionary<string, string> replaceParameters,
                 ResultSource fieldSource,
             IReadOnlyCollection<SqlFieldDescription> fields,
-            bool executeOnly,
                 string methodName,
                 Identifier resultType,
                 Identifier parameterTypeName,
-                DBOperationSetting setting)
+                DBOperationSetting setting,
+                DBOperationResultType dBOperationResultType)
         {
             this.CommandType = dBObjectType == DBObjectType.StoredProcedure ?
                     "CommandType.StoredProcedure":
@@ -51,7 +52,7 @@ namespace DbAccessCodeGen.Objects
             this.Parameters = parameters;
             this.ReplaceParameters = replaceParameters;
             FieldSource = fieldSource;
-            ExecuteOnly = executeOnly;
+            DBOperationResultType = dBOperationResultType;
             this.ResultFields = fields.Count(f => f.Name != null) == 0 ? null : fields;
             if(setting.IgnoreFields != null && this.ResultFields != null)
             {

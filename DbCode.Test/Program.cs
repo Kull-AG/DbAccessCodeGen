@@ -54,6 +54,20 @@ namespace DbCode.Test
                 Console.Error.WriteLine("FAILED TEST for GetPets");
                 Environment.ExitCode = -2;
             }
+            string test = (string)dba.spReturnAsDict().ToArray().Single()["Test"];
+            if(test != "hallo")
+            {
+                Console.Error.WriteLine("FAILED TEST for spReturnAsDict");
+                Environment.ExitCode = -2;
+            }
+            using var rdr = dba.spReturnAsReader();
+            rdr.Read();
+            string test2 = rdr.GetString(rdr.GetOrdinal("Test"));
+            if (test2 != "hallo")
+            {
+                Console.Error.WriteLine("FAILED TEST for spReturnAsReader");
+                Environment.ExitCode = -2;
+            }
         }
     }
 }
