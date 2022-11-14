@@ -206,7 +206,7 @@ namespace DbAccessCodeGen
             System.IO.File.WriteAllText(configFilePath, template);
 
             var runTool = @"dotnet tool restore
-dotnet tool run dbcodegen -c DbCodeGenConfig.yml";
+dotnet tool run dbcodegen -- -c DbCodeGenConfig.yml";
             var path = System.IO.Path.GetDirectoryName(configFilePath)!;
             System.IO.File.WriteAllText(Path.Combine(path, "rundbcodegen.bat"), runTool, System.Text.Encoding.ASCII);
             System.IO.File.WriteAllText(Path.Combine(path, "rundbcodegen.sh"), runTool, System.Text.Encoding.ASCII);
@@ -285,11 +285,11 @@ dotnet tool run dbcodegen -c DbCodeGenConfig.yml";
 
         }
 
-        public static Task ExecuteCodeGen(Configuration.Settings settings, LogLevel logLevel)
+        public static async Task ExecuteCodeGen(Configuration.Settings settings, LogLevel logLevel)
         {
-            var sp = RegisterServices(settings, logLevel);
+            using var sp = RegisterServices(settings, logLevel);
             var executor = sp.GetRequiredService<CodeGen.Executor>();
-            return executor.Execute();
+            await executor.Execute();
         }
     }
 }

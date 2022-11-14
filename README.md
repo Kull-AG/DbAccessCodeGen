@@ -26,7 +26,7 @@ dotnet tool install DbAccessCodeGen
 
 [![NuGet Badge](https://buildstats.info/nuget/DbAccessCodeGen)](https://www.nuget.org/packages/DbAccessCodeGen/)
 
-Run `dotnet tool run dbcodegen init` or manually create a file called DbCodeGenConfig.yml and configure your must important settings:
+Run `dotnet tool run dbcodegen -- init` or manually create a file called DbCodeGenConfig.yml and configure your must important settings:
 
 ```yaml
 ---
@@ -62,7 +62,7 @@ Items:
 The template dir allows you to overwrite the templates used, the default ones are in the [DbAccessCodeGen/Templates](DbAccessCodeGen/Templates) folder.
 
 You must provide the config location via -c / --config parameter, therefore a possible command looks like this:
-```dotnet tool run dbcodegen -c DbConfig.yml```
+```dotnet tool run dbcodegen -- -c DbConfig.yml```
 
 In Addition you have to provide a connection string somehow. One way is to just add "ConnectionString" to the Settings file above, the other way is to 
 use the --connectionString Parameter . Always be sure not to include credentials in a config if you should not
