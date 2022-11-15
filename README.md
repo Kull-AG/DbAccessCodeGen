@@ -34,9 +34,9 @@ GenerateAsyncCode: true # Generate Code that returns Task<IEnumerable<T>>
 GenerateStreamAsyncCode: false # Generate Code that returns IAsyncEnumerable<T>
 GenerateSyncCode: false # Generate Code that returns IEnumerable<T>
 TemplateDir: "./Templates"
-OutputDir: "../DbCode.Test/DbAccess"
+OutputDir: "./DbAccess"
 ServiceClassName: "DataEntities"
-Namespace: DbCode.Test
+Namespace: DbAccess
 Items:
 - bfm.spGetFinancialPeriods
 - bfm.spGetSaldo
@@ -59,7 +59,7 @@ Items:
 - View: dbo.V_TestView
 ```
 
-The template dir allows you to overwrite the templates used, the default ones are in the [DbAccessCodeGen/Templates](DbAccessCodeGen/Templates) folder.
+The template dir allows you to overwrite the templates used, the default ones are in the [DbAccessCodeGen/Templates](DbAccessCodeGen/DbAccessCodeGen.Library/Templates) folder.
 
 You must provide the config location via -c / --config parameter, therefore a possible command looks like this:
 ```dotnet tool run dbcodegen -- -c DbConfig.yml```
@@ -164,7 +164,7 @@ It depends a lot on your use case which one is better suited.
 ## Customization
 
 You can fully customize the Templates and the naming Convention. 
-To customize the templates, provide a TemplateDir in the Settings yaml and download [the Templates in the project](DbAccessCodeGen/Templates). There are three templates currently:
+To customize the templates, provide a TemplateDir in the Settings yaml and download [the Templates in the project](DbAccessCodeGen/DbAccessCodeGen.Library/Templates). There are three templates currently:
 
 - ModelFile: Code for a parameters/result class
 - ServiceMethod: Code for a single method in the Service class
