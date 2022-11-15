@@ -166,9 +166,11 @@ It depends a lot on your use case which one is better suited.
 You can fully customize the Templates and the naming Convention. 
 To customize the templates, provide a TemplateDir in the Settings yaml and download [the Templates in the project](DbAccessCodeGen.Library/Templates). There are three templates currently:
 
-- ModelFile: Code for a parameters/result class
-- ServiceMethod: Code for a single method in the Service class
-- ServiceClass: The service class itself.
+- ModelFile.scriban-cs: Code for a parameters/result class
+- ServiceMethod.scriban-cs: Code for a single method in the Service class
+- ServiceClass.scriban-cs: The service class itself.
+
+It's easiest to edit these files in VS Code with the [Scriban Extension](https://marketplace.visualstudio.com/items?itemName=xoofx.scriban) installed.
 
 The generated code does by default already expose two partial Methods you can use to customize things like Logging / Command Timeout etc:
 
