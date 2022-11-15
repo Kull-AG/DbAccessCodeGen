@@ -9,7 +9,7 @@ namespace DbAccessCodeGen.Templates
     {
         public static string GetTemplate(string name)
         {
-            if (!name.EndsWith(".scriban")) return GetTemplate(name + ".scriban");
+            if (!name.EndsWith(".scriban-cs")) return GetTemplate(name + ".scriban-cs");
             string[] names = typeof(TemplateRetrieval).Assembly.GetManifestResourceNames();
             using (var stream = typeof(TemplateRetrieval).Assembly.GetManifestResourceStream(names.Single(n=>n.EndsWith("." + name)))
                 ?? throw new ArgumentException("name not valid"))

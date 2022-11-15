@@ -9,20 +9,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Templates\DbCodeGenConfig.scriban" />
-    <None Remove="Templates\ModelFile.scriban" />
-    <None Remove="Templates\ServiceClass.scriban" />
-    <None Remove="Templates\ServiceMethod.scriban" />
+    <None Remove="Templates\DbCodeGenConfig.scriban-cs" />
+    <None Remove="Templates\ModelFile.scriban-cs" />
+    <None Remove="Templates\ServiceClass.scriban-cs" />
+    <None Remove="Templates\ServiceMethod.scriban-cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Templates\DbCodeGenConfig.scriban" />
-    <EmbeddedResource Include="Templates\ModelFile.scriban">
+    <EmbeddedResource Include="Templates\DbCodeGenConfig.scriban-cs" />
+    <EmbeddedResource Include="Templates\ModelFile.scriban-cs">
     </EmbeddedResource>
-    <EmbeddedResource Include="Templates\ServiceClass.scriban">
+    <EmbeddedResource Include="Templates\ServiceClass.scriban-cs">
 
     </EmbeddedResource>
-    <EmbeddedResource Include="Templates\ServiceMethod.scriban">
+    <EmbeddedResource Include="Templates\ServiceMethod.scriban-cs">
 
     </EmbeddedResource>
   </ItemGroup>
@@ -37,7 +37,7 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.2-mauipre.1.22102.15" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.2-mauipre.1.22102.15" />
-    <PackageReference Include="Scriban" Version="5.4.0" />
+    <PackageReference Include="scriban-cs" Version="5.4.0" />
     <PackageReference Include="YamlDotNet" Version="11.2.1" />
 </ItemGroup>
 </Project>

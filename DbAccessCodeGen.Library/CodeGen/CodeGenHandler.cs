@@ -100,7 +100,7 @@ namespace DbAccessCodeGen.CodeGen
         private string GetTemplate(string name)
         {
             var folderPath = settings.TemplateDir == null ? "Templates" : settings.TemplateDir;
-            string fullName = System.IO.Path.Combine(folderPath, name + ".cs.scriban");
+            string fullName = System.IO.Path.Combine(folderPath, name + ".scriban-cs");
             if (System.IO.File.Exists(fullName))
                 return System.IO.File.ReadAllText(fullName);
             return TemplateRetrieval.GetTemplate(name);

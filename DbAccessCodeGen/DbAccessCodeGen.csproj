@@ -32,13 +32,6 @@
 	<ItemGroup>
 		<ProjectReference Include="..\DbAccessCodeGen.Library\DbAccessCodeGen.Library.csproj" />
 	</ItemGroup>
-
-	<ItemGroup>
-		<None Update="Templates\ModelFile.cs.scriban">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
-
 	<ItemGroup>
 		<Folder Include="Init\" />
 	</ItemGroup>
