@@ -13,7 +13,7 @@ namespace DbCode.Test
             if (!DbProviderFactories.TryGetFactory("Microsoft.Data.SqlClient", out var _))
                 DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", Microsoft.Data.SqlClient.SqlClientFactory.Instance);
 #endif
-            string conStr = "Server=(LocalDB)\\MSSQLLocalDB; Integrated Security=true;Initial Catalog=CodeGenTestDb;MultipleActiveResultSets=true";
+            string conStr = "Server=127.0.0.1;user id=sa;password=abcDEF123#;Initial Catalog=CodeGenTestDb;MultipleActiveResultSets=true;TrustServerCertificate=True;";
 
             var props = typeof(spGetPetsResult).GetProperties(System.Reflection.BindingFlags.GetProperty | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
                 .Select(s => s.Name).ToArray();

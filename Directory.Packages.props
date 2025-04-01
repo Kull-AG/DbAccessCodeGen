@@ -1,0 +1,30 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+    <NoWarn>$(NoWarn);NU1507</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="CliWrap" Version="3.4.1" />
+    <PackageVersion Include="coverlet.collector" Version="3.1.2" />
+    <PackageVersion Include="Jint" Version="3.0.0-beta-2037" />
+    <PackageVersion Include="Kull.Data" Version="8.0.1" />
+    <PackageVersion Include="Kull.DatabaseMetadata" Version="1.7.0" />
+    <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.2-mauipre.1.22102.15" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.1.0-3.final" />
+    <PackageVersion Include="Microsoft.Data.SqlClient" Version="4.1.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.FileProviders.Embedded" Version="6.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="8.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.2.0-preview-20220131-20" />
+    <PackageVersion Include="Mono.Options" Version="6.12.0.148" />
+    <PackageVersion Include="MSTest.TestAdapter" Version="2.2.9-preview-20220210-07" />
+    <PackageVersion Include="MSTest.TestFramework" Version="2.2.9-preview-20220210-07" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageVersion Include="Scriban" Version="5.4.0" />
+    <PackageVersion Include="System.Linq.Async" Version="6.0.1" />
+    <PackageVersion Include="YamlDotNet" Version="11.2.1" />
+  </ItemGroup>
+</Project>

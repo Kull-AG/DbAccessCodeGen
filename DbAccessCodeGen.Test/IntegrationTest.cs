@@ -68,7 +68,7 @@ namespace DbAccessCodeGen.Test
         {
             var solutionDir = GetSolutionDir();
 
-            await ExecuteAndAssertSuccess(Path.Combine(solutionDir, "DbCode.Test"), 60, Path.Combine(solutionDir, "DbAccessCodeGen/bin/Debug/net6/DbAccessCodeGen.exe"),
+            await ExecuteAndAssertSuccess(Path.Combine(solutionDir, "DbCode.Test"), 60, Path.Combine(solutionDir, "DbAccessCodeGen/bin/Debug/net8.0/DbAccessCodeGen.exe"),
                 "-c", "DbCodeGenConfig.yml");
         }
 
@@ -85,7 +85,7 @@ namespace DbAccessCodeGen.Test
         {
             var solutionDir = GetSolutionDir();
 
-            await ExecuteAndAssertSuccess(Path.Combine(solutionDir, "DbCode.Test"), 60, "dotnet", "run", "--framework", "netcoreapp3.1");
+            await ExecuteAndAssertSuccess(Path.Combine(solutionDir, "DbCode.Test"), 60, "dotnet", "run", "--framework", "net8.0");
         }
 
 
@@ -110,8 +110,16 @@ namespace DbAccessCodeGen.Test
                 }))
                 .WithStandardErrorPipe(PipeTarget.ToDelegate(h =>
                 {
+                    if (
+                    //remove logs from the container
+                        (h.Contains("Network dbcodetest_default") == false) 
+                        && (h.Contains("Container dbcodetest-sql-server-test-1") == false)
+                        && (h.Contains("docker-compose.yml") == false)
+                    )
+                    {                     
+                        lines.Add(h);
+                    }
                     TestContext.WriteLine("ERROR: " + h);
-                    lines.Add(h);
                 }))
                 .WithValidation(CommandResultValidation.None); // We validate our-selves
             var cts = new CancellationTokenSource();
