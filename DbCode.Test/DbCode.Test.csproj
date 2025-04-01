@@ -1,24 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net48;netstandard2.1;netcoreapp3.1</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
     <Nullable>Enable</Nullable>
   </PropertyGroup>
-
   <ItemGroup>
     <Content Include=".config\dotnet-tools.json" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.2-mauipre.1.22102.15" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0" />
-
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="System.Linq.Async" />
   </ItemGroup>
-
   <ItemGroup>
     <None Update="DbCodeGenConfig.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -27,9 +22,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
   <ItemGroup>
     <Folder Include="Utils\" />
   </ItemGroup>
-
 </Project>
