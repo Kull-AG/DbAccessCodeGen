@@ -9,6 +9,6 @@
     "Name": "Name",
     "TypeName": "nvarchar",
     "IsNullable": true,
-    "MaxLength": 4000
+    "MaxLength": 1000
   }
 ]

@@ -1,7 +1,8 @@
-﻿docker-compose up -d
+﻿docker-compose up -d  > $null #remove status entries
 
+Start-Sleep -Seconds 20 
 
-$server = "localhost,1433"
+$server = "127.0.0.1"
 $user = "sa"
 $pw = "abcDEF123#"
 $db = "CodeGenTestDb"
@@ -33,9 +34,10 @@ else {
 }
 if($createNewDb) {
     Write-Host "recreate db"
-    & "sqlcmd" -S  $server -U $user -P $pw -d master -Q "DROP DATABASE $db"
+    & "sqlcmd" -S  $server -U $user -P $pw -d master -Q "DROP DATABASE IF EXISTS $db"
     & "sqlcmd" -S  $server -U $user -P $pw -d master -Q "CREATE DATABASE $db"
-    & "sqlcmd" -i "$PSScriptRoot\sqlscript.sql" -S $server -d $db -v DbVersion=1
+    & "sqlcmd" -i "$PSScriptRoot\sqlscript.sql" -S $server -U $user -P $pw -d $db -v DbVersion=1
 }
 
-docker-compose down -f
+#destroy the container
+#docker-compose down

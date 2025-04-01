@@ -5,7 +5,7 @@ NamingJS: "naming.js"
 GenerateAsyncCode: true
 GenerateAsyncStreamCode: false
 GenerateSyncCode: true
-ConnectionString: "Server=(LocalDB)\\MSSQLLocalDB; Integrated Security=true;Initial Catalog=CodeGenTestDb;MultipleActiveResultSets=true"
+ConnectionString: "Server=127.0.0.1;user id=sa;password=abcDEF123#;Initial Catalog=CodeGenTestDb;MultipleActiveResultSets=true;TrustServerCertificate=True;"
 ReplaceParameters:
    DateOfTool: DateTime.Now
 Items:

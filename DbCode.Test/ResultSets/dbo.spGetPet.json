@@ -27,6 +27,6 @@
     "Name": "ts",
     "TypeName": "timestamp",
     "IsNullable": false,
-    "MaxLength": null
+    "MaxLength": 8
   }
 ]
