@@ -26,6 +26,8 @@ dotnet tool install DbAccessCodeGen
 
 [![NuGet Badge](https://buildstats.info/nuget/DbAccessCodeGen)](https://www.nuget.org/packages/DbAccessCodeGen/)
 
+[![NuGet Badge](https://buildstats.info/nuget/DbAccessCodeGen)](https://www.nuget.org/packages/Kull.DbAccessCodeGen)
+
 Run `dotnet tool run dbcodegen -- init` or manually create a file called DbCodeGenConfig.yml and configure your must important settings:
 
 ```yaml

@@ -3,11 +3,12 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <PackAsTool>true</PackAsTool>
+	<PackageId>Kull.DbAccessCodeGen</PackageId>
     <ToolCommandName>dbcodegen</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
     <RunWorkingDirectory>$(MSBuildProjectDirectory)</RunWorkingDirectory>
     <Nullable>Enable</Nullable>
-    <Version>0.7.1</Version>
+    <Version>0.8.0</Version>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryURL>https://github.com/aersamkull/DbAccessCodeGen</RepositoryURL>
   </PropertyGroup>
