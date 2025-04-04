@@ -9,7 +9,7 @@ ConnectionString: "Server=127.0.0.1;user id=sa;password=abcDEF123#;Initial Catal
 ReplaceParameters:
    DateOfTool: DateTime.Now
 Items:
- - SP: dbo.spGetPets
+ - SP: "[dbo].[spGetPets]"
    IgnoreParameters: 
      - ParameterNoOneLikes
    IgnoreFields:
@@ -41,3 +41,9 @@ Items:
    ResultType: Dictionary
  - SP: spReturnAsReader
    ResultType: Reader
+ - SP:
+   ResultType: Result
+   SpecificDBNaming: 
+    DBSchemaName: Sales.DataDelivery
+    DBObjectName: spReturnDataDelivery
+   

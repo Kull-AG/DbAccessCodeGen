@@ -47,8 +47,8 @@ namespace DbAccessCodeGen.Objects
                     "CommandType.StoredProcedure":
                     "CommandType.Text";
             this.CommandText = dBObjectType == DBObjectType.StoredProcedure ?
-                    name.ToString(false, true) : "SELECT * FROM " + name.ToString(false, true);
-            this.SqlName = name;
+                    AddSquareBracket(name) : "SELECT * FROM " + name.ToString(false, true);
+            this.SqlName = dBObjectType== DBObjectType.StoredProcedure ? AddSquareBracket(name): name ;
             this.Parameters = parameters;
             this.ReplaceParameters = replaceParameters;
             FieldSource = fieldSource;
@@ -62,6 +62,12 @@ namespace DbAccessCodeGen.Objects
             this.ResultType = fields.Count(f => f.Name != null) == 0 ? new Identifier("", "Dictionary<string, object?>") : resultType;
             this.ParameterTypeName = parameters.Count == 0 ? null : parameterTypeName;
             this.Settings = setting;
+        }
+
+
+        private static string AddSquareBracket(DBObjectName name)
+        {
+            return "["+name.Schema+"].["+name.Name+"]";
         }
     }
 

@@ -68,6 +68,13 @@ namespace DbCode.Test
                 Console.Error.WriteLine("FAILED TEST for spReturnAsReader");
                 Environment.ExitCode = -2;
             }
+            //Testing with specific naming of sp
+            //string testSpecificNaming = (string)dba.spReturnDataDelivery().ToArray().Single()["Test"];
+            //if (test != "hallo")
+            //{
+            //    Console.Error.WriteLine("FAILED TEST for spReturnAsDict");
+            //    Environment.ExitCode = -2;
+            //}
         }
     }
 }
