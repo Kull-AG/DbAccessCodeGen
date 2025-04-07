@@ -3,7 +3,7 @@
     "Test": {
       "commandName": "Project",
       "commandLineArgs": "-c DbCodeGenConfig.yml",
-      "workingDirectory": "C:\\Projects\\Github\\DbAccessCodeGen\\DbCode.Test"
+      "workingDirectory": "D:\\Projects\\Kull\\GitHub\\DbAccessCodeGen\\DbCode.Test"
     },
     "VP": {
       "commandName": "Project",

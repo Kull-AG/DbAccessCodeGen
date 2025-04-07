@@ -2,6 +2,7 @@
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 
 namespace DbCode.Test
 {
@@ -66,6 +67,15 @@ namespace DbCode.Test
             if (test2 != "hallo")
             {
                 Console.Error.WriteLine("FAILED TEST for spReturnAsReader");
+                Environment.ExitCode = -2;
+            }
+
+            //Testing with specific naming of sp
+            var rdr2 = dba.spReturnDataDelivery().ToArray();
+            if (rdr2.Length != 1)
+            {
+                Console.Error.WriteLine("FAILED TEST for Sales.DataDelivery.spReturnDataDelivery");
+                Console.Error.WriteLine($"Count of entries {rdr2.Length}");
                 Environment.ExitCode = -2;
             }
         }
