@@ -59,6 +59,11 @@ Items:
 - SP: test.Company_Update
   ExecuteOnly: true # You do not expect results
 - View: dbo.V_TestView
+- SP:
+   ResultType: Result
+   SpecificDBNaming: 
+    DBSchemaName: Sales.DataDelivery # Specify schema name with whole name (no escaping)
+    DBObjectName: spReturnDataDelivery # Specify SP name with whole object name (no escaping)
 ```
 
 The template dir allows you to overwrite the templates used, the default ones are in the [DbAccessCodeGen/Templates](DbAccessCodeGen.Library/Templates) folder.
