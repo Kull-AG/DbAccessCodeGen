@@ -203,7 +203,7 @@ BEGIN
 		--geography::STGeomFromText('POINT(0 0)',4326) AS PetPosition Not Supported on .Net Core
 		-- see https://github.com/dotnet/SqlClient/issues/30
 	FROM dbo.Pets
-		WHERE IsNice=1 OR @OnlyNice=0
+		WHERE IsNice=1
 		ORDER BY PetId;
 END
 GO
